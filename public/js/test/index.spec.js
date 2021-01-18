@@ -1,12 +1,30 @@
 import { mount } from '@vue/test-utils'
-import Home from '../components/Home.vue'
+import App from '../components/App'
+import Welcome from '../components/Welcome'
+import Login from '../components/Login'
+import Register from '../components/Register'
+import Home from '../components/Home'
+import ResetPassword from '../components/ResetPassword'
+import CharacterBuilder from '../components/CharacterBuilder'
+import Chat from '../components/Chat'
+import Store from '../components/Store'
 
-test('it works', () => {
-  expect(1 + 1).toBe(2)
-})
+describe('my test suites', () => {
+	test.only('it works', () => {
+		expect(1 + 1).toBe(2)
+	})
 
-test('should mount without crashing', () => {
-  const wrapper = mount(Home)
+	test('it works 2', () => {
+		expect(1 + 2).toBe(3)
+	})
 
-  expect(wrapper).toMatchSnapshot()
-})
+	test('home should mount without crashing', () => {
+		const wrapper = mount(Home)
+		expect(wrapper).toMatchSnapshot()
+	})
+
+	test('store should mount without crashing', () => {
+		const wrapper = mount(Store)
+		expect(wrapper).toMatchSnapshot()
+	})
+});

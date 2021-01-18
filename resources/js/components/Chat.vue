@@ -43,9 +43,9 @@
 								</div>
 							</div>
 							<div class="row">
-								<div class="col d-flex">
-									<button v-on:click="writeReply($event)" v-bind:id="'reply' + post.post_id" type="button" class="btn btn-dark flex-fill w-50">Reply</button>
-									<button v-on:click="expandPost($event)" v-bind:id="'expand' + post.post_id" type="button" class="btn btn-dark flex-fill w-50">Expand</button>
+								<div class="col d-flex flex-row-reverse">
+									<button v-on:click="writeReply($event)" v-bind:id="'reply' + post.post_id" type="button" class="btn btn-dark w-25">Reply</button>
+									<button v-on:click="expandPost($event)" v-bind:id="'expand' + post.post_id" type="button" class="btn btn-dark w-25">Expand</button>
 								</div>
 							</div>
 						</div>
@@ -54,13 +54,20 @@
 			</div>
 		</section>
 		
-		<section class="row text-center mt-2">
-			<div id="postContainer" class="col text-center mt-2">
+		<section id="postBox" class="row text-center mt-2">
+			<div id="postContainer" class="fixed-bottom col text-center mt-2 mb-5">
 				<div class="col">
-					<form>
-						<textarea id="postSpace" rows="4" class="w-100"></textarea">
-						<button type="submit" @click.prevent="submitPost" class="btn btn-dark w-100">Make Post</button>
-					</form>
+					<div class="row">
+						<div class="col">
+							<form>
+								<textarea id="postSpace" rows="4" class="w-100"></textarea">
+							</form>
+						</div>
+					</div>
+					<div class="row d-flex flex-row-reverse">
+						<button type="submit" @click.prevent="submitPost" class="btn btn-dark w-25">Make Post</button>
+						<button v-on:click="togglePostMaker()" type="button" class="btn btn-dark w-25">Toggle</button>
+					</div>
 				</div>
 			</div>	
 		</section>
@@ -97,6 +104,9 @@
 			this.getPosts()
 		},
 		methods: {
+			togglePostMaker() {
+				
+			},
 			getPosts() {
 				Csrf.getCookie().then(() => {
 					User.getPosts({
@@ -289,4 +299,8 @@
 	}
 </script>
 <style scoped>
+	#postBox {
+		background-color: white;
+		opacity: .8;
+	}
 </style>
