@@ -82,9 +82,16 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
-	async cartAddItem(form, token) {
+	async addCartItem(form, token) {
 		await Csrf.getCookie();
-		return Api.post('/cartAddItem',form,{headers: {
+		return Api.post('/addCartItem',form,{headers: {
+			'Content-type' : 'application/json',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
+	async getCartItems(form, token) {
+		await Csrf.getCookie();
+		return Api.post('/getCartItems',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
 		}});

@@ -28,7 +28,7 @@
 			<div class="col">
 				<div v-if="!!posts" class="col-sm-12">
 					<div v-for="post in posts" v-bind:id="'post' + post.post_id" class="row">
-						<div class="float-none w-100">
+						<div class="float-none w-100 bg-secondary mb-3">
 							<div class="row">
 								<div class="col">
 									{{post.name}}
@@ -44,8 +44,8 @@
 							</div>
 							<div class="row">
 								<div class="col d-flex flex-row-reverse">
-									<button v-on:click="writeReply($event)" v-bind:id="'reply' + post.post_id" type="button" class="btn btn-dark w-25">Reply</button>
-									<button v-on:click="expandPost($event)" v-bind:id="'expand' + post.post_id" type="button" class="btn btn-dark w-25">Expand</button>
+									<button v-on:click="writeReply($event)" v-bind:id="'reply' + post.post_id" type="button" class="btn btn-dark w-15">Reply</button>
+									<button v-on:click="expandPost($event)" v-bind:id="'expand' + post.post_id" type="button" class="btn btn-dark w-15">Expand</button>
 								</div>
 							</div>
 						</div>
@@ -55,7 +55,7 @@
 		</section>
 		
 		<section id="postBox" class="row text-center mt-2">
-			<div id="postContainer" class="fixed-bottom col text-center mt-2 mb-5">
+			<div id="postContainer" class="fixed-bottom col text-center mt-2 mb-5 pt-2 pb-2 d-none">
 				<div class="col">
 					<div class="row">
 						<div class="col">
@@ -67,6 +67,14 @@
 					<div class="row d-flex flex-row-reverse">
 						<button type="submit" @click.prevent="submitPost" class="btn btn-dark w-25">Make Post</button>
 						<button v-on:click="togglePostMaker()" type="button" class="btn btn-dark w-25">Toggle</button>
+					</div>
+				</div>
+			</div>	
+			
+			<div id="postTogglerContainer" class="fixed-bottom col text-center mt-2 mb-5 pt-2 pb-2">
+				<div class="col">
+					<div class="row d-flex">
+						<button v-on:click="togglePostMaker()" type="button" class="rounded-circle btn btn-dark w-25 border border-success">+</button>
 					</div>
 				</div>
 			</div>	
@@ -105,7 +113,8 @@
 		},
 		methods: {
 			togglePostMaker() {
-				
+				document.getElementById('postContainer').classList.toggle('d-none');
+				document.getElementById('postTogglerContainer').classList.toggle('d-none');
 			},
 			getPosts() {
 				Csrf.getCookie().then(() => {
@@ -299,8 +308,13 @@
 	}
 </script>
 <style scoped>
-	#postBox {
+	#postContainer {
 		background-color: white;
 		opacity: .8;
 	}
+	
+	.bg-secondary {
+		opacity: .7;
+	}
+	
 </style>

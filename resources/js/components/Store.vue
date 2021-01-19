@@ -28,7 +28,7 @@
 				</div>
 				
 				<section class="row text-center mt-5 mb-2">
-					<div class="col">
+					<div class="col" id="itemContainer">
 						<div v-if="!!items" class="col-sm-12">
 							<div v-for="item in items" v-bind:id="'item' + item.id" class="row bg-secondary mb-3">
 								<div class="float-none w-100">
@@ -73,24 +73,24 @@
 						<p>hi</p>
 						
 						<div v-if="!!cartItems" class="col-sm-12">
-							<div v-for="item in items" v-bind:id="'cartItem' + cartItem.item_id" class="row">
+							<div v-for="cartItem in cartItems" v-bind:id="'cartItem' + cartItem.id" class="row">
 								<div class="float-none w-100">
 									<div class="row">
 										<div class="col">
-											{{cartItem.name}}
+											Item name: {{cartItem.name}}
 										</div>
 										<div class="col">
-											{{cartItem.cost}}
+											Item Total: {{cartItem.price}}
 										</div>
 									</div>
 									<div class="row">
 										<div class="col">
-											{{cartItem.quantity}}
+											Item quantity: {{cartItem.quantity}}
 										</div>
 									</div>
 									<div class="row">
 										<div class="col d-flex">
-											<button v-on:click="checkOut($event)" v-bind:id="'item' + item.item_id" type="button" class="btn btn-dark flex-fill w-50">Checkout</button>
+											//remove cart item here
 										</div>
 									</div>
 								</div>
@@ -99,13 +99,13 @@
 					</div>
 				</div>
 				
-				<nav class="row fixed-bottom">
-					<div class="col d-flex">
-						<div class="w-100">
-							<button v-on:click="openCart()" type="button" class="btn btn-dark w-100">Cart</button>
+				<div class="row fixed-bottom">
+					<div class="col">
+						<div class="row d-flex">
+							<button id="cartButton" v-on:click="openCart();refreshCart();" type="button" class="ml-3 mb-1 rounded-circle btn btn-dark w-25 border border-success">Cart</button>
 						</div>	
 					</div>				
-				</nav>
+				</div>			
 			</div>	
 		</div>
     </div>
@@ -145,13 +145,38 @@
 				});
 			},
 			openCart() {
-				document.getElementById('cartContainer').className = 'float-none text-center mt-2';
+				document.getElementById('cartContainer').classList.toggle('d-none');
+				document.getElementById('itemContainer').classList.toggle('d-none');
+				let cartButton = document.getElementById('cartButton');
+				if(cartButton.innerText == 'Cart')
+					cartButton.innerText = 'Close';
+				else	
+					cartButton.innerText = 'Cart';
+			},
+			refreshCart() {
+				Csrf.getCookie().then(() => {
+					User.getCartItems({
+						_method: 'POST',
+						token: sessionStorage.getItem('token'),
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then(response => {
+						this.cartItems = response.data.cartItems;
+						console.log(response);
+						
+					})
+					.catch(error => {
+						console.log(error);
+					});
+				});
 			},
 			addToCart(event) {
 				let idText = event.target.id;
 				let itemId = idText.replace(/[^0-9]/g,'');
+				let quantity = document.getElementById('itemQuantity' + itemId).value;
 				Csrf.getCookie().then(() => {
-					User.addToCart({
+					User.addCartItem({
 						_method: 'POST',
 						token: sessionStorage.getItem('token'),
 						itemId: itemId,
@@ -160,6 +185,7 @@
 						sessionStorage.getItem('token')
 					)
 					.then(response => {
+						console.log(response);
 					})
 					.catch(error => {
 						console.log(error);
