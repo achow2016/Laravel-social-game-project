@@ -96,16 +96,16 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
-	async cartRemoveItem(form, token) {
+	async deleteCartItem(form, token) {
 		await Csrf.getCookie();
-		return Api.post('/cartRemoveItem',form,{headers: {
+		return Api.post('/deleteCartItem',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
-	async cartModifyItem(form, token) {
+	async updateCartItem(form, token) {
 		await Csrf.getCookie();
-		return Api.post('/cartModifyItem',form,{headers: {
+		return Api.post('/updateCartItem',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
 		}});

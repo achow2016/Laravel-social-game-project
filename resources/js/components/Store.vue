@@ -69,31 +69,39 @@
 				
 				<div id="cartContainer" class="float-none text-center mt-2 d-none">
 					<div class="col">
-					
-						<p>hi</p>
-						
-						<div v-if="!!cartItems" class="col-sm-12">
+						<div v-if="!!cartItems">
 							<div v-for="cartItem in cartItems" v-bind:id="'cartItem' + cartItem.id" class="row">
-								<div class="float-none w-100">
+								<div class="float-none w-100 bg-secondary mb-2">
 									<div class="row">
 										<div class="col">
-											Item name: {{cartItem.name}}
+											{{cartItem.name}}
 										</div>
-										<div class="col">
+										<div class="col text-right">
 											Item Total: {{cartItem.price}}
 										</div>
 									</div>
 									<div class="row">
-										<div class="col">
-											Item quantity: {{cartItem.quantity}}
+										<div class="col text-right">
+											Item Quantity: {{cartItem.quantity}}
 										</div>
 									</div>
 									<div class="row">
-										<div class="col d-flex">
-											//remove cart item here
+										<div class="col-4">
+											<button v-bind:id="'deleteCartItem' + cartItem.id" v-on:click="deleteCartItem($event);refreshCart();" type="button" class="mb-1 btn btn-dark w-100">Delete</button>
 										</div>
+										<div class="col-4">
+											<input type="text" v-bind:id="'cartItemQuantity' + cartItem.id" class="form-control" placeholder="quantity">
+										</div>	
+										<div class="col-4">
+											<button v-bind:id="'updateCartItem' + cartItem.id" v-on:click="updateCartItem($event);refreshCart();" type="button" class="mb-1 btn btn-dark w-100">Update</button>
+										</div>											
 									</div>
 								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col text-right bg-secondary mt-1">
+								Cart Subtotal: {{cartTotal}}
 							</div>
 						</div>
 					</div>
@@ -120,6 +128,7 @@
 			return {
 				items: '',
 				cartItems: '',
+				cartTotal: '',
 				errorList: []
 			}
 		},
@@ -127,6 +136,48 @@
 			this.getStoreItems();
 		},
 		methods: {
+			updateCartItem(event) {
+				let idText = event.target.id;
+				let itemId = idText.replace(/[^0-9]/g,'');
+				let quantity = document.getElementById('cartItemQuantity' + itemId).value;
+				Csrf.getCookie().then(() => {
+					User.updateCartItem({
+						_method: 'POST',
+						token: sessionStorage.getItem('token'),
+						itemId: itemId,
+						quantity: quantity
+						
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then(response => {
+						console.log(response);
+						document.getElementById('cartItemQuantity' + itemId).value = '';
+					})
+					.catch(error => {
+						console.log(error);
+					});
+				});
+			},
+			deleteCartItem(event) {
+				let idText = event.target.id;
+				let itemId = idText.replace(/[^0-9]/g,'');
+				Csrf.getCookie().then(() => {
+					User.deleteCartItem({
+						_method: 'POST',
+						token: sessionStorage.getItem('token'),
+						itemId: itemId
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then(response => {
+						console.log(response);
+					})
+					.catch(error => {
+						console.log(error);
+					});
+				});
+			},
 			getStoreItems() {
 				Csrf.getCookie().then(() => {
 					User.getStoreItems({
@@ -163,6 +214,7 @@
 					)
 					.then(response => {
 						this.cartItems = response.data.cartItems;
+						this.cartTotal = response.data.cartTotal;
 						console.log(response);
 						
 					})
@@ -186,6 +238,7 @@
 					)
 					.then(response => {
 						console.log(response);
+						document.getElementById('itemQuantity' + itemId).value = '';
 					})
 					.catch(error => {
 						console.log(error);

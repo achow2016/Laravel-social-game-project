@@ -52,14 +52,14 @@ class Character extends Model
 		return $this->hasOne('App\Models\CharacterRace', 'id', 'raceId');
 	}
 	
+	public function gameMap() {
+		return $this->hasOne('App\Models\GameMap', 'user_id', 'id');
+	}
+	
 	//many other models and db game data tables needed to be added and seeded
 	/*
 	public function class() {
 		return $this->hasOne('App\Models\Class', 'user_id', 'id');
-	}
-	
-	public function map() {
-		return $this->hasOne('App\Models\Map', 'user_id', 'id');
 	}
 	
 	public function skills() {

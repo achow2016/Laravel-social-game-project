@@ -32,8 +32,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/getStoreItems', 'App\Http\Controllers\GameStoreController@getStoreItems');
 	Route::post('/addCartItem', 'App\Http\Controllers\GameStoreController@addCartItem');
 	Route::post('/getCartItems', 'App\Http\Controllers\GameStoreController@getCartItems');
-	Route::post('/removeCartItem', 'App\Http\Controllers\GameStoreController@removeCartItem');
-	Route::post('/modifyCartItem', 'App\Http\Controllers\GameStoreController@modifyCartItem');
+	Route::post('/deleteCartItem', 'App\Http\Controllers\GameStoreController@deleteCartItem');
+	Route::post('/updateCartItem', 'App\Http\Controllers\GameStoreController@updateCartItem');
 	Route::post('/checkout', 'App\Http\Controllers\GameStoreController@checkout');
 });
 

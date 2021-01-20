@@ -97,6 +97,4 @@ class User extends Authenticatable
 	{
 		return $this->hasOne('App\Models\Cart', 'user_id', 'id');
 	}
-	
-	
 }
