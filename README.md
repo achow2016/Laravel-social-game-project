@@ -1,4 +1,4 @@
-# laravelProject-sanctum-vue
+# Laravel-social-game-project  
 Replaces old laravel browser game project. Uses vue.js, token auth with all components properly 
 seperated into templates with their own script.    
 
@@ -19,9 +19,9 @@ New posts can be made on form at bottom
 All posts fetched on making post  
 Replies fetched on making reply under post. Closes reply form and presses expand button under post, showing
 all replies to that post  
-Replies fetched on clicking expand button under post, and listed under post in alternating colour  
-https://user-images.githubusercontent.com/16962503/104082809-e968f180-51ed-11eb-8baa-8590d77b89bb.png
-
+Replies fetched on clicking expand button under post, and listed under post in alternating colour    
+https://user-images.githubusercontent.com/16962503/105121664-86971600-5a89-11eb-9e51-6b2ff23cec7e.png  
+  
 Game Cash Store  
 Lists all cash shop items available on load  
 Store inventory populated with database seeder that gets data from a provided JSON file  
