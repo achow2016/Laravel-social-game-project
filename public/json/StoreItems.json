@@ -1,0 +1,27 @@
+{
+	"inventory": [
+		{
+			"name": "one year membership",
+			"type": "membership",
+			"itemDescription": "One year membership",
+			"duration": "365",
+			"quantity": "-1",
+			"cost": "10"
+		},
+		{
+			"name": "free trial membership",
+			"type": "membership",
+			"itemDescription": "Free trial membership",
+			"duration": "30",
+			"quantity": "-1",
+			"cost": "0"
+		},
+		{
+			"name": "game sticker",
+			"itemDescription": "A sticker with our logo design",
+			"type": "physical product",
+			"quantity": "100",
+			"cost": "1"
+		}
+	]
+}

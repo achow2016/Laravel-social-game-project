@@ -41,6 +41,7 @@ import ResetPassword from './components/ResetPassword'
 import CharacterBuilder from './components/CharacterBuilder'
 import Chat from './components/Chat'
 import Store from './components/Store'
+import MapBuilder from './components/MapBuilder'
 
 //user api for sanctum auth
 import User from './apis/User';
@@ -156,6 +157,15 @@ const router = new VueRouter({
 				loginCheck(to,from,next);
 			}
 		},		
+		{
+			path: '/mapBuilder',
+			name: 'mapBuilder',
+			component: MapBuilder,
+			props: {},
+			beforeEnter (to, from, next) {
+				loginCheck(to,from,next);
+			}
+		},	
 		//catch all if non-defined url is entered. Goes to login page or user welcome landing
 		/*
 		{

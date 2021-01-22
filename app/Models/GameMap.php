@@ -18,7 +18,7 @@ class GameMap extends Model
      * @var array
      */
     protected $fillable = [
-        'character_id', 'name', 'tileMain', 'startPoint', 'endPoint'
+        'character_id', 'tileSet', 'startPoint', 'endPoint'
 	];
 
     /**
@@ -36,7 +36,7 @@ class GameMap extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
-		'startPoint' => 'array'
+		'startPoint' => 'array',
 		'endPoint' => 'array'
     ];
 	
@@ -50,5 +50,9 @@ class GameMap extends Model
 	
 	public function mapItems() {
 		return $this->hasMany('App\Models\MapItem', 'id', 'character_id');
+	}
+	
+	public function tileSet() {
+		return $this->hasOne('App\Models\TileSet', 'id', 'tileSet');
 	}
 }

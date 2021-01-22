@@ -15,7 +15,7 @@ class CreateCharacterTable extends Migration
     {
 		Schema::dropIfExists('character');
 		Schema::create('character', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
 			$table->binary('avatar')->nullable();
 			$table->integer('raceId')->unsigned();
 			$table->integer('ownerUser')->unsigned();

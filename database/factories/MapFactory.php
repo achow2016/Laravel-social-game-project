@@ -1,12 +1,12 @@
 <?php
 
 namespace Database\Factories;
-use App\Models\User;
+use App\Models\GameMap;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Faker\Generator as Faker;
-use Illuminate\Support\Str;
+//use Illuminate\Support\Str;
 
-class CharacterFactory extends Factory
+class MapFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -24,8 +24,6 @@ class CharacterFactory extends Factory
     {
         return [
 			'character_id' => 1,
-			'name' => Str::random(10),
-			'tileMain' => 'none',
 			'startPoint' => [0,0],
 			'endPoint' => [1,1]
         ];

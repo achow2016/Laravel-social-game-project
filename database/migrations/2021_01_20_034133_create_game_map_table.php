@@ -13,15 +13,15 @@ class CreateGameMapTable extends Migration
      */
     public function up()
     {
+		Schema::dropIfExists('game_map');
         Schema::create('game_map', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('character_id')->unsigned();
-			$table->string('name');
-			$table->binary('tileMain')->nullable();
-			$table->json('startPoint');
-			$table->json('endPoint');
+			$table->integer('tileset')->nullable();
+			$table->json('startPoint')->nullable();
+			$table->json('endPoint')->nullable();
             $table->timestamps();
-			$table->foreign('character_id')->references('id')->on('character')->onDelete('cascade'); 
+			$table->foreign('character_id')->references('id')->on('character')->onDelete('cascade');
         });
     }
 

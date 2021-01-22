@@ -1,0 +1,28 @@
+{
+	"race": [
+		{
+			"race": "human",
+			"health": "100",
+			"attack": "10",
+			"stamina": "100",
+			"staminaRegen": "10",
+			"healthRegen": "0",
+			"baseAttackCost": "10",
+			"agility": "10",
+			"avatar": "/img/playerFace.jpg",
+			"melee": "/img/playerFaceMelee.jpg"
+		},
+		{
+			"race": "android",
+			"health": "150",
+			"attack": "15",
+			"stamina": "150",
+			"staminaRegen": "15",
+			"healthRegen": "1",
+			"baseAttackCost": "7",
+			"agility": "15",
+			"avatar": "/img/playerFace.jpg",
+			"melee": "/img/playerFaceMelee.jpg"
+		}
+	]
+}

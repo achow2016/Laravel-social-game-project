@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
 		
 		//game data tables
-		/*
+		
 		//character races
 		$raceJsonPath = public_path() . '\json\CharacterRace.json';
 		$data = file_get_contents($raceJsonPath);
@@ -63,8 +63,8 @@ class DatabaseSeeder extends Seeder
 		
 		//$output = new ConsoleOutput();
 		//$output->writeln(var_dump($data['race'][0]['race']));
-		*/
 		
+		/*
 		for($i = 0; $i < 100; $i++) {            
 			$post = new Post();
 			$post->setAttribute('user_id', 1);
@@ -74,5 +74,6 @@ class DatabaseSeeder extends Seeder
 			$post->save();
 
 		}
+		*/
 	}
 }

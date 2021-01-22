@@ -28,7 +28,7 @@
 						<p>Assign up to 12 points, +5% bonus per point</p>
 					</div>					
 				</div>
-			
+				
 				<div id="allocBox" class="row bg-dark mt-2 mb-4 pt-4">
 					<div class="col">
 						<div class="row"><p class="mx-auto">Strength</p></div><br>
@@ -78,9 +78,13 @@
 							</div>
 						</div>	
 						<div class="row">						
-							<div class="col">
+							<div v-if="errorList.characterName" class="col-sm-8 alert alert-warning" role="alert">
+								<span class="text-danger">{{errorList.characterName[0]}}</span>
 								<input type="text" class="form-control" id="characterName" placeholder="character name" v-model="characterName">
-							</div>	
+							</div>
+							<div v-else class="col">
+								<input type="text" class="form-control" id="characterName" placeholder="character name" v-model="characterName">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -94,10 +98,19 @@
 						</div>	
 						<div class="row">						
 							<div class="col">
-								<select class="form-control" name="gameClass" id="gameClass" v-model="gameClass" selected="warrior">
-									<option value="" selected disabled hidden>choose a class</option>
-									<option>warrior</option>
-								</select>
+								<div v-if="errorList.gameClass" class="col-sm-8 alert alert-warning" role="alert">
+									<span class="text-danger">{{errorList.gameClass[0]}}</span>
+									<select class="form-control" name="gameClass" id="gameClass" v-model="gameClass" selected="warrior">
+										<option value="" selected disabled hidden>choose a class</option>
+										<option>warrior</option>
+									</select>
+								</div>
+								<div v-else>
+									<select class="form-control" name="gameClass" id="gameClass" v-model="gameClass" selected="warrior">
+										<option value="" selected disabled hidden>choose a class</option>
+										<option>warrior</option>
+									</select>
+								</div>
 							</div>	
 						</div>
 					</div>
@@ -112,11 +125,21 @@
 						</div>	
 						<div class="row">						
 							<div class="col">
-								<select class="form-control" name="race" id="race" v-model="race">
-									<option value="" selected disabled hidden>choose a race</option>
-									<option value="human" selected>human</option>
-									<option value="android">android</option>
-								</select>	
+								<div v-if="errorList.gameRace" class="col-sm-8 alert alert-warning" role="alert">
+									<span class="text-danger">{{errorList.gameRace[0]}}</span>
+									<select class="form-control" name="gameRace" id="gameRace" v-model="gameRace">
+										<option value="" selected disabled hidden>choose a race</option>
+										<option value="human" selected>human</option>
+										<option value="android">android</option>
+									</select>	
+								</div>	
+								<div v-else>
+									<select class="form-control" name="gameRace" id="gameRace" v-model="gameRace">
+										<option value="" selected disabled hidden>choose a race</option>
+										<option value="human" selected>human</option>
+										<option value="android">android</option>
+									</select>	
+								</div>
 							</div>	
 						</div>
 					</div>
@@ -152,10 +175,10 @@
 				enduranceAlloc: 0,
 				lifeAlloc: 0,
 				totalAlloc: 0,
-				race: '',
+				gameRace: '',
 				gameClass: '',
-				characterName: ''
-				
+				characterName: '',
+				errorList: [],
 			}
 		},
 		mounted() { 
@@ -215,29 +238,48 @@
 				}
 			},
 			createCharacter() {
-				Csrf.getCookie().then(() => {
-					User.createCharacter({
-						_method: 'POST',
-						token: sessionStorage.getItem('token'),
-						username: this.username,
-						characterName: this.characterName,
-						strengthAlloc: this.strengthAlloc,
-						enduranceAlloc: this.enduranceAlloc,
-						lifeAlloc: this.lifeAlloc,
-						totalAlloc: this.totalAlloc,
-						race: this.race,
-						gameClass: this.gameClass
-						
-					},
-						sessionStorage.getItem('token')
-					)
-					.then(response => {
-						console.log(response);
-					})
-					.catch(error => {
-						console.log(error);
+				this.characterName = document.getElementById('characterName').value;
+				this.gameClass = document.getElementById('gameClass').value;
+				this.gameRace = document.getElementById('gameRace').value;
+				if(this.characterName == '') {
+					this.errorList = {'characterName' : []};
+					this.errorList.characterName[0] = 'no name!';
+				}
+				else if(this.gameClass == '') {
+					this.errorList = {'gameClass' : []};
+					this.errorList.gameClass[0] = 'no game class!';
+				}
+				else if(this.gameRace == '') {
+					this.errorList = {'gameRace' : []};
+					this.errorList.gameRace[0] = 'no game race!';
+				}	
+				else {	
+					Csrf.getCookie().then(() => {
+						User.createCharacter({
+							_method: 'POST',
+							token: sessionStorage.getItem('token'),
+							username: this.username,
+							characterName: this.characterName,
+							strengthAlloc: this.strengthAlloc,
+							enduranceAlloc: this.enduranceAlloc,
+							lifeAlloc: this.lifeAlloc,
+							totalAlloc: this.totalAlloc,
+							gameRace: this.gameRace,
+							gameClass: this.gameClass
+						},
+							sessionStorage.getItem('token')
+						)
+						.then(response => {
+							console.log(response);
+							this.$router.push('mapBuilder');
+						})
+						.catch(error => {
+							console.log(error);
+							if(error.response.status == 422)
+								this.errorList = error.response.data.errors;
+						});
 					});
-				});
+				}
 			}
 		}
 	}

@@ -72,6 +72,13 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async generateMap(form, token) {
+		await Csrf.getCookie();
+		return Api.post('/generateMap',form,{headers: {
+			'Content-type' : 'application/json',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	/*
 		store
 	*/

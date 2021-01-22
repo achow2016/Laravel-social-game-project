@@ -18,17 +18,17 @@ class CharacterController extends Controller {
 	{
 		$request->validate([
 			'username' => 'required',
-			'characterName' => 'required',
+			'characterName' => 'required|unique:character',
 			'strengthAlloc' => 'required|numeric|max:12',
 			'enduranceAlloc' => 'required|numeric|max:12',
 			'lifeAlloc' => 'required|numeric|max:12',
 			'totalAlloc' => 'required|numeric|max:12',
-			'race' => 'required',
+			'gameRace' => 'required',
 			'gameClass' => 'required',
 		]);
 		
 		$user = User::where('name', $request->user()->name)->first();
-		$characterRace = CharacterRace::where('race', $request->race)->first();
+		$characterRace = CharacterRace::where('race', $request->gameRace)->first();
 		
 		if (!$user) {
             throw ValidationException::withMessages([

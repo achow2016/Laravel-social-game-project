@@ -18,7 +18,7 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'ownerUser', 'charactername', 'raceId', 'avatar',
+        'ownerUser', 'charactername', 'raceId', 'avatar',
 		'page', 'chapter', 
 		'health', 'stamina', 'accuracy', 'agility', 'attack',
 		'mapPosition',
@@ -53,7 +53,7 @@ class Character extends Model
 	}
 	
 	public function gameMap() {
-		return $this->hasOne('App\Models\GameMap', 'user_id', 'id');
+		return $this->hasOne('App\Models\GameMap', 'map_id', 'id');
 	}
 	
 	//many other models and db game data tables needed to be added and seeded
