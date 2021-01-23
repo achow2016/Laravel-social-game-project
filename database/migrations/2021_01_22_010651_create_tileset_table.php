@@ -16,6 +16,7 @@ class CreateTilesetTable extends Migration
         Schema::create('tileset', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('map_id')->unsigned();
+			$table->json('mapData')->nullable();
 			$table->decimal('grassCover', $precision = 3, $scale = 2);
 			$table->decimal('waterCover', $precision = 3, $scale = 2);
 			$table->decimal('treeCover', $precision = 3, $scale = 2);

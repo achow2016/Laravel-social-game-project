@@ -17,7 +17,6 @@ class CreateGameMapTable extends Migration
         Schema::create('game_map', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('character_id')->unsigned();
-			$table->integer('tileset')->nullable();
 			$table->json('startPoint')->nullable();
 			$table->json('endPoint')->nullable();
             $table->timestamps();

@@ -18,7 +18,7 @@ class GameMap extends Model
      * @var array
      */
     protected $fillable = [
-        'character_id', 'tileSet', 'startPoint', 'endPoint'
+        'character_id', 'startPoint', 'endPoint'
 	];
 
     /**
@@ -52,7 +52,7 @@ class GameMap extends Model
 		return $this->hasMany('App\Models\MapItem', 'id', 'character_id');
 	}
 	
-	public function tileSet() {
-		return $this->hasOne('App\Models\TileSet', 'id', 'tileSet');
+	public function tileset() {
+		return $this->hasOne('App\Models\GameMapTileset', 'id', 'map_id');
 	}
 }

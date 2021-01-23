@@ -8,7 +8,7 @@ class GameMapTileset extends Model
 {
 	use HasFactory;
 	
-	protected $table = 'game_map';
+	protected $table = 'tileset';
 	protected $primaryKey = 'id';
 
     /**
@@ -17,7 +17,7 @@ class GameMapTileset extends Model
      * @var array
      */
     protected $fillable = [
-        'map_id', 'grassCover', 'waterCover', 'treeCover'
+        'map_id', 'mapData', 'grassCover', 'waterCover', 'treeCover'
 	];
 
     /**
@@ -35,6 +35,8 @@ class GameMapTileset extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
+		'mapData' => 'array'
+		
     ];
 	
 	public function map() {
