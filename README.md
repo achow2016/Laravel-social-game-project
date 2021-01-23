@@ -10,6 +10,8 @@ Rpg Game
 Game code was all client side in one .js file, conversion in progress to server side  
 character creation screen, response  
 https://user-images.githubusercontent.com/16962503/104146260-f79a4780-537e-11eb-9dd3-73b8e92bdabc.png  
+game map generation  
+https://user-images.githubusercontent.com/16962503/105568101-bc3b3980-5ceb-11eb-9b26-5ee2ef84c72e.png  
 
 Game chat board    
 Working on adding more functionality over the old textboard  
