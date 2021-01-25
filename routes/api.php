@@ -43,7 +43,12 @@ Route::middleware('auth:sanctum')->get('/welcome', function (Request $request) {
     return $request->user();
 });
 
+//account
 Route::post('/resetPassword', 'App\Http\Controllers\RegistrationController@generateResetPasswordLink');
 Route::post('register', 'App\Http\Controllers\RegistrationController@register');
 Route::post('login', 'App\Http\Controllers\SessionController@login');
 Route::get('logout', 'App\Http\Controllers\SessionController@logout');
+
+//guest users
+Route::get('recordGuest', 'App\Http\Controllers\GuestbookController@recordGuest');
+Route::get('getGuestbookNotes', 'App\Http\Controllers\GuestbookController@getGuestbookNotes');

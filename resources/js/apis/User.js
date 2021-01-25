@@ -3,6 +3,17 @@ import Csrf from './Csrf';
 
 export default {
 	/*
+		guest user utilities
+	*/
+	async recordGuest() {
+		//await Csrf.getCookie();
+		return Api.get('/recordGuest');
+	},
+	async getGuestbookNotes() {
+		return Api.get('/getGuestbookNotes');
+	},
+	
+	/*
 		user session, registration
 	*/
 	async register(form) {

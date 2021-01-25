@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -12,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 //use Illuminate\Support\Facades\Log;
 
+use App\Models\User;
 use DateTime;
 use DateInterval;
 
@@ -141,6 +141,6 @@ class RegistrationController extends Controller
 		else {
 			$message = 'Success, Check your email for your new password.';
 			return redirect('/resetPassword?message=' . urlencode($message));
-		}
+		}	
 	}
 }

@@ -42,9 +42,11 @@ import CharacterBuilder from './components/CharacterBuilder'
 import Chat from './components/Chat'
 import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
+import GuestBook from './components/GuestBook'
 
 //user api for sanctum auth
 import User from './apis/User';
+
 
 function loginCheck(to, from, next) {
 	User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
@@ -58,7 +60,19 @@ function loginCheck(to, from, next) {
 			else
 				next({name:'login', params:{navError: 'Could not get user state from database, contact administrator.'}, replace:true});
 		});
-}	
+}
+
+function recordGuest(to, from, next) {
+	User.recordGuest({_method: 'GET'})
+		.then((response) => {
+			to.params.response = response;
+			next(to.params);	
+		})
+		.catch(error => {
+			if(error.response.status == 422)
+				next({name:'home', params:{navError: 'Database error, could not record guest.'}, replace:true});
+		});
+}
 
 const router = new VueRouter({
 	mode: 'history',
@@ -87,6 +101,15 @@ const router = new VueRouter({
 				});
 			}
 			*/
+		},
+		{
+			path: '/guestbook',
+			name: 'guestbook',
+			component: GuestBook,
+			props: {},
+			beforeEnter (to, from, next) {
+				recordGuest(to,from,next);
+			}
 		},
 		{
 			path: '/loginForm',
