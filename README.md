@@ -24,7 +24,12 @@ all replies to that post
 Replies fetched on clicking expand button under post, and listed under post in alternating colour    
 https://user-images.githubusercontent.com/16962503/105121664-86971600-5a89-11eb-9e51-6b2ff23cec7e.png  
   
-Game Cash Store  
+Guest book  
+adds and logs ip addresses to db  
+loads guestbook entries on load  
+one entry per 'user'    
+  
+Game cash store  
 Lists all cash shop items available on load  
 Store inventory populated with database seeder that gets data from a provided JSON file  
 Item descriptions can be expanded  
