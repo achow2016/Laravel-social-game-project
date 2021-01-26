@@ -16,4 +16,9 @@ class VisitorRecord extends Model{
     protected $fillable = [
 		'ip_address'
     ];
+	
+	public function guestBookNote()
+	{
+		return $this->hasOne('App\Models\GuestBookNote', 'visitor_id', 'id');
+	}
 }

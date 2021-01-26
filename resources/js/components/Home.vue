@@ -24,6 +24,7 @@
 				<div class="row">
 					<div class="col-12">
 						<div class="mx-auto w-30">
+							<router-link :to="{ name: 'guestbook' }"><button type="button" class="btn btn-dark w-100">guest book</button></router-link>
 							<router-link :to="{ name: 'login' }"><button type="button" class="btn btn-dark w-100">social rpg game</button></router-link>
 						</div>
 					</div>

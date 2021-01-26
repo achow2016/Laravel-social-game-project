@@ -15,11 +15,13 @@ class CreateVisitorGuestbookNotesTable extends Migration
     {
         Schema::create('visitor_guestbook_notes', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('visitor_id')->unsigned();
             $table->longText('note');
-			$table->string('email');
+			$table->string('email')->nullable();
 			$table->string('name');
 			$table->date('date');
             $table->timestamps();
+			$table->foreign('visitor_id')->references('id')->on('visitor_records')->onDelete('cascade'); 
         });
     }
 

@@ -12,6 +12,9 @@ export default {
 	async getGuestbookNotes() {
 		return Api.get('/getGuestbookNotes');
 	},
+	async addGuestbookNote(form) {
+		return Api.post('/addGuestbookNote', form);
+	},
 	
 	/*
 		user session, registration

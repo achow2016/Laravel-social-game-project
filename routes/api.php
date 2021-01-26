@@ -52,3 +52,4 @@ Route::get('logout', 'App\Http\Controllers\SessionController@logout');
 //guest users
 Route::get('recordGuest', 'App\Http\Controllers\GuestbookController@recordGuest');
 Route::get('getGuestbookNotes', 'App\Http\Controllers\GuestbookController@getGuestbookNotes');
+Route::post('addGuestbookNote', 'App\Http\Controllers\GuestbookController@addGuestbookNote');
