@@ -27,7 +27,8 @@ https://user-images.githubusercontent.com/16962503/105121664-86971600-5a89-11eb-
 Guest book  
 adds and logs ip addresses to db  
 loads guestbook entries on load  
-one entry per 'user'    
+one entry per 'user'  
+https://user-images.githubusercontent.com/16962503/105803061-77b0d780-5f51-11eb-843d-5790e72f2ed4.png  
   
 Game cash store  
 Lists all cash shop items available on load  
