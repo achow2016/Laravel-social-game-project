@@ -21,7 +21,7 @@ class CreateTilesetTable extends Migration
 			$table->decimal('waterCover', $precision = 3, $scale = 2);
 			$table->decimal('treeCover', $precision = 3, $scale = 2);
             $table->timestamps();
-			$table->foreign('map_id')->references('id')->on('game_map')->onDelete('cascade');
+			$table->foreign('map_id')->references('character_id')->on('game_map')->onDelete('cascade');
         });
     }
 

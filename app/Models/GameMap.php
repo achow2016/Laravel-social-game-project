@@ -45,7 +45,7 @@ class GameMap extends Model
 	}	
 	
 	public function enemies() {
-		return $this->hasMany('App\Models\Enemy', 'id', 'character_id');
+		return $this->hasMany('App\Models\Enemy', 'map_id', 'id');
 	}
 	
 	public function mapItems() {
@@ -53,6 +53,6 @@ class GameMap extends Model
 	}
 	
 	public function tileset() {
-		return $this->hasOne('App\Models\GameMapTileset', 'id', 'map_id');
+		return $this->hasOne('App\Models\GameMapTileset', 'map_id', 'character_id');
 	}
 }

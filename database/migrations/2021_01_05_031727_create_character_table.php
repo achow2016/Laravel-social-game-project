@@ -27,7 +27,7 @@ class CreateCharacterTable extends Migration
 			$table->integer('stamina')->default('0');
 			$table->integer('accuracy')->default('1');
 			$table->integer('attack')->default('0');
-			$table->integer('mapPosition')->nullable();
+			$table->json('mapPosition')->nullable();
 			$table->integer('scoreTotal')->default('0');
 			$table->integer('damageDone')->default('0');
 			$table->integer('staminaRegen')->default('0');
@@ -39,9 +39,16 @@ class CreateCharacterTable extends Migration
 			$table->integer('earningsTotal')->default('0');
 			$table->integer('attackMultiplier')->default('1');
 			$table->integer('defenseMultiplier')->default('1');
-            $table->timestamps();
+			
+			//$table->integer('skillSet')->unsigned();
+			//$table->integer('inventorySet')->unsigned();
+            
+			$table->timestamps();
 			$table->foreign('ownerUser')->references('id')->on('rpggameusers')->onDelete('cascade'); 
 			$table->foreign('raceId')->references('id')->on('character_race')->onDelete('cascade'); 
+			
+			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
+			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 
         });
     }
 

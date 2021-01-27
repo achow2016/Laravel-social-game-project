@@ -19,17 +19,9 @@ class MapController extends Controller {
 		try {
 			$charId = Character::where('ownerUser', $request->user()->id)->first()->id;
 			
-			$gameMap = new GameMap();
-			$gameMap->setAttribute('character_id', $charId);
-			
-			//generates random from 8 x 8
-			$gameMap->setAttribute('startPoint', [rand(0,8), rand(0,8)]);
-			$gameMap->setAttribute('endPoint', [rand(0,8), rand(0,8)]);
-			$gameMap->save();
-			
 			//generates tileset here, percentages of terrain
 			$tileSet = new GameMapTileset();
-			$tileSet->setAttribute('map_id', $gameMap->id);
+			$tileSet->setAttribute('map_id', $charId);
 			$allocLimit = 1;
 			
 			//grass
@@ -67,9 +59,30 @@ class MapController extends Controller {
 			}
 			
 			$tileSet->setAttribute('mapData', json_encode($map));
-			$gameMap->tileset()->save($tileSet);		
 			
-			return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
+			$existingMap = GameMap::where('character_id', $charId)->first();
+			if($existingMap) {
+				$existingMap->startPoint = [rand(0,8), rand(0,8)];
+				$existingMap->endPoint = [rand(0,8), rand(0,8)];
+				$existingMap->save();
+				$tileCheck = $existingMap->tileset()->first();
+				if($tileCheck)
+					$existingMap->tileset()->delete();
+				$existingMap->tileset()->save($tileSet);
+				return response(['gameMap' => $existingMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
+			}
+			else {
+				$gameMap = new GameMap();
+				$gameMap->setAttribute('character_id', $charId);				
+				$gameMap->setAttribute('startPoint', [rand(0,8), rand(0,8)]);
+				$gameMap->setAttribute('endPoint', [rand(0,8), rand(0,8)]);
+				$gameMap->save();
+				$tileCheck = $gameMap->tileset()->first();
+				if($tileCheck)
+					$gameMap->tileset()->delete();
+				$gameMap->tileset()->save($tileSet);		
+				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
+			}
 		}
 		catch(Throwable $e) {
 			report($e);

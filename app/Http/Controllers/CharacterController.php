@@ -17,6 +17,12 @@ class CharacterController extends Controller {
 	public function createCharacter(Request $request) 
 	{
 		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charCheck = $user->character()->first();
+			if($charCheck)
+				$user->character()->delete();
+			
+			
 			$request->validate([
 				'username' => 'required',
 				'characterName' => 'required|unique:character',
@@ -28,7 +34,6 @@ class CharacterController extends Controller {
 				'gameClass' => 'required',
 			]);
 			
-			$user = User::where('name', $request->user()->name)->first();
 			$characterRace = CharacterRace::where('race', $request->gameRace)->first();
 			
 			if (!$user) {

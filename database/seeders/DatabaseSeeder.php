@@ -44,6 +44,32 @@ class DatabaseSeeder extends Seeder
 			$characterRace->save();	
 		}
 		
+		//enemies
+		
+		$enemiesJsonPath = public_path() . '\json\Enemies.json';
+		$data = file_get_contents($raceJsonPath);
+		$data = json_decode($data, true);
+		
+		foreach ($data['enemy'] as $item) {            
+			$enemy = new Enemy();
+			$enemy->setAttribute('name', $item['name']);
+			$enemy->setAttribute('race', $item['race']);
+			$enemy->setAttribute('actorClass', $item['actorClass']);
+			$enemy->setAttribute('attack', $item['attack']);
+			$enemy->setAttribute('health', $item['health']);
+			$enemy->setAttribute('healthRegen', $item['healthRegen']);
+			$enemy->setAttribute('stamina', $item['stamina']);
+			$enemy->setAttribute('staminaRegen', $item['staminaRegen']);
+			$enemy->setAttribute('baseAttackCost', $item['baseAttackCost']);
+			$enemy->setAttribute('money', $item['money']);
+			$enemy->setAttribute('skills', $item['skills']);
+			$enemy->setAttribute('itemLootInventory', $item['itemLootInventory']);
+			$enemy->setAttribute('avatar', $item['avatar']);
+			$enemy->setAttribute('agility', $item['agility']);
+			$enemy->save();	
+		}
+		
+		
 		//shop inventory
 		$inventoryJsonPath = public_path() . '\json\StoreItems.json';
 		$data = file_get_contents($inventoryJsonPath);
