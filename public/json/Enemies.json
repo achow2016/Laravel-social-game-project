@@ -1,11 +1,11 @@
 {
 	"enemy": [
 		{ 
-			"level":"1",
-			"name":"guard", 
-			"race":"human", 
-			"gameClass":"none", 
-			"health":"30", 
+			"level": "1",
+			"name": "guard", 
+			"gameRace": "human", 
+			"gameClass": "none", 
+			"health": "30", 
 			"attack":"10", 
 			"stamina":"100", 
 			"staminaRegen":"10", 
@@ -28,7 +28,7 @@
 		{ 
 			"level":"2",
 			"name":"brute", 
-			"race":"human", 
+			"gameRace":"human", 
 			"gameClass":"none", 
 			"health":"40", 
 			"attack":"11", 
@@ -52,7 +52,7 @@
 		{ 
 			"level":"3",
 			"name":"duelist", 
-			"race":"human", 
+			"gameRace":"human", 
 			"gameClass":"none", 
 			"health":"50", 
 			"attack":"10", 
@@ -73,6 +73,6 @@
 				}
 			], 
 			"avatar":"/img/enemyFace.jpg" 
-		},
+		}
 	]
 }

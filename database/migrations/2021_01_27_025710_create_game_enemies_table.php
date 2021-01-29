@@ -25,15 +25,12 @@ class CreateGameEnemiesTable extends Migration
 			$table->integer('accuracy')->default('1');
 			$table->integer('attack')->default('0');
 			$table->integer('baseAttackCost')->default('0');
-			$table->json('skills')->nullable();
-			$table->json('itemLootInventory')->nullable();
 			$table->integer('staminaRegen')->default('0');
 			$table->integer('healthRegen')->default('0');
 			$table->integer('agility')->default('0');
 			$table->integer('money')->default('0');
             $table->timestamps();
-			$table->foreign('ownerUser')->references('id')->on('rpggameusers')->onDelete('cascade'); 
-        });
+		});
     }
 
     /**

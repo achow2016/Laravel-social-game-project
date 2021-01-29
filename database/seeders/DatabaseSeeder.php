@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 //use Illuminate\Support\Facades\File;
 //use Illuminate\Support\Facades\Storage;
 use App\Models\CharacterRace;
+use App\Models\Enemy;
 use App\Models\CashShopItem;
 use App\Models\Post;
 //use Symfony\Component\Console\Output\ConsoleOutput;
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
 		//game data tables
 		
 		//character races
+		/*
 		$raceJsonPath = public_path() . '\json\CharacterRace.json';
 		$data = file_get_contents($raceJsonPath);
 		$data = json_decode($data, true);
@@ -43,18 +45,24 @@ class DatabaseSeeder extends Seeder
 			$characterRace->setAttribute('agility', $item['agility']);
 			$characterRace->save();	
 		}
-		
+		*/
 		//enemies
 		
+		
+		$data = null;
+		
 		$enemiesJsonPath = public_path() . '\json\Enemies.json';
-		$data = file_get_contents($raceJsonPath);
+		$data = file_get_contents($enemiesJsonPath);
+		error_log($data);
 		$data = json_decode($data, true);
+		
+		
 		
 		foreach ($data['enemy'] as $item) {            
 			$enemy = new Enemy();
 			$enemy->setAttribute('name', $item['name']);
-			$enemy->setAttribute('race', $item['race']);
-			$enemy->setAttribute('actorClass', $item['actorClass']);
+			$enemy->setAttribute('gameRace', $item['gameRace']);
+			$enemy->setAttribute('gameClass', $item['gameClass']);
 			$enemy->setAttribute('attack', $item['attack']);
 			$enemy->setAttribute('health', $item['health']);
 			$enemy->setAttribute('healthRegen', $item['healthRegen']);
@@ -62,8 +70,6 @@ class DatabaseSeeder extends Seeder
 			$enemy->setAttribute('staminaRegen', $item['staminaRegen']);
 			$enemy->setAttribute('baseAttackCost', $item['baseAttackCost']);
 			$enemy->setAttribute('money', $item['money']);
-			$enemy->setAttribute('skills', $item['skills']);
-			$enemy->setAttribute('itemLootInventory', $item['itemLootInventory']);
 			$enemy->setAttribute('avatar', $item['avatar']);
 			$enemy->setAttribute('agility', $item['agility']);
 			$enemy->save();	

@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div dusk="main">
 		<header v-bind:style="topSection" class="row p-3 m-3">
 			<div class="col">
 				<div class="row text-center">
@@ -49,6 +49,9 @@
 	export default {
 		data() {
 			return {
+				user: {
+					name: 'demo'
+				},
 				topSection: {
 					color: 'white',
 					'background-color': 'black',
