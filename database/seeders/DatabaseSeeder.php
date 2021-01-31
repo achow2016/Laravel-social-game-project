@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
 		//game data tables
 		
 		//character races
-		/*
+		
 		$raceJsonPath = public_path() . '\json\CharacterRace.json';
 		$data = file_get_contents($raceJsonPath);
 		$data = json_decode($data, true);
@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
 			$characterRace->setAttribute('agility', $item['agility']);
 			$characterRace->save();	
 		}
-		*/
+		
 		//enemies
 		
 		
