@@ -23,10 +23,11 @@ window.Vue = require('vue').default;
 Vue.component('home', require('./components/Home.vue').default);
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import { BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
+Vue.use(BootstrapVueIcons)
 //Vue.use(IconsPlugin)
 
 window.$ = window.jQuery = require('jquery')

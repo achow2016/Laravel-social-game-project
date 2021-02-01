@@ -1,10 +1,20 @@
 <template>
-	<div dusk="main" class="container pt-3 pb-3">
+	<div dusk="main" class="vh-100 container pt-3 pb-3">
 	
 		<div class="row fixed-top">
-			<div class="col d-flex justify-content-end">
-				<span class="badge badge-pill badge-light">Light</span>
-				<span class="badge badge-pill badge-dark mr-2">Dark</span>
+			<div id="themeOptions" class="bg-secondary col-11 d-flex justify-content-end invisible">
+				<a href="#" v-on:click="toggleToLight()" class="badge badge-pill badge-light mr-4">
+					<b-icon-brightness-high-fill></b-icon-brightness-high-fill>
+				</a>
+				<a href="#" v-on:click="toggleToDefault()" class="badge badge-pill badge-secondary mr-4">
+					<b-icon-brightness-low-fill></b-icon-brightness-low-fill>
+				</a>
+				<a href="#" v-on:click="toggleToDark()" class="badge badge-pill badge-dark mr-4">
+					<b-icon-brightness-low></b-icon-brightness-low>
+				</a>
+			</div>
+			<div class="col-1 d-flex justify-content-end">
+				<a href="#" v-on:click="showThemeToggle()" class="badge badge-pill badge-light">&#9680;</a>
 			</div>
 		</div>
 		
@@ -60,8 +70,8 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="mx-auto w-30">
-								<router-link :to="{ name: 'guestbook' }"><button type="button" class="btn btn-dark w-100 mb-3">guest book</button></router-link>
-								<router-link :to="{ name: 'login' }"><button type="button" class="btn btn-dark w-100">social rpg game</button></router-link>
+								<router-link :to="{ name: 'guestbook' }"><button type="button" class="btn btn-dark w-100 mb-3">guest book<span class="badge badge-secondary">New</span></button></router-link>
+								<router-link :to="{ name: 'login' }"><button type="button" class="btn btn-dark w-100">social rpg game<span class="badge badge-secondary">New</span></button></router-link>
 							</div>
 						</div>
 					</div>
@@ -112,7 +122,35 @@
 					opacity: .7	
 				}
 			}
-		}
+		},
+		methods: {
+			toggleToDefault() {
+				var container = document.querySelector('.container');
+				if(!container.classList.contains('darkMode')) {
+					container.classList.remove('lightMode');
+				}
+				else
+					container.classList.remove('darkMode');
+			},
+			toggleToDark() {
+				var container = document.querySelector('.container');
+				if(!container.classList.contains('darkMode')) {
+					container.classList.toggle('darkMode');
+					container.classList.remove('lightMode');
+				}
+			},
+			toggleToLight() {
+				var container = document.querySelector('.container');
+				if(!container.classList.contains('lightMode')) {				
+					container.classList.toggle('lightMode');
+					container.classList.remove('darkMode');
+				}
+			},
+			showThemeToggle() {
+				var container = document.querySelector('#themeOptions');				
+				container.classList.toggle('invisible');
+			}			
+		}	
 	}
 </script>
 <style>

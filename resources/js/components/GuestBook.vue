@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid d-flex flex-column text-light">
+    <div class="vh-100 text-light">
 		<div class="row mx-auto">
 			<div class="col">
 				
@@ -98,19 +98,20 @@
 				</section>
 				
 				
-				<div class="row fixed-bottom">
-					<div class="col pr-0">
-						<router-link :to="{ name: 'home' }"><button type="button" class="btn btn-dark w-100">Home</button></router-link>
-					</div>	
-					
-					<div class="col pl-0">
-						<button v-on:click="toggleSignGuestbook" id="startSignGuestbook" type="button" class="btn btn-dark w-100">Sign Guestbook</button>
-					</div>
-				</div>
+			
 				
 				
 		
 			</div>	
+		</div>
+		<div class="row fixed-bottom">
+			<div class="col pr-0">
+				<router-link :to="{ name: 'home' }"><button type="button" class="btn btn-dark w-100">Home</button></router-link>
+			</div>	
+			
+			<div class="col pl-0">
+				<button v-on:click="toggleSignGuestbook" id="startSignGuestbook" type="button" class="btn btn-dark w-100">Sign Guestbook</button>
+			</div>
 		</div>
     </div>
 </template>
