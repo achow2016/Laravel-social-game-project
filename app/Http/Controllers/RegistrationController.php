@@ -143,4 +143,16 @@ class RegistrationController extends Controller
 			return redirect('/resetPassword?message=' . urlencode($message));
 		}	
 	}
+	
+	//spa get account profile
+	public function getUserProfile(Request $request) {
+		try {
+			$userData = User::where('name', $request->user()->name)->first();
+			return response(['userData' => $userData], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Profile could not be retrieved. Please report to admin.'], 422);
+		}
+	}	
 }

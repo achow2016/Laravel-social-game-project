@@ -48,6 +48,12 @@
 								<button v-on:click="gameStore" type="button" class="btn btn-dark active w-100">Store</button>
 							</div>
 						</div>
+						
+						<div class="row mt-5">
+							<div class="col">
+								<button v-on:click="profile" type="button" class="btn btn-dark active w-100">Profile</button>
+							</div>
+						</div>
 
 					</div>		
 				</div>	
@@ -92,6 +98,9 @@
 			},
 			gameStore() {
 				this.$router.push('store')
+			},
+			profile() {
+				this.$router.push('profile')
 			},
 			logout() {
 				User.logout({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token')).then((response) => {

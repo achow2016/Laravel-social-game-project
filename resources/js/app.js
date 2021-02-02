@@ -44,6 +44,7 @@ import Chat from './components/Chat'
 import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
 import GuestBook from './components/GuestBook'
+import Profile from './components/Profile'
 
 //user api for sanctum auth
 import User from './apis/User';
@@ -176,6 +177,15 @@ const router = new VueRouter({
 			path: '/store',
 			name: 'store',
 			component: Store,
+			props: {},
+			beforeEnter (to, from, next) {
+				loginCheck(to,from,next);
+			}
+		},
+		{
+			path: '/profile',
+			name: 'profile',
+			component: Profile,
 			props: {},
 			beforeEnter (to, from, next) {
 				loginCheck(to,from,next);
