@@ -97,4 +97,9 @@ class User extends Authenticatable
 	{
 		return $this->hasOne('App\Models\Cart', 'user_id', 'id');
 	}
+	
+	public function screenshots()
+	{
+		return $this->hasMany('App\Models\GameScreenshot', 'user_id', 'id');
+	}
 }

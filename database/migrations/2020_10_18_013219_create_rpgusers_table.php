@@ -21,15 +21,16 @@ class CreateRpgusersTable extends Migration
         Schema::create('rpggameusers', function (Blueprint $table) {
             $table->increments('id');
 			$table->binary('avatar')->nullable();
+			$table->binary('profile_video')->nullable();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('account_verified_date')->nullable();
             $table->string('password');
-			$table->integer('credits')->nullable();
-			$table->boolean('membership')->nullable();
-			$table->date('membershipBegin')->nullable();
-			$table->date('membershipEnd')->nullable();
-			$table->integer('playtime')->nullable();
+			$table->integer('credits')->default(0);
+			$table->boolean('membership')->default(false);
+			$table->date('membership_start_date')->nullable();
+			$table->date('membership_end_date')->nullable();
+			$table->integer('playtime')->default(0);
 			//$table->json('saveGame')->nullable();
             $table->rememberToken();
             $table->timestamps();

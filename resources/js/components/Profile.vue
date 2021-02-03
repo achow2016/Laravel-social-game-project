@@ -33,11 +33,17 @@
 							<div v-for="(value, key) in userData" class="row">
 								<div class="w-100 bg-secondary mb-3">
 									<div class="row mr-0">
-										<div class="col-10">
-											<span class="text-center">{{key}}</span>
+										<div class="col-10 text-left">
+											<span v-if="key == 'account_verified_date'" class="pl-3">account verified on</span>
+											<span v-else-if="key == 'membership_start_date'" class="pl-3">membership started</span>
+											<span v-else-if="key == 'membership_end_date'" class="pl-3">membership ends</span>
+											<span v-else-if="key == 'created_at'" class="pl-3">account created</span>
+											<span v-else-if="key == 'updated_at'" class="pl-3">account updated</span>
+											<span v-else-if="key == 'profile_video'" class="pl-3">profile video</span>
+											<span v-else class="pl-3">{{key}}</span>
 										</div>
 										<div class="col-2">
-											<button v-bind:class="key" v-if="['avatar','name','email','credits','membership'].indexOf(key) > -1" v-on:click="openSection(key)" class="float-right border border-success badge badge-pill badge-secondary align-middle">							
+											<button v-bind:class="key" v-if="['avatar','name','email','credits','membership','profile_video'].indexOf(key) > -1" v-on:click="openSection(key)" class="float-right border border-success badge badge-pill badge-secondary align-middle">							
 												<b-icon-chevron-bar-expand v-bind:class="key" ></b-icon-chevron-bar-expand>
 											</button>
 											<button v-else v-bind:class="key" v-on:click="" class="float-right border border-danger badge badge-pill badge-secondary align-middle">
@@ -45,38 +51,123 @@
 											</button>
 										</div>
 									</div>
-									<div class="row">
-										<div class="col">
+									<div class="row ml-0 mr-0 bg-dark">
+										<div v-if="key == 'membership' && value == 0" class="col">
+											none
+										</div>
+										<div v-else-if="key == 'membership' && value == 1" class="col">
+											member
+										</div>
+										<div v-else-if="key == 'created_at'" class="col">
+											{{value | cleanLaravelDate}} 
+										</div>
+										<div v-else-if="key == 'updated_at'" class="col">
+											{{value | cleanLaravelDate}} 
+										</div>
+										<div v-else class="col">
 											{{value}}
 										</div>
 									</div>
-									<div v-if="key == 'avatar'" id="avatarForm" class="d-none row">
+									<div v-if="key == 'avatar'" id="avatarForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
 											avatar form
 										</div>
 									</div>
-									<div v-if="key == 'name'" id="nameForm" class="d-none row">
+									<div v-if="key == 'name'" id="nameForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
-											name form
+											<div class="row">
+												<div class="col-10">
+													<input class="mt-1 mb-1" type="text" name="newName" id="newName" placeholder="enter new name"></input>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-10">		
+													<input class="mt-1 mb-1" type="text" name="confirmNewName" id="confirmNewName" placeholder="confirm new name"></input>
+												</div>
+												<div class="col-2 mb-1 mt-1 float-right">
+													<button v-on:click="updateName()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
+														<b-icon-brush></b-icon-brush>
+													</button>
+												</div>	
+											</div>
 										</div>
 									</div>
-									<div v-if="key == 'email'" id="emailForm" class="d-none row">
+									<div v-if="key == 'email'" id="emailForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
-											email form
+											<div class="row">
+												<div class="col-10">
+													<input class="mt-1 mb-1" type="text" name="newEmail" id="newEmail" placeholder="enter new email"></input>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-10">		
+													<input class="mt-1 mb-1" type="text" name="confirmNewEmail" id="confirmNewEmail" placeholder="confirm new email"></input>
+												</div>
+												<div class="col-2 mb-1 mt-1 float-right">
+													<button v-on:click="updateEmail()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
+														<b-icon-brush></b-icon-brush>
+													</button>
+												</div>	
+											</div>
 										</div>
 									</div>
-									<div v-if="key == 'credits'" id="creditsForm" class="d-none row">
+									<div v-if="key == 'credits'" id="creditsForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
 											credits form
 										</div>
 									</div>
-									<div v-if="key == 'membership'" id="membershipForm" class="d-none row">
+									<div v-if="key == 'membership'" id="membershipForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
 											memebrship form
 										</div>
 									</div>
+									<div v-if="key == 'profile_video'" id="profileVideoForm" class="d-none row ml-0 mr-0 bg-info">
+										<div class="col">
+											profile video form
+										</div>
+									</div>
 								</div>
 							</div>
+							
+							<div class="row">
+								<div class="w-100 bg-secondary mb-3">
+									<div class="row mr-0">
+										<div class="col-10 text-left">
+											<span class="pl-3">password</span>											
+										</div>
+										<div class="col-2">
+											<button v-on:click="expandPasswordMenu()" class="float-right border border-success badge badge-pill badge-secondary align-middle">							
+												<b-icon-chevron-bar-expand></b-icon-chevron-bar-expand>
+											</button>
+										</div>
+									</div>
+									<div id="passwordForm" class="d-none row ml-0 mr-0 bg-info">
+										<div class="col">
+											<div class="row">
+												<div class="col-10">
+													<input class="mt-1 mb-1" type="text" name="currentPassword" id="currentPassword" placeholder="enter current password"></input>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-10">
+													<input class="mt-1 mb-1" type="text" name="newPassword" id="newPassword" placeholder="enter new password"></input>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-10">		
+													<input class="mt-1 mb-1" type="text" name="confirmPassword" id="confirmPassword" placeholder="confirm new password"></input>
+												</div>
+												<div class="col-2 mb-1 mt-1 float-right">
+													<button v-on:click="updatePassword()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
+														<b-icon-brush></b-icon-brush>
+													</button>
+												</div>	
+											</div>
+										</div>
+									</div>
+								</div>	
+							</div>
+							
 						</div>
 					</div>
 				</section>
@@ -96,8 +187,18 @@
 		data() {
 			return {
 				errorList: [],
-				userData: ''
+				userData: '',
+				name: '',
+				email: '',
+				newPassword: '',
+				currentPassword: '',
 			}
+		},
+		filters: {
+			cleanLaravelDate: 
+				function(value) {
+					return value.substring(0,10);
+				}
 		},
 		mounted() { 
 			Csrf.getCookie().then(() => {
@@ -117,6 +218,30 @@
 				});
 		},		
 		methods: {
+			updateName() {
+				
+			},
+			updateEmail() {
+				
+			},
+			expandPasswordMenu() {
+				document.querySelector('#passwordForm').classList.toggle('d-none');
+			},
+			expandProfileVideoMenu() {
+				document.querySelector('#profileVideoForm').classList.toggle('d-none');
+			},
+			updateProfileVideo() {
+			
+			},
+			updatePassword() {
+			
+			},
+			updateMembership() {
+				
+			},
+			updateCredits() {
+				
+			},
 			logout() {
 				User.logout({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token')).then((response) => {
 					sessionStorage.removeItem('token');
@@ -141,6 +266,9 @@
 						break;
 					case 'membership':
 						document.querySelector('#membershipForm').classList.toggle('d-none');
+						break;
+					case 'profile_video':
+						document.querySelector('#profileVideoForm').classList.toggle('d-none');
 						break;	
 					default:
 						break;
