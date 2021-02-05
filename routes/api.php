@@ -30,6 +30,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/createCharacter', 'App\Http\Controllers\CharacterController@createCharacter');
 	Route::post('/generateMap', 'App\Http\Controllers\MapController@generateMap');
 	Route::post('/getUserProfile', 'App\Http\Controllers\RegistrationController@getUserProfile');
+	Route::post('/updateProfileVideo', 'App\Http\Controllers\RegistrationController@updateProfileVideo');
 	//store
 	Route::post('/getStoreItems', 'App\Http\Controllers\GameStoreController@getStoreItems');
 	Route::post('/addCartItem', 'App\Http\Controllers\GameStoreController@addCartItem');

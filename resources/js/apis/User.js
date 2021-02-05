@@ -96,7 +96,16 @@ export default {
 	async generateMap(form, token) {
 		await Csrf.getCookie();
 		return Api.post('/generateMap',form,{headers: {
-			'Content-type' : 'application/json',
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
+	async updateProfileVideo(form, token) {
+		await Csrf.getCookie();
+		return Api.post('/updateProfileVideo',form,{headers: {
+			//'Content-type' : 'multipart/form-data',
+			//'boundary' : Math.random().toString().substr(2),
 			'Authorization': `Bearer ${token}` 
 		}});
 	},

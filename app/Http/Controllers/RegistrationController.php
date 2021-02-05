@@ -154,5 +154,33 @@ class RegistrationController extends Controller
 			report($e);
 			return response(['status' => 'Profile could not be retrieved. Please report to admin.'], 422);
 		}
+	}
+
+	//spa add a profile video
+	public function updateProfileVideo(Request $request) 
+	{
+		$request->validate([
+			'profileVideo' => 'required|mimes:mp4'
+		]);
+		
+		try {
+			//gets user, to update record with an avatar image
+			$username = $request->user()->name;
+			$myUser = User::where('name', $username)->first();
+			//processes and stores
+			$file = $request->file('profileVideo');			
+			//getting timestamp
+			$timestamp = str_replace([' ', ':'], '-', Carbon::now()->toDateTimeString());
+			$name = $timestamp. '-' .$file->getClientOriginalName();
+			$file->move(public_path().'/vid/rpgGame/', $name);
+			$vidPath = url('/vid/rpgGame/' . $name);
+			$myUser->profileVideo()->save($vidPath);
+			$myUser->save();
+			return response(['userData' => $userData], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Profile video could not be processed. Please report to admin.'], 422);
+		}
 	}	
 }

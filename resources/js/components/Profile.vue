@@ -17,12 +17,12 @@
 					</div>
 				</header>
 				
-				<div v-if="!!sysError" class="row text-center mt-2 mb-2">
+				<div v-if="!!sysError" class="d-none row text-center mt-2 mb-2">
 					<div class="col-sm-8 alert alert-warning" role="alert">
 						<span class="text-danger">{{sysError}}</span>
 					</div>
 				</div>
-				<div v-if="errorList.addText || errorList.removeText" class="col-sm-8 alert alert-warning text-center" role="alert">
+				<div v-if="!!errorList" class="d-none col-sm-8 alert alert-warning text-center" role="alert">
 					<span v-if="errorList.addText" class="text-danger">{{errorList.addText[0]}}</span>
 					<span v-if="errorList.removeText" class="text-danger">{{errorList.removeText[0]}}</span>
 				</div>
@@ -123,8 +123,28 @@
 									</div>
 									<div v-if="key == 'profile_video'" id="profileVideoForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
-											profile video form
+										
+											<div class="row">
+												<div class="col">
+													<video id="profileVideo" width="420">
+													<source src="" type="video/mp4">
+													Your browser does not support HTML video.
+													</video>
+													<button v-on:click="playPauseProfileVideo()">Play/Pause</button> 
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col">
+													<input @change="processVideoFile" class="mb-1 mt-1" type="file" id="profileVideoFile" name="profileVideoFile">
+													<button type="submit" @click.prevent="updateProfileVideo" class="mb-1 mt-1">Upload</button>
+												</div>
+											</div>											
+										
+										
 										</div>
+										
+										
 									</div>
 								</div>
 							</div>
@@ -192,6 +212,7 @@
 				email: '',
 				newPassword: '',
 				currentPassword: '',
+				profileVideo: ''
 			}
 		},
 		filters: {
@@ -230,8 +251,31 @@
 			expandProfileVideoMenu() {
 				document.querySelector('#profileVideoForm').classList.toggle('d-none');
 			},
+			processVideoFile(event) {
+				this.profileVideo = event.target.files
+			},
 			updateProfileVideo() {
-			
+				console.log(this.profileVideo);
+				let formData = new FormData();
+				formData.append('profileVideo', this.profileVideo);
+				
+				Csrf.getCookie().then(() => {
+					User.updateProfileVideo({
+						_method: 'POST',
+						formData,
+						token: sessionStorage.getItem('token'),
+					},
+						sessionStorage.getItem('token')
+					)
+					.then(response => {
+						console.log(response);
+						this.errorList = [];
+					})
+					.catch(error => {
+						if(error.response.status == 422)
+							this.errorList = error.response.data.errors;
+					});
+				});
 			},
 			updatePassword() {
 			
@@ -241,6 +285,13 @@
 			},
 			updateCredits() {
 				
+			},
+			playPauseProfileVideo() {
+				let profileVideo = document.querySelector('#profileVideo');
+				if(profileVideo.paused)
+					profileVideo.play();
+				else
+					profileVideo.pause();
 			},
 			logout() {
 				User.logout({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token')).then((response) => {

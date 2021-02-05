@@ -28,8 +28,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'avatar', 'credits', 'membership', 'membershipBegin', 
-			'membershipEnd', 'playtime', 'saveGame'
+        'name', 'email', 'password', 'avatar', 'profile_video', 'credits', 'membership', 'membership_start_date', 
+			'membership_end_date', 'playtime', 'saveGame'
     ];
 
     /**
@@ -71,6 +71,16 @@ class User extends Authenticatable
 	public function score()
 	{
 		return $this->hasOne('App\Models\rpgGameScore', 'rpg_game_user_id', 'id');
+	}
+	
+	public function profileImage()
+	{
+		return $this->hasOne('App\Models\ProfileImage', 'rpg_game_user_id', 'id');
+	}
+	
+	public function profileVideo()
+	{
+		return $this->hasOne('App\Models\ProfileVideo', 'rpg_game_user_id', 'id');
 	}
 	
 	public function payments()
