@@ -20,8 +20,6 @@ class CreateRpgusersTable extends Migration
     {
         Schema::create('rpggameusers', function (Blueprint $table) {
             $table->increments('id');
-			$table->binary('avatar')->nullable();
-			$table->binary('profile_video')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('account_verified_date')->nullable();

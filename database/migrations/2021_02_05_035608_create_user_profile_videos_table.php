@@ -16,7 +16,7 @@ class CreateUserProfileVideosTable extends Migration
         Schema::create('user_profile_videos', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('user_id')->unsigned();
-			$table->binary('profileVideo');
+			$table->binary('profile_video');
             $table->timestamps();
 			$table->foreign('user_id')->references('id')->on('rpggameusers')->onDelete('cascade'); 
         });

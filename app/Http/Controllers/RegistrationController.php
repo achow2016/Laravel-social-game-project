@@ -9,9 +9,10 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-//use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
+use App\Models\ProfileVideo;
 use DateTime;
 use DateInterval;
 
@@ -159,8 +160,11 @@ class RegistrationController extends Controller
 	//spa add a profile video
 	public function updateProfileVideo(Request $request) 
 	{
+
+		Log::debug($request->all());
+		
 		$request->validate([
-			'profileVideo' => 'required|mimes:mp4'
+			//'profileVideo' => 'required|mimes:mp4'
 		]);
 		
 		try {
@@ -169,14 +173,19 @@ class RegistrationController extends Controller
 			$myUser = User::where('name', $username)->first();
 			//processes and stores
 			$file = $request->file('profileVideo');			
+			//$file = file_get_contents($request->profileVideo->path());
+			//$file = $_POST['profileVideo'];			
 			//getting timestamp
 			$timestamp = str_replace([' ', ':'], '-', Carbon::now()->toDateTimeString());
 			$name = $timestamp. '-' .$file->getClientOriginalName();
 			$file->move(public_path().'/vid/rpgGame/', $name);
 			$vidPath = url('/vid/rpgGame/' . $name);
-			$myUser->profileVideo()->save($vidPath);
+			$profileVideo = new ProfileVideo();
+			$profileVideo->user_id = $myUser->id;
+			$profileVideo->profile_video = $vidPath;
+			$myUser->profileVideo()->save($profileVideo);
 			$myUser->save();
-			return response(['userData' => $userData], 200);
+			return response(['userData' => $myUser], 200);
 		}
 		catch(Throwable $e) {
 			report($e);

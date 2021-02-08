@@ -102,9 +102,13 @@ export default {
 		}});
 	},
 	async updateProfileVideo(form, token) {
+		console.log(form);
 		await Csrf.getCookie();
 		return Api.post('/updateProfileVideo',form,{headers: {
 			//'Content-type' : 'multipart/form-data',
+			//'Content-type' : 'application/x-www-form-urlencoded',
+			//'Content-Type': 'multipart/form-data',
+			//'enctype' : 'multipart/form-data',
 			//'boundary' : Math.random().toString().substr(2),
 			'Authorization': `Bearer ${token}` 
 		}});

@@ -80,7 +80,7 @@ class User extends Authenticatable
 	
 	public function profileVideo()
 	{
-		return $this->hasOne('App\Models\ProfileVideo', 'rpg_game_user_id', 'id');
+		return $this->hasOne('App\Models\ProfileVideo', 'user_id', 'id');
 	}
 	
 	public function payments()

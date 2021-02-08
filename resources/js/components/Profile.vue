@@ -212,7 +212,8 @@
 				email: '',
 				newPassword: '',
 				currentPassword: '',
-				profileVideo: ''
+				profileVideo: '',
+				formData: ''
 			}
 		},
 		filters: {
@@ -252,17 +253,44 @@
 				document.querySelector('#profileVideoForm').classList.toggle('d-none');
 			},
 			processVideoFile(event) {
-				this.profileVideo = event.target.files
+				this.profileVideo = event.target.files[0];
 			},
 			updateProfileVideo() {
 				console.log(this.profileVideo);
-				let formData = new FormData();
-				formData.append('profileVideo', this.profileVideo);
+				this.formData = new FormData();
+				this.formData.append('profileVideo', this.profileVideo);
+				this.formData.append('_method', 'POST');
+				
+				for (var key of this.formData.entries()) {
+				console.log(key[0] + ', ' + key[1]);
+				}
+				
+				
+				
+				const headers = { 
+  'Content-Type': 'multipart/form-data',
+  'enctype' : 'multipart/form-data',
+  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+}
+
+axios({
+  method : "POST",
+  baseURL: 'http://127.0.0.1:8000/api',
+  url    : 'http://127.0.0.1:8000/api/updateProfileVideo',
+  params : '',
+  data   : this.formData,
+  headers: headers,
+}).then(response => {
+  return response
+})
+
+return;
+				
 				
 				Csrf.getCookie().then(() => {
 					User.updateProfileVideo({
 						_method: 'POST',
-						formData,
+						profileVideo: this.formData,
 						token: sessionStorage.getItem('token'),
 					},
 						sessionStorage.getItem('token')
