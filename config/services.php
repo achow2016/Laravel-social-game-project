@@ -14,6 +14,10 @@ return [
     |
     */
 
+	'ipinfo' => [
+		'access_token' => env('IPINFO_TOKEN'),
+	],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

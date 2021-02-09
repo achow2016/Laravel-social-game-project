@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-//use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
 use App\Models\VisitorRecord;
@@ -25,7 +25,8 @@ class GuestbookController extends Controller
 	
 	//registers guest visit to guestbook
 	public function recordGuest(Request $request)
-	{	
+	{
+		//Log::debug($request->ipinfo->all);
 		try {
 			$ipAddress = $request->ip();
 			$guest = VisitorRecord::where('ip_address', $ipAddress)->first();
@@ -67,13 +68,15 @@ class GuestbookController extends Controller
 			$ipAddress = $request->ip();
 			$guest = VisitorRecord::where('ip_address', $ipAddress)->first();
 			$guestNote = $guest->guestBookNote()->first();
-			if(empty($request->name) || empty($request->email))
+			//if(empty($request->name) || empty($request->email))
+			if(empty($request->name))
 				return response(['inputError' => 'A field was empty.'], 422);
 				
 			if(!$guestNote) {			
 				$guestBookNote = new GuestBookNote();
 				$guestBookNote->setAttribute('name', $request->name);
 				$guestBookNote->setAttribute('visitor_id', $guest->id);
+				$guestBookNote->setAttribute('country', $request->ipinfo->country_name);
 				$guestBookNote->setAttribute('date', Carbon::now());
 				$guestBookNote->setAttribute('note', $request->note);
 				$guestBookNote->setAttribute('email', $request->email);			

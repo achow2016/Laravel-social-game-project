@@ -45,6 +45,18 @@
 											Name: {{guestbookNote.name}}
 										</div>
 									</div>
+									
+									<div v-if="guestbookNote.country != null" class="row">
+										<div class="col">
+											Country: {{guestbookNote.country}}
+										</div>
+									</div>
+								
+									<div v-else class="row">
+										<div class="col">
+											Country: none
+										</div>
+									</div>
 								
 									<div class="row">
 										<div class="col">

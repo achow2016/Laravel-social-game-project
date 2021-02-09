@@ -19,6 +19,7 @@ class CreateVisitorGuestbookNotesTable extends Migration
             $table->longText('note');
 			$table->string('email')->nullable();
 			$table->string('name');
+			$table->string('country')->nullable();
 			$table->date('date');
             $table->timestamps();
 			$table->foreign('visitor_id')->references('id')->on('visitor_records')->onDelete('cascade'); 

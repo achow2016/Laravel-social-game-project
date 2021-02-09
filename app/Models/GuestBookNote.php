@@ -15,7 +15,7 @@ class GuestBookNote extends Model{
      * @var array
      */
     protected $fillable = [
-		'visitorId', 'name', 'note', 'date', 'email'
+		'visitorId', 'country', 'name', 'note', 'date', 'email'
     ];
 	
 	public function guest() {

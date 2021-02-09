@@ -86,7 +86,12 @@
 		</article>
 		<footer v-bind:style="bottomFooter" class="row p-3 m-3">
 			<div class="col text-center">
-				<small>&copy;Copyright 2020 Alan</small>
+				<small>&copy;Copyright 2020</small>
+				<div v-for="data in personalInfo">
+					<small>By: {{data[0].name}}</small>
+					<br>
+					<small>Made In: {{data[0].country}}</small>
+				</div>
 			</div>
 		</footer>
 	
@@ -95,11 +100,15 @@
 <script>
 	//https://www.publicdomainpictures.net/en/view-image.php?image=23549&picture=newspapers-and-glasses
 	//https://www.publicdomainpictures.net/pictures/100000/velka/night-sky-with-lonely-tree.jpg
+	
+	import personalInfo from '../../../public/json/PersonalInfo.json';
 	export default {
 		data() {
 			return {
+				personalInfo: personalInfo,
 				user: {
-					name: 'demo'
+					name: 'demo',
+					
 				},
 				topSection: {
 					color: 'white',
@@ -122,6 +131,8 @@
 					opacity: .7	
 				}
 			}
+		},
+		mounted() {
 		},
 		methods: {
 			toggleToDefault() {
