@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
 use App\Models\ProfileVideo;
+use App\Models\ProfileImage;
 use DateTime;
 use DateInterval;
 
@@ -148,8 +149,12 @@ class RegistrationController extends Controller
 	//spa get account profile
 	public function getUserProfile(Request $request) {
 		try {
-			$userData = User::where('name', $request->user()->name)->first();
-			return response(['userData' => $userData], 200);
+			$userData = User::where('name', $request->user()->name)->first();			
+			$userData['profile_image'] = $userData->profileImage;
+			$userData['profile_video'] = $userData->profileVideo;
+			return response([
+				'userData' => $userData
+			],200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -168,7 +173,7 @@ class RegistrationController extends Controller
 		]);
 		
 		try {
-			//gets user, to update record with an avatar image
+			//gets user, to update record with an profile video
 			$username = $request->user()->name;
 			$myUser = User::where('name', $username)->first();
 			//processes and stores
@@ -184,12 +189,53 @@ class RegistrationController extends Controller
 			$profileVideo->user_id = $myUser->id;
 			$profileVideo->profile_video = $vidPath;
 			$myUser->profileVideo()->save($profileVideo);
+			$myUser['profile_image'] = $myUser->profileImage;
+			$myUser['profile_video'] = $myUser->profileVideo;
 			$myUser->save();
 			return response(['userData' => $myUser], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
 			return response(['status' => 'Profile video could not be processed. Please report to admin.'], 422);
+		}
+	}
+
+//spa add a profile video
+	public function updateProfileImage(Request $request) 
+	{
+
+		Log::debug($request->all());
+		
+		$request->validate([
+			//'profileVideo' => 'required|mimes:mp4'
+		]);
+		
+		try {
+			//gets user, to update record with an avatar image
+			$username = $request->user()->name;
+			$myUser = User::where('name', $username)->first();
+			//processes and stores
+			$file = $request->file('profileImage');			
+			//$file = file_get_contents($request->profileVideo->path());
+			//$file = $_POST['profileVideo'];			
+			//getting timestamp
+			$timestamp = str_replace([' ', ':'], '-', Carbon::now()->toDateTimeString());
+			$name = $timestamp. '-' .$file->getClientOriginalName();
+			$file->move(public_path().'/img/rpgGame/', $name);
+			$picPath = url('/img/rpgGame/' . $name);
+			$profileimage = new ProfileImage();
+			$profileimage->user_id = $myUser->id;
+			$profileimage->profile_image = $picPath;
+			$myUser->profileImage()->delete();
+			$myUser->profileImage()->save($profileimage);
+			$myUser->save();
+			$myUser['profile_image'] = $myUser->profileImage;
+			$myUser['profile_video'] = $myUser->profileVideo;
+			return response(['userData' => $myUser], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Profile image could not be processed. Please report to admin.'], 422);
 		}
 	}	
 }

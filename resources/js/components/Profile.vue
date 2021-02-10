@@ -8,8 +8,8 @@
 						<div class="flex-fill w-33">
 							<router-link :to="{ name: 'welcome' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
 						</div>	
-						<div class="flex-fill w-33 h-75">
-							<h3 class="mt-1">Profile</h3>
+						<div class="flex-fill w-33 h-100 bg-secondary">
+							<h3>Profile</h3>
 						</div>	
 						<div class="flex-fill w-33">
 							<button v-on:click="logout" type="button" class="btn btn-dark flex-fill w-100">Logout</button>
@@ -40,10 +40,11 @@
 											<span v-else-if="key == 'created_at'" class="pl-3">account created</span>
 											<span v-else-if="key == 'updated_at'" class="pl-3">account updated</span>
 											<span v-else-if="key == 'profile_video'" class="pl-3">profile video</span>
+											<span v-else-if="key == 'profile_image'" class="pl-3">profile avatar</span>
 											<span v-else class="pl-3">{{key}}</span>
 										</div>
 										<div class="col-2">
-											<button v-bind:class="key" v-if="['avatar','name','email','credits','membership','profile_video'].indexOf(key) > -1" v-on:click="openSection(key)" class="float-right border border-success badge badge-pill badge-secondary align-middle">							
+											<button v-bind:class="key" v-if="['avatar','name','email','credits','membership','profile_video','profile_image'].indexOf(key) > -1" v-on:click="openSection(key)" class="float-right border border-success badge badge-pill badge-secondary align-middle">							
 												<b-icon-chevron-bar-expand v-bind:class="key" ></b-icon-chevron-bar-expand>
 											</button>
 											<button v-else v-bind:class="key" v-on:click="" class="float-right border border-danger badge badge-pill badge-secondary align-middle">
@@ -64,15 +65,23 @@
 										<div v-else-if="key == 'updated_at'" class="col">
 											{{value | cleanLaravelDate}} 
 										</div>
+										<div v-else-if="key == 'profile_video' && value != null"" class="col">
+											Video Set 
+										</div>
+										<div v-else-if="key == 'profile_video' && value == null"" class="col">
+											No Video  
+										</div>
+										<div v-else-if="key == 'profile_image' && value != null"" class="col">
+											Avatar Set 
+										</div>
+										<div v-else-if="key == 'profile_image' && value == null"" class="col">
+											No Avatar  
+										</div>
 										<div v-else class="col">
 											{{value}}
 										</div>
 									</div>
-									<div v-if="key == 'avatar'" id="avatarForm" class="d-none row ml-0 mr-0 bg-info">
-										<div class="col">
-											avatar form
-										</div>
-									</div>
+									
 									<div v-if="key == 'name'" id="nameForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
 											<div class="row">
@@ -124,9 +133,9 @@
 									<div v-if="key == 'profile_video'" id="profileVideoForm" class="d-none row ml-0 mr-0 bg-info">
 										<div class="col">
 										
-											<div class="row">
+											<div class="row mt-3">
 												<div class="col">
-													<video id="profileVideo" width="420">
+													<video class="embed-responsive" id="profileVideo" width="420">
 													<source src="" type="video/mp4">
 													Your browser does not support HTML video.
 													</video>
@@ -139,13 +148,27 @@
 													<input @change="processVideoFile" class="mb-1 mt-1" type="file" id="profileVideoFile" name="profileVideoFile">
 													<button type="submit" @click.prevent="updateProfileVideo" class="mb-1 mt-1">Upload</button>
 												</div>
-											</div>											
-										
-										
-										</div>
-										
-										
+											</div>
+										</div>	
 									</div>
+									<div v-if="key == 'profile_image'" id="profileImageForm" class="d-none row ml-0 mr-0 bg-info">
+										<div class="col">
+										
+											<div class="row mt-3">
+												<div class="col">
+													<img class="img-fluid" src="" id="profileImage">
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col">
+													<input @change="processImageFile" class="mb-1 mt-1" type="file" id="profileImageFile" name="profileImageFile">
+													<button type="submit" @click.prevent="updateProfileImage" class="mb-1 mt-1">Upload</button>
+												</div>
+											</div>
+										</div>	
+									</div>
+									
 								</div>
 							</div>
 							
@@ -213,6 +236,7 @@
 				newPassword: '',
 				currentPassword: '',
 				profileVideo: '',
+				profileImage: '',
 				formData: ''
 			}
 		},
@@ -240,6 +264,29 @@
 				});
 		},		
 		methods: {
+			getUserData() {
+				Csrf.getCookie().then(() => {
+					User.getUserProfile({
+						_method: 'POST',
+						token: sessionStorage.getItem('token')
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then(response => {
+						console.log(response);
+						this.userData = response.data.userData;
+					})
+					.catch(error => {
+					
+					});
+				});
+			},
+			getUserVideo() {
+				return this.userData.profile_video;
+			},
+			getUserImage() {
+				return this.userData.profile_image;
+			},
 			updateName() {
 				
 			},
@@ -255,6 +302,9 @@
 			processVideoFile(event) {
 				this.profileVideo = event.target.files[0];
 			},
+			processImageFile(event) {
+				this.profileImage = event.target.files[0];
+			},
 			updateProfileVideo() {
 				console.log(this.profileVideo);
 				this.formData = new FormData();
@@ -262,48 +312,52 @@
 				this.formData.append('_method', 'POST');
 				
 				for (var key of this.formData.entries()) {
-				console.log(key[0] + ', ' + key[1]);
-				}
-				
-				
-				
+					console.log(key[0] + ', ' + key[1]);
+				}				
 				const headers = { 
-  'Content-Type': 'multipart/form-data',
-  'enctype' : 'multipart/form-data',
-  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
-}
-
-axios({
-  method : "POST",
-  baseURL: 'http://127.0.0.1:8000/api',
-  url    : 'http://127.0.0.1:8000/api/updateProfileVideo',
-  params : '',
-  data   : this.formData,
-  headers: headers,
-}).then(response => {
-  return response
-})
-
-return;
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/updateProfileVideo',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					this.userData = response.data.userData;
+					document.querySelector('#profileVideo').setAttribute('src', this.getUserVideo().profile_video);
+					return;
+				})
+			},
+			updateProfileImage() {
+				console.log(this.profileImage);
+				this.formData = new FormData();
+				this.formData.append('profileImage', this.profileImage);
+				this.formData.append('_method', 'POST');
 				
-				
-				Csrf.getCookie().then(() => {
-					User.updateProfileVideo({
-						_method: 'POST',
-						profileVideo: this.formData,
-						token: sessionStorage.getItem('token'),
-					},
-						sessionStorage.getItem('token')
-					)
-					.then(response => {
-						console.log(response);
-						this.errorList = [];
-					})
-					.catch(error => {
-						if(error.response.status == 422)
-							this.errorList = error.response.data.errors;
-					});
-				});
+				for (var key of this.formData.entries()) {
+					console.log(key[0] + ', ' + key[1]);
+				}				
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/updateProfileImage',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					this.userData = response.data.userData;
+					document.querySelector('#profileImage').setAttribute('src', this.getUserImage().profile_image);
+					return;
+				})
 			},
 			updatePassword() {
 			
@@ -347,7 +401,14 @@ return;
 						document.querySelector('#membershipForm').classList.toggle('d-none');
 						break;
 					case 'profile_video':
+						if(this.getUserVideo())
+							document.querySelector('#profileVideo').setAttribute('src', this.getUserVideo().profile_video);
 						document.querySelector('#profileVideoForm').classList.toggle('d-none');
+						break;
+					case 'profile_image':
+						if(this.getUserImage())
+							document.querySelector('#profileImage').setAttribute('src', this.getUserImage().profile_image);
+						document.querySelector('#profileImageForm').classList.toggle('d-none');
 						break;	
 					default:
 						break;

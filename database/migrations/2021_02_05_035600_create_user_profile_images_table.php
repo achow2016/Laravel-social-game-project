@@ -16,7 +16,7 @@ class CreateUserProfileImagesTable extends Migration
         Schema::create('user_profile_images', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('user_id')->unsigned();
-			$table->binary('profileImage');
+			$table->binary('profile_image');
             $table->timestamps();
 			$table->foreign('user_id')->references('id')->on('rpggameusers')->onDelete('cascade'); 
         });

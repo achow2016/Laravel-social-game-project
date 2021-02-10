@@ -75,7 +75,7 @@ class User extends Authenticatable
 	
 	public function profileImage()
 	{
-		return $this->hasOne('App\Models\ProfileImage', 'rpg_game_user_id', 'id');
+		return $this->hasOne('App\Models\ProfileImage', 'user_id', 'id');
 	}
 	
 	public function profileVideo()
