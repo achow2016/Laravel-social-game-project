@@ -169,30 +169,32 @@ class RegistrationController extends Controller
 		Log::debug($request->all());
 		
 		$request->validate([
-			//'profileVideo' => 'required|mimes:mp4'
+			'profileVideo' => 'required|mimes:mp4'
 		]);
 		
 		try {
-			//gets user, to update record with an profile video
 			$username = $request->user()->name;
 			$myUser = User::where('name', $username)->first();
-			//processes and stores
+			
 			$file = $request->file('profileVideo');			
-			//$file = file_get_contents($request->profileVideo->path());
-			//$file = $_POST['profileVideo'];			
-			//getting timestamp
 			$timestamp = str_replace([' ', ':'], '-', Carbon::now()->toDateTimeString());
 			$name = $timestamp. '-' .$file->getClientOriginalName();
 			$file->move(public_path().'/vid/rpgGame/', $name);
 			$vidPath = url('/vid/rpgGame/' . $name);
+			
 			$profileVideo = new ProfileVideo();
 			$profileVideo->user_id = $myUser->id;
 			$profileVideo->profile_video = $vidPath;
+			
+			$myUser->profileVideo()->delete();
 			$myUser->profileVideo()->save($profileVideo);
-			$myUser['profile_image'] = $myUser->profileImage;
-			$myUser['profile_video'] = $myUser->profileVideo;
 			$myUser->save();
-			return response(['userData' => $myUser], 200);
+			
+			return response([
+				'userData' => $myUser, 
+				'profile_video' => $myUser->profileVideo()->get(), 
+				'profile_image' => $myUser->profileImage()->get()
+			], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -211,27 +213,44 @@ class RegistrationController extends Controller
 		]);
 		
 		try {
-			//gets user, to update record with an avatar image
 			$username = $request->user()->name;
 			$myUser = User::where('name', $username)->first();
-			//processes and stores
-			$file = $request->file('profileImage');			
-			//$file = file_get_contents($request->profileVideo->path());
-			//$file = $_POST['profileVideo'];			
-			//getting timestamp
-			$timestamp = str_replace([' ', ':'], '-', Carbon::now()->toDateTimeString());
-			$name = $timestamp. '-' .$file->getClientOriginalName();
-			$file->move(public_path().'/img/rpgGame/', $name);
-			$picPath = url('/img/rpgGame/' . $name);
-			$profileimage = new ProfileImage();
-			$profileimage->user_id = $myUser->id;
-			$profileimage->profile_image = $picPath;
-			$myUser->profileImage()->delete();
-			$myUser->profileImage()->save($profileimage);
-			$myUser->save();
-			$myUser['profile_image'] = $myUser->profileImage;
-			$myUser['profile_video'] = $myUser->profileVideo;
-			return response(['userData' => $myUser], 200);
+
+			//Log::debug($myUser->profileImage()->get());
+			
+			if(sizeof($myUser->profileImage()->get()) != 0) {
+				$oldHttpPath = $myUser->profileImage()->get()[0]->profile_image;
+				$oldFileName = substr($oldHttpPath, strrpos($oldHttpPath, '/') + 1);
+				Log::debug($oldFileName);
+				unlink(public_path(). str_replace('/','\\','/img/rpgGame/'. $oldFileName));
+				$myUser->profileImage()->delete();
+				$file = $request->file('profileImage');			
+				$name = $myUser->id . '_profile_image.jpg';
+				$file->move(public_path(). '/img/rpgGame/', $name);
+				$picPath = url('/img/rpgGame/' . $name);
+				$profileimage = new ProfileImage();
+				$profileimage->user_id = $myUser->id;
+				$profileimage->profile_image = $picPath;
+				$myUser->profileImage()->save($profileimage);
+				$myUser->save();
+			}
+			else {
+				$file = $request->file('profileImage');			
+				$name = $myUser->id . '_profile_image.jpg';
+				$file->move(public_path(). '/img/rpgGame/', $name);
+				$picPath = url('/img/rpgGame/' . $name);
+				$profileimage = new ProfileImage();
+				$profileimage->user_id = $myUser->id;
+				$profileimage->profile_image = $picPath;
+				$myUser->profileImage()->save($profileimage);
+				$myUser->save();
+			}
+			
+			return response([
+				'userData' => $myUser, 
+				'profile_video' => $myUser->profileVideo()->get(), 
+				'profile_image' => $myUser->profileImage()->get()
+			], 200);
 		}
 		catch(Throwable $e) {
 			report($e);

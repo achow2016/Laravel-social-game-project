@@ -135,8 +135,7 @@
 										
 											<div class="row mt-3">
 												<div class="col">
-													<video class="embed-responsive" id="profileVideo" width="420">
-													<source src="" type="video/mp4">
+													<video src="" class="embed-responsive" id="profileVideo" width="420">
 													Your browser does not support HTML video.
 													</video>
 													<button v-on:click="playPauseProfileVideo()">Play/Pause</button> 
@@ -246,7 +245,7 @@
 					return value.substring(0,10);
 				}
 		},
-		mounted() { 
+		mounted() {
 			Csrf.getCookie().then(() => {
 					User.getUserProfile({
 						_method: 'POST',
@@ -255,7 +254,6 @@
 						sessionStorage.getItem('token')
 					)
 					.then(response => {
-						console.log(response);
 						this.userData = response.data.userData;
 					})
 					.catch(error => {
@@ -273,7 +271,6 @@
 						sessionStorage.getItem('token')
 					)
 					.then(response => {
-						console.log(response);
 						this.userData = response.data.userData;
 					})
 					.catch(error => {
@@ -282,10 +279,10 @@
 				});
 			},
 			getUserVideo() {
-				return this.userData.profile_video;
+				return this.userData['profile_video'];
 			},
 			getUserImage() {
-				return this.userData.profile_image;
+				return this.userData['profile_image'];
 			},
 			updateName() {
 				
@@ -306,14 +303,10 @@
 				this.profileImage = event.target.files[0];
 			},
 			updateProfileVideo() {
-				console.log(this.profileVideo);
 				this.formData = new FormData();
 				this.formData.append('profileVideo', this.profileVideo);
 				this.formData.append('_method', 'POST');
 				
-				for (var key of this.formData.entries()) {
-					console.log(key[0] + ', ' + key[1]);
-				}				
 				const headers = { 
 				  'Content-Type': 'multipart/form-data',
 				  'enctype' : 'multipart/form-data',
@@ -327,20 +320,14 @@
 					data   : this.formData,
 					headers: headers,
 				}).then(response => {
-					this.userData = response.data.userData;
-					document.querySelector('#profileVideo').setAttribute('src', this.getUserVideo().profile_video);
-					return;
+					location.reload();
 				})
 			},
 			updateProfileImage() {
-				console.log(this.profileImage);
 				this.formData = new FormData();
 				this.formData.append('profileImage', this.profileImage);
 				this.formData.append('_method', 'POST');
-				
-				for (var key of this.formData.entries()) {
-					console.log(key[0] + ', ' + key[1]);
-				}				
+	
 				const headers = { 
 				  'Content-Type': 'multipart/form-data',
 				  'enctype' : 'multipart/form-data',
@@ -354,9 +341,7 @@
 					data   : this.formData,
 					headers: headers,
 				}).then(response => {
-					this.userData = response.data.userData;
-					document.querySelector('#profileImage').setAttribute('src', this.getUserImage().profile_image);
-					return;
+					location.reload();
 				})
 			},
 			updatePassword() {
@@ -382,7 +367,6 @@
 				});
 			},
 			openSection(key) {
-				console.log(key);
 				let section = key;
 				switch(section) {
 					case 'avatar':
