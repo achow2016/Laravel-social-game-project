@@ -35,13 +35,8 @@ class GameStoreController extends Controller {
 			$user = User::where('name', $name)->first();
 			$cashShopItem = CashShopItem::where('id', $request->itemId)->first();
 			//creates user cart if none present
-			$cart = null;
 			if(!$user->cart()->exists()) {
-				$cart = new Cart();
-				$cart->setAttribute('user_id', $user->id);
-				$date = new DateTime("now");
-				$cart->setAttribute('date', $date);
-				$user->cart()->save($cart);
+				$this->createCart($name);
 			}
 			//check if item already in db, if so increment amounts
 			$doubledItem = CartItem::where('cart_id', $user->id)->where('name', $cashShopItem->name)->first();
@@ -71,6 +66,25 @@ class GameStoreController extends Controller {
 		}
 	}
 	
+	//create cart for user
+	public function createCart($username)
+	{
+		try {
+			$user = User::where('name', $username)->first();
+			$cart = new Cart();
+			$cart->setAttribute('user_id', $user->id);
+			$date = new DateTime("now");
+			$cart->setAttribute('date', $date);
+			$user->cart()->save($cart);
+			return response(['status' => 'Cart created for user.'], 200);
+		} 
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Cart ould not be created. Please report to admin.'], 422);
+		}
+	}
+	
+	
 	//gets cart total and sum of all items in cart
 	public function getCartItems(Request $request)
 	{
@@ -78,8 +92,16 @@ class GameStoreController extends Controller {
 			$name = $request->user()->name;
 			$user = User::where('name', $name)->first();
 			$cart = Cart::where('user_id', $user->id)->first();
-			$cartItems = $cart->cartItems()->get();
-			$cartTotal = $cart->cartItems()->sum(\DB::raw('cart_items.price * cart_items.quantity'));
+			if($cart)
+				$cartItems = $cart->cartItems()->get();
+			else {
+				$this->createCart($name);
+				$cartItems = null;
+				$cartTotal = 0;
+			}
+			if($cartItems != null)
+				$cartTotal = $cart->cartItems()->sum(\DB::raw('cart_items.price * cart_items.quantity'));
+			
 			return response(['cartTotal' => $cartTotal, 'cartItems' => $cartItems], 200);
 		} 
 		catch(Throwable $e) {

@@ -37,4 +37,8 @@ class CashShopItem extends Model
     protected $casts = [
         //'email_verified_at' => 'datetime',
     ];
+	
+	public function orders() {
+		return $this->hasMany('App\Models\GameOrderItem', 'item_id', 'id');	
+	}
 }

@@ -19,8 +19,9 @@ class CreatePaymentsTable extends Migration
 			$table->decimal('amount', $precision = 12, $scale = 2); //precision.scale\
 			$table->string('email');
 			$table->string('name');
-			$table->integer('rpg_game_user_id')->unsigned();
-			$table->foreign('rpg_game_user_id')->references('id')->on('rpgGameUsers')->onDelete('cascade'); 
+			$table->integer('user_id')->unsigned();
+			$table->foreign('user_id')->references('id')->on('rpgGameUsers')->onDelete('cascade'); 
+			$table->foreign('user_id')->references('id')->on('orders')->onDelete('cascade'); 
             $table->timestamps();
         });
     }
