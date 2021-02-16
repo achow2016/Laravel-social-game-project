@@ -101,6 +101,14 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async getMap(form, token) {
+		await Csrf.getCookie();
+		return Api.post('/getMap',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	async updateProfileVideo(form, token) {
 		console.log(form);
 		await Csrf.getCookie();

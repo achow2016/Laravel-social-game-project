@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-//use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 //models
 use App\Models\GameMap;
@@ -83,6 +83,23 @@ class MapController extends Controller {
 				$gameMap->tileset()->save($tileSet);		
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Map could not be listed. Please report to admin.'], 422);
+		}	
+	}	
+	
+	public function getmap(Request $request) 
+	{
+		try {
+			$charId = Character::where('ownerUser', $request->user()->id)->first()->id;
+			$existingMap = GameMap::where('character_id', $charId)->first();
+			Log::debug($existingMap->tileset()->first());
+			if($existingMap)
+				return response(['mapData' => $existingMap->tileset()->first()->mapData], 200);
+			else
+				return response(['status' => 'No map, please start a new game.'], 422);
 		}
 		catch(Throwable $e) {
 			report($e);

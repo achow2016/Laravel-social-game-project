@@ -41,7 +41,7 @@ class GameMap extends Model
     ];
 	
 	public function character() {
-		return $this->belongsTo('App\Models\Character', 'id', 'character_id');	
+		return $this->belongsTo('App\Models\Character', 'character_id', 'id');	
 	}	
 	
 	public function enemies() {

@@ -11,10 +11,10 @@
 				</div>
 			
 				<div class="form-group row">
-					<div v-if="!!navError" class="col-sm-8 alert alert-warning" role="alert">
+					<div v-if="!!navError" class="col-sm-12 alert alert-warning" role="alert">
 						<span class="text-danger">{{navError}}</span>
 					</div>
-					<div v-if="errorList.message" class="col-sm-8 alert alert-warning" role="alert">
+					<div v-if="errorList.message" class="col-sm-12 alert alert-warning" role="alert">
 						<span class="text-danger">{{errorList.message[0]}}</span>
 					</div>	
 				</div>

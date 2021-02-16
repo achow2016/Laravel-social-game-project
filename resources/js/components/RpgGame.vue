@@ -7,7 +7,7 @@
 					<router-link :to="{ name: 'welcome' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
 				</div>	
 				<div class="flex-fill w-33 h-75">
-					<h3 class="mt-1">Map Builder</h3>
+					<h3 class="mt-1">Rpg Game</h3>
 				</div>	
 				<div class="flex-fill w-33">
 					<button v-on:click="logout" type="button" class="btn btn-dark flex-fill w-100">Logout</button>
@@ -17,7 +17,7 @@
 	
 		<div class="row text-center mt-5 mb-2">
 			<div class="col">
-				<h5>Rpg game map builder</h5>
+				<h5>Rpg Game</h5>
 			</div>
 		</div>
 		
@@ -30,29 +30,19 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="row mt-2 mb-2">
-			<div class="col">		
-				
-				<div class="row">
-					<div id="startPoint" class="col text-center">		
-					</div>
-				</div>
-				
-				<div class="row">
-					<div id="endPoint" class="col text-center">	
-					</div>
-				</div>
-				
-			</div>
-		</div>
 		
 		<div class="row fixed-bottom">
-			<div class="col">
-				<div class="centered-button">
-					<button v-on:click="beginGame" id="beginGame" type="button" class="w-100 btn btn-dark active">Begin Game</button>
-				</div>
-			</div>	
+			<div class="col text-center d-flex">		
+				<div class="flex-fill w-33">
+					<button v-on:click="openInventory" type="button" class="btn btn-dark flex-fill w-100">Inventory</button>
+				</div>	
+				<div class="flex-fill w-33 h-75">
+					<button v-on:click="openStatus" type="button" class="btn btn-dark flex-fill w-100">Status</button>
+				</div>	
+				<div class="flex-fill w-33">
+					<button v-on:click="openGameMenu" type="button" class="btn btn-dark flex-fill w-100">Menu</button>
+				</div>	
+			</div>
 		</div>
 				
 		
@@ -65,25 +55,18 @@
 		props : [],
 		data() {
 			return {
-				startPoint: '',
-				endPoint: '',
 				mapData: ''
 			}
 		},
 		mounted() { 
-			User.generateMap({
+			User.getMap({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 
 					sessionStorage.getItem('token')
 				)
 				.then((response) => {
-					let gameMap = response.data.gameMap;
-					let mapData = response.data.mapData;
-					let tileSet = response.data.tileSet;
-					
-					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
-					this.endPoint = [gameMap.endPoint[0], gameMap.endPoint[1]];
-					this.mapData = mapData;
+					console.log(JSON.parse(response.data.mapData));
+					this.mapData = JSON.parse(response.data.mapData);
 					
 					document.getElementById('mapGrid').innerHTML = ""; 
 					for (let i = 0; i < 8; i++) {
@@ -95,12 +78,12 @@
 							let element = document.createElement('div');
 							element.classList.add('col');
 							element.setAttribute('id', 'row' + i + 'col' + j);
-							if(mapData[i][j].terrain == 'grass')
+							if(this.mapData[i][j].terrain == 'grass')
 								element.classList.add('bg-success');
 							else
 								element.classList.add('bg-primary');
 							
-							if(mapData[i][j].treeCover == true) {
+							if(this.mapData[i][j].treeCover == true) {
 								let treeMarker = document.createTextNode('T');
 								element.appendChild(treeMarker);
 								element.classList.add('tree');
@@ -112,17 +95,27 @@
 							}
 							document.getElementById('row' + i).appendChild(element);
 						}
-					}
-					let startPoint = document.createTextNode('Starting point: ' + this.startPoint[0] + ',' + this.startPoint[1]);
-					document.getElementById('startPoint').appendChild(startPoint);
-					let endPoint = document.createTextNode('Ending point: ' + this.endPoint[0] + ',' + this.endPoint[1]);
-					document.getElementById('endPoint').appendChild(endPoint);
-					
+					}	
 				});
 		},
 		methods: {
-			beginGame() {
-				this.$router.push('rpgGame');
+			moveCharacter(event) {
+
+			},
+			openInventory() {
+
+			},
+			openStatus() {
+
+			},
+			openGameMenu() {
+
+			},
+			inspect() {
+
+			},
+			saveAndQuit() {
+
 			},
 			logout() {
 				User.logout({

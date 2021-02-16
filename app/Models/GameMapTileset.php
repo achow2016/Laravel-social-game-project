@@ -35,11 +35,11 @@ class GameMapTileset extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
-		'mapData' => 'array'
+		//'mapData' => 'array'
 		
     ];
 	
 	public function map() {
-		return $this->belongsTo('App\Models\GameMap', 'id', 'map_id');	
+		return $this->belongsTo('App\Models\GameMap', 'character_id', 'map_id');	
 	}	
 }

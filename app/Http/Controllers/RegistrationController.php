@@ -158,7 +158,7 @@ class RegistrationController extends Controller
 		}
 		catch(Throwable $e) {
 			report($e);
-			return response(['status' => 'Profile could not be retrieved. Please report to admin.'], 422);
+			return response(['status' => 'Profile could not be retrieved. Please register or report to admin.'], 422);
 		}
 	}
 

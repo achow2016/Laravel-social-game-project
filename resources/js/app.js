@@ -40,6 +40,7 @@ import Register from './components/Register'
 import Home from './components/Home'
 import ResetPassword from './components/ResetPassword'
 import CharacterBuilder from './components/CharacterBuilder'
+import RpgGame from './components/RpgGame'
 import Chat from './components/Chat'
 import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
@@ -60,7 +61,7 @@ function loginCheck(to, from, next) {
 			if(error.response.status == 401)
 				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
 			else
-				next({name:'login', params:{navError: 'Could not get user state from database, contact administrator.'}, replace:true});
+				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
 		});
 }
 
@@ -199,7 +200,16 @@ const router = new VueRouter({
 			beforeEnter (to, from, next) {
 				loginCheck(to,from,next);
 			}
-		},	
+		},
+		{
+			path: '/rpgGame',
+			name: 'rpgGame',
+			component: RpgGame,
+			props: {},
+			beforeEnter (to, from, next) {
+				loginCheck(to,from,next);
+			}
+		},		
 		//catch all if non-defined url is entered. Goes to login page or user welcome landing
 		/*
 		{

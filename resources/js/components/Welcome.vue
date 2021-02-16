@@ -3,7 +3,7 @@
 		<div class="row mx-auto">
 			<div class="col">
 				
-				<div class="row text-center mt-5 mb-5 pb-5 pt-5">
+				<div class="row text-center mt-5 mb-5">
 					<div class="col">
 						<h1>Rpg game</h1>
 						<h5>Welcome, {{username}}!</h5>
@@ -19,50 +19,51 @@
 				<div class="row mt-5 pt-5">
 					<div class="col">
 					
-						<div class="row mt-5">
+						<div class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="newGame" id="startButton" type="button" class="btn btn-dark active w-100">New Game</button>
 							</div>
 						</div>
 						
-						<div v-if="!!saveGame" class="row mt-5">
+						<div v-if="!!saveGame" class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="loadGame" id="continueButton" type="button" class="btn btn-dark active w-100">Continue</button>
 							</div>
 						</div>
 						
-						<div class="row mt-5">
+						<div class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="listScores" type="button" class="btn btn-dark active w-100">Scores</button>
 							</div>
 						</div>
 						
-						<div class="row mt-5">
+						<div class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="chat" type="button" class="btn btn-dark active w-100">Chat</button>
 							</div>
 						</div>
 						
-						<div class="row mt-5">
+						<div class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="gameStore" type="button" class="btn btn-dark active w-100">Store</button>
 							</div>
 						</div>
 						
-						<div class="row mt-5">
+						<div class="row mt-5 menuOption">
 							<div class="col">
 								<button v-on:click="profile" type="button" class="btn btn-dark active w-100">Profile</button>
+							</div>
+						</div>
+						
+						<div class="row mt-5 menuOption">
+							<div class="col">
+								<button v-on:click="logout" type="button" class="btn btn-dark w-100">Logout</button>
 							</div>
 						</div>
 
 					</div>		
 				</div>	
 				
-				<nav class="row fixed-bottom">
-					<div class="col btn-group" role="group">
-						<button v-on:click="logout" type="button" class="btn btn-dark w-100">Logout</button>
-					</div>				
-				</nav>
 			</div>
 		</div>
     </div>
@@ -117,4 +118,20 @@
 	}
 </script>
 <style scoped>
+	
+	@media (min-width: 406px) and (max-width: 767.98px) and (orientation: landscape){ 
+		.row .mt-5 .menuOption {
+			width: 80% !important;
+			margin: auto !important;
+		}	
+	}
+
+	@media (min-width: 400px) {
+		.row .mt-5 .menuOption {
+			width: 60% !important;
+			margin: auto !important;
+			padding-top: 20px !important;
+		}	
+	}
+
 </style>
