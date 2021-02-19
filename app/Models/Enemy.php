@@ -18,7 +18,7 @@ class Enemy extends Model
      * @var array
      */
     protected $fillable = [
-        'map_id', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
+        'mapId', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'baseAttackCost',
 		'staminaRegen', 'healthRegen',
 		'attackMultiplier', 'defenseMultiplier',
@@ -45,6 +45,6 @@ class Enemy extends Model
     ];
 	
 	public function gameMap() {
-		return $this->belongsTo('App\Models\GameMap', 'id', 'map_id');
+		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
 	}
 }

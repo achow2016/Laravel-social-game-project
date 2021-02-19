@@ -1,0 +1,68 @@
+{
+	"skills": [
+		{ 
+			"name":"Arm Smash",
+			"bodyTarget":"100100000",
+			"stanceResult":"110110111",
+			"debuff":"Attack Reduction",
+			"debuffPercent":"10",
+			"debuffDuration":"10",
+			"debuffStackQuantity":"1",
+			"debuffStackMax":"10",
+			"effect":"none",
+			"effectQuantity":"0",
+			"range":"0",
+			"accuracyPercent":"100",
+			"meleePenaltyPercent":"10",
+			"staminaCost":"5"
+		},
+		{ 
+			"name":"Advancing Swing",
+			"bodyTarget":"100100000",
+			"stanceResult":"110110111",
+			"debuff":"none",
+			"debuffPercent":"0",
+			"debuffDuration":"0",
+			"debuffStackQuantity":"0",
+			"debuffStackMax":"0",
+			"effect":"Decrease Distance", 
+			"effectQuantity":"2",
+			"range":"2",
+			"percent":"100",
+			"meleePenaltyPercent":"0",
+			"staminaCost":"10" 
+		},
+		{ 
+			"name":"Retreating Cut",
+			"bodyTarget":"100100000",
+			"stanceResult":"110110111",
+			"debuff":"none",
+			"debuffPercent":"0",
+			"debuffDuration":"0",
+			"debuffStackQuantity":"0",
+			"debuffStackMax":"0",
+			"effect":"Increase Distance", 
+			"range":"6",
+			"effectQuantity":"2",
+			"percent":"100", 
+			meleePercentagePenalty":"50",
+			"staminaCost":"10" 
+		},
+		{ 
+			"name":"Heavy Attack",
+			"bodyTarget":"100100000",
+			"stanceResult":"100100110",
+			"debuff":"none",
+			"debuffPercent":"0",
+			"debuffDuration":"0",
+			"debuffStackQuantity":"0",
+			"debuffStackMax":"0",
+			"effect":"none",
+			"range":"0",
+			"effectQuantity":"1",
+			"percent":"100",
+			"meleePercentagePenalty":"-100",
+			"staminaCost":"20" 
+		}
+	]
+}

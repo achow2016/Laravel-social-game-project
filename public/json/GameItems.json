@@ -1,0 +1,31 @@
+{
+	"items": [
+		{
+			"name":"First Aid Injector",
+			"effect":"Regen",
+			"effectStackAmount":"1",
+			"effectStackLimit":"1",
+			"effectPercent":"5",
+			"effectDuration":"10"
+			"shopValue":"10",
+		},
+		{
+			"name":"Small Treatment Kit",
+			"effect":"Regen",
+			"effectStackAmount":"1",
+			"effectStackLimit":"1",
+			"effectPercent":"30",
+			"effectDuration":"1",
+			"shopValue":"10"
+		},
+		{
+			"name":"Throwing Stone",
+			"effect":"Direct Damage",
+			"effectStackAmount":"1",
+			"effectStackLimit":"1",
+			"effectPercent":"100",
+			"effectDuration":"1",
+			"shopValue":"0"
+		}		
+	]
+}

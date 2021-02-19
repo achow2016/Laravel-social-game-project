@@ -39,11 +39,6 @@
 					</div>
 				</div>
 				
-				<div class="row">
-					<div id="endPoint" class="col text-center">	
-					</div>
-				</div>
-				
 			</div>
 		</div>
 		
@@ -66,7 +61,6 @@
 		data() {
 			return {
 				startPoint: '',
-				endPoint: '',
 				mapData: ''
 			}
 		},
@@ -82,7 +76,6 @@
 					let tileSet = response.data.tileSet;
 					
 					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
-					this.endPoint = [gameMap.endPoint[0], gameMap.endPoint[1]];
 					this.mapData = mapData;
 					
 					document.getElementById('mapGrid').innerHTML = ""; 
@@ -115,9 +108,6 @@
 					}
 					let startPoint = document.createTextNode('Starting point: ' + this.startPoint[0] + ',' + this.startPoint[1]);
 					document.getElementById('startPoint').appendChild(startPoint);
-					let endPoint = document.createTextNode('Ending point: ' + this.endPoint[0] + ',' + this.endPoint[1]);
-					document.getElementById('endPoint').appendChild(endPoint);
-					
 				});
 		},
 		methods: {

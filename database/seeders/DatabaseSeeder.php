@@ -48,15 +48,11 @@ class DatabaseSeeder extends Seeder
 		
 		//enemies
 		
-		
-		$data = null;
-		
+		//$data = null;
 		$enemiesJsonPath = public_path() . '\json\Enemies.json';
 		$data = file_get_contents($enemiesJsonPath);
-		error_log($data);
+		//error_log($data);
 		$data = json_decode($data, true);
-		
-		
 		
 		foreach ($data['enemy'] as $item) {            
 			$enemy = new Enemy();
@@ -92,6 +88,11 @@ class DatabaseSeeder extends Seeder
 			$cashShopItem->setAttribute('cost', $item['cost']);
 			$cashShopItem->save();	
 		}
+		
+		
+		
+		
+		
 		
 		//$output = new ConsoleOutput();
 		//$output->writeln(var_dump($data['race'][0]['race']));

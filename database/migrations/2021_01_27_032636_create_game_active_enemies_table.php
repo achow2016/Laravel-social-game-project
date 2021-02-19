@@ -16,11 +16,11 @@ class CreateGameActiveEnemiesTable extends Migration
 		Schema::dropIfExists('game_active_enemies');
         Schema::create('game_active_enemies', function (Blueprint $table) {
             $table->increments('id');
+			$table->string('name');
 			$table->binary('avatar')->nullable();
 			$table->string('gameRace');
-			$table->string('name');
 			$table->string('gameClass');
-			$table->integer('ownerMap')->unsigned();
+			$table->integer('mapId')->unsigned();
 			$table->integer('health')->default('0');
 			$table->integer('stamina')->default('0');
 			$table->integer('accuracy')->default('1');
@@ -41,7 +41,7 @@ class CreateGameActiveEnemiesTable extends Migration
 			//$table->integer('inventorySet')->unsigned();
             
 			
-			$table->foreign('ownerMap')->references('id')->on('game_map')->onDelete('cascade'); 
+			$table->foreign('mapId')->references('id')->on('game_map')->onDelete('cascade'); 
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 

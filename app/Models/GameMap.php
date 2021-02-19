@@ -18,7 +18,7 @@ class GameMap extends Model
      * @var array
      */
     protected $fillable = [
-        'character_id', 'startPoint', 'endPoint'
+        'character_id', 'level', 'startPoint'
 	];
 
     /**

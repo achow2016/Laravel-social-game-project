@@ -41,7 +41,7 @@ class MapController extends Controller {
 			$tileSet->setAttribute('waterCover', $waterAlloc);
 			$tileSet->setAttribute('treeCover', $treeCover);	
 			
-			//creates the map in 2d array
+			//creates the map tileset in 2d array
 			$map = [[]];
 			for ($row = 0; $row < 8; $row++) {
 				for ($col = 0; $col < 8; $col++) {
@@ -60,10 +60,10 @@ class MapController extends Controller {
 			
 			$tileSet->setAttribute('mapData', json_encode($map));
 			
+			//creates and matchs the game map to the character
 			$existingMap = GameMap::where('character_id', $charId)->first();
 			if($existingMap) {
 				$existingMap->startPoint = [rand(0,8), rand(0,8)];
-				$existingMap->endPoint = [rand(0,8), rand(0,8)];
 				$existingMap->save();
 				$tileCheck = $existingMap->tileset()->first();
 				if($tileCheck)
@@ -75,7 +75,7 @@ class MapController extends Controller {
 				$gameMap = new GameMap();
 				$gameMap->setAttribute('character_id', $charId);				
 				$gameMap->setAttribute('startPoint', [rand(0,8), rand(0,8)]);
-				$gameMap->setAttribute('endPoint', [rand(0,8), rand(0,8)]);
+				$gameMap->setAttribute('level', 1);
 				$gameMap->save();
 				$tileCheck = $gameMap->tileset()->first();
 				if($tileCheck)
@@ -83,6 +83,9 @@ class MapController extends Controller {
 				$gameMap->tileset()->save($tileSet);		
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
+			
+			//creates enemies for the map
+			
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -90,7 +93,7 @@ class MapController extends Controller {
 		}	
 	}	
 	
-	public function getmap(Request $request) 
+	public function getMap(Request $request) 
 	{
 		try {
 			$charId = Character::where('ownerUser', $request->user()->id)->first()->id;
