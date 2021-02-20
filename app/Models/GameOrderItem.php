@@ -14,14 +14,14 @@ class GameOrderItem extends Model {
      * @var array
      */
     protected $fillable = [
-		"order_id", "item_id", "name", "itemDescription", "type", "duration", "quantity", "cost"
+		"orderId", "itemId", "name", "itemDescription", "type", "duration", "quantity", "cost"
     ];
 	
     public function order() {
-		return $this->belongsTo('App\Models\GameOrder', 'order_id', 'order_id');	
+		return $this->belongsTo('App\Models\GameOrder', 'orderId', 'orderId');	
 	}
 	
 	public function itemDetail() {
-		return $this->belongsTo('App\Models\CashShopItem', 'id', 'item_id');	
+		return $this->belongsTo('App\Models\CashShopItem', 'id', 'itemId');	
 	}
 }

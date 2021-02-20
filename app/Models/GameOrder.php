@@ -14,18 +14,18 @@ class GameOrder extends Model {
      * @var array
      */
     protected $fillable = [
-		'order_id', 'user_id'
+		'userId'
     ];
 	
     public function user() {
-		return $this->belongsTo('App\Models\rpgGameUser', 'id', 'user_id');	
+		return $this->belongsTo('App\Models\rpgGameUser', 'id', 'userId');	
 	}
 
 	public function payment() {
-		return $this->hasOne('App\Models\GamePayment', 'id', 'user_id');	
+		return $this->hasOne('App\Models\GamePayment', 'orderId', 'id');	
 	}
 
 	public function items() {
-		return $this->hasMany('App\Models\GameOrderItem', 'order_id', 'order_id');	
+		return $this->hasMany('App\Models\GameOrderItem', 'orderId', 'id');	
 	}		
 }

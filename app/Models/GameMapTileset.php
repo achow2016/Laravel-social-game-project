@@ -17,7 +17,7 @@ class GameMapTileset extends Model
      * @var array
      */
     protected $fillable = [
-        'map_id', 'mapData', 'grassCover', 'waterCover', 'treeCover'
+        'mapId', 'mapData', 'grassCover', 'waterCover', 'treeCover'
 	];
 
     /**
@@ -40,6 +40,6 @@ class GameMapTileset extends Model
     ];
 	
 	public function map() {
-		return $this->belongsTo('App\Models\GameMap', 'character_id', 'map_id');	
+		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');	
 	}	
 }

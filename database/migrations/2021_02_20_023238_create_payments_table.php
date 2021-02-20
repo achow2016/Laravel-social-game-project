@@ -13,15 +13,15 @@ class CreatePaymentsTable extends Migration
      */
     public function up()
     {
-		Schema::dropIfExists('payments');
         Schema::create('payments', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
 			$table->decimal('amount', $precision = 12, $scale = 2); //precision.scale\
 			$table->string('email');
 			$table->string('name');
-			$table->integer('user_id')->unsigned();
-			$table->foreign('user_id')->references('id')->on('rpgGameUsers')->onDelete('cascade'); 
-			$table->foreign('user_id')->references('id')->on('orders')->onDelete('cascade'); 
+			$table->integer('userId')->unsigned();
+			$table->integer('orderId')->unsigned();
+			$table->foreign('userId')->references('id')->on('rpggameusers')->onDelete('cascade'); 
+			$table->foreign('orderId')->references('id')->on('orders')->onDelete('cascade'); 
             $table->timestamps();
         });
     }

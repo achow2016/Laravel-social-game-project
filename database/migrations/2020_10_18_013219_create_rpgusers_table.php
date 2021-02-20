@@ -18,6 +18,7 @@ class CreateRpgusersTable extends Migration
 	
     public function up()
     {
+		Schema::dropIfExists('rpggameusers');
         Schema::create('rpggameusers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');

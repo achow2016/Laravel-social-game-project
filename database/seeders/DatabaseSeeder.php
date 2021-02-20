@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 //use Illuminate\Support\Facades\File;
 //use Illuminate\Support\Facades\Storage;
 use App\Models\CharacterRace;
-use App\Models\Enemy;
+use App\Models\GameEnemy;
 use App\Models\CashShopItem;
 use App\Models\Post;
 //use Symfony\Component\Console\Output\ConsoleOutput;
@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
 		$data = json_decode($data, true);
 		
 		foreach ($data['enemy'] as $item) {            
-			$enemy = new Enemy();
+			$enemy = new GameEnemy();
 			$enemy->setAttribute('name', $item['name']);
 			$enemy->setAttribute('gameRace', $item['gameRace']);
 			$enemy->setAttribute('gameClass', $item['gameClass']);

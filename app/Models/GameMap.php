@@ -9,7 +9,7 @@ class GameMap extends Model
 {
 	use HasFactory;
 	
-	protected $table = 'game_map';
+	protected $table = 'game_maps';
 	protected $primaryKey = 'id';
 
     /**
@@ -18,7 +18,8 @@ class GameMap extends Model
      * @var array
      */
     protected $fillable = [
-        'character_id', 'level', 'startPoint'
+        'level', 
+		'startPoint', 'playerPosition'
 	];
 
     /**
@@ -37,22 +38,22 @@ class GameMap extends Model
     protected $casts = [
         //'email_verified_at' => 'datetime',
 		'startPoint' => 'array',
-		'endPoint' => 'array'
+		'playerPosition' => 'array',
     ];
 	
 	public function character() {
-		return $this->belongsTo('App\Models\Character', 'character_id', 'id');	
+		return $this->hasOne('App\Models\Character', 'mapId', 'id');	
 	}	
 	
 	public function enemies() {
-		return $this->hasMany('App\Models\Enemy', 'map_id', 'id');
+		return $this->hasMany('App\Models\Enemy', 'mapId', 'id');
 	}
 	
 	public function mapItems() {
-		return $this->hasMany('App\Models\MapItem', 'id', 'character_id');
+		return $this->hasMany('App\Models\MapItem', 'mapId', 'id');
 	}
 	
 	public function tileset() {
-		return $this->hasOne('App\Models\GameMapTileset', 'map_id', 'character_id');
+		return $this->hasOne('App\Models\GameMapTileset', 'mapId', 'id');
 	}
 }

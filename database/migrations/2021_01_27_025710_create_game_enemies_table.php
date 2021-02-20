@@ -20,7 +20,6 @@ class CreateGameEnemiesTable extends Migration
 			$table->string('gameRace');
 			$table->string('name');
 			$table->string('gameClass');
-			$table->integer('mapId')->unsigned();
 			$table->integer('health')->default('0');
 			$table->integer('stamina')->default('0');
 			$table->integer('accuracy')->default('1');

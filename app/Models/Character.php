@@ -18,10 +18,10 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
+		'mapId',
         'ownerUser', 'charactername', 'raceId', 'avatar',
 		'page', 'chapter', 
 		'health', 'stamina', 'accuracy', 'agility', 'attack',
-		'mapPosition',
 		'scoreTotal', 'damageDone', 'damageReceived', 'chaptersCleared', 'money', 'earningsTotal',
 		'staminaRegen', 'healthRegen',
 		'attackMultiplier', 'defenseMultiplier'
@@ -42,6 +42,7 @@ class Character extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
+		'mapPosition' => 'array',
     ];
 	
 	public function user() {
@@ -53,7 +54,7 @@ class Character extends Model
 	}
 	
 	public function gameMap() {
-		return $this->hasOne('App\Models\GameMap', 'map_id', 'id');
+		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
 	}
 	
 	//many other models and db game data tables needed to be added and seeded

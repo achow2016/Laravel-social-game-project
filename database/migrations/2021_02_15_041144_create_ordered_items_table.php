@@ -15,8 +15,8 @@ class CreateOrderedItemsTable extends Migration
     {
         Schema::create('ordered_items', function (Blueprint $table) {
             $table->increments('id');
-			$table->integer('order_id')->unsigned();
-			$table->integer('item_id')->unsigned();
+			$table->integer('orderId')->unsigned();
+			$table->integer('itemId')->unsigned();
 			$table->string('name');
 			$table->longText('itemDescription');
 			$table->string('type');
@@ -24,8 +24,8 @@ class CreateOrderedItemsTable extends Migration
 			$table->integer('quantity')->default('0');
 			$table->integer('cost')->default('0');
             $table->timestamps();
-			$table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade'); 
-			$table->foreign('item_id')->references('id')->on('cashshop_inventory')->onDelete('cascade'); 
+			$table->foreign('orderId')->references('id')->on('orders')->onDelete('cascade'); 
+			$table->foreign('itemId')->references('id')->on('cashshop_inventory')->onDelete('cascade'); 
         });
     }
 

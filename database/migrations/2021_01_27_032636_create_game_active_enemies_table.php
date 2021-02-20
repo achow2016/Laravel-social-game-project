@@ -21,6 +21,7 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->string('gameRace');
 			$table->string('gameClass');
 			$table->integer('mapId')->unsigned();
+			$table->integer('raceId')->unsigned();
 			$table->integer('health')->default('0');
 			$table->integer('stamina')->default('0');
 			$table->integer('accuracy')->default('1');
@@ -41,7 +42,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			//$table->integer('inventorySet')->unsigned();
             
 			
-			$table->foreign('mapId')->references('id')->on('game_map')->onDelete('cascade'); 
+			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
+			$table->foreign('raceId')->references('id')->on('character_race')->onDelete('cascade'); 
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 

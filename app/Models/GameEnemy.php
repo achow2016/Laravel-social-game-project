@@ -5,11 +5,11 @@ use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Database\Factories\CharacterFactory;
 
-class Enemy extends Model
+class GameEnemy extends Model
 {
 	//use HasFactory;
 	
-	protected $table = 'game_active_enemies';
+	protected $table = 'game_enemies';
 	protected $primaryKey = 'id';
 
     /**
@@ -18,11 +18,10 @@ class Enemy extends Model
      * @var array
      */
     protected $fillable = [
-        'mapId', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
+        'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'baseAttackCost',
 		'staminaRegen', 'healthRegen',
 		'attackMultiplier', 'defenseMultiplier',
-		'mapPosition',
 		'money'
 	];
 
@@ -46,5 +45,9 @@ class Enemy extends Model
 	
 	public function gameMap() {
 		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
+	}
+	
+	public function race() {
+		return $this->hasOne('App\Models\CharacterRace', 'id', 'raceId');
 	}
 }

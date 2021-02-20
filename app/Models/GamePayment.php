@@ -14,14 +14,14 @@ class GamePayment extends Model{
      * @var array
      */
     protected $fillable = [
-		'amount', 'user_id'
+		'amount', 'userId'
     ];
 	
     public function user() {
-		return $this->belongsTo('App\Models\rpgGameUser', 'id', 'user_id');	
+		return $this->belongsTo('App\Models\rpgGameUser', 'id', 'userId');	
 	}	
 	
 	public function order() {
-		return $this->belongsTo('App\Models\GameOrder', 'id', 'user_id');	
+		return $this->belongsTo('App\Models\GameOrder', 'id', 'userId');	
 	}	
 }

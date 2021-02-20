@@ -9,7 +9,7 @@ class Enemy extends Model
 {
 	//use HasFactory;
 	
-	protected $table = 'game_enemies';
+	protected $table = 'game_active_enemies';
 	protected $primaryKey = 'id';
 
     /**
@@ -41,6 +41,7 @@ class Enemy extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
+		'mapPosition' => 'array',
 		
     ];
 	
