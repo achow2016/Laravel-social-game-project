@@ -19,7 +19,7 @@ class GameMap extends Model
      */
     protected $fillable = [
         'level', 
-		'startPoint', 'playerPosition'
+		'startPoint'
 	];
 
     /**

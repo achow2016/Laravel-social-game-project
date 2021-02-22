@@ -18,7 +18,6 @@ class CreateGameMapsTable extends Migration
             $table->increments('id');
 			$table->integer('level')->default('0');
 			$table->json('startPoint')->nullable();
-			$table->json('playerPosition')->nullable();
             $table->timestamps();
         });
     }

@@ -89,9 +89,9 @@
 							element.classList.add('col');
 							element.setAttribute('id', 'row' + i + 'col' + j);
 							if(mapData[i][j].terrain == 'grass')
-								element.classList.add('bg-success');
+								element.classList.add('bg-success', 'border', 'border-dark');
 							else
-								element.classList.add('bg-primary');
+								element.classList.add('bg-primary', 'border', 'border-dark');
 							
 							if(mapData[i][j].treeCover == true) {
 								let treeMarker = document.createTextNode('T');

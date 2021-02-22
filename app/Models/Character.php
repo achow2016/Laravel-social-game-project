@@ -18,7 +18,7 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
-		'mapId',
+		'mapId', 'mapPosition',
         'ownerUser', 'charactername', 'raceId', 'avatar',
 		'page', 'chapter', 
 		'health', 'stamina', 'accuracy', 'agility', 'attack',

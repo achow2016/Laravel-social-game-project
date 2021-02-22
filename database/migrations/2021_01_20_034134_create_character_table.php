@@ -18,6 +18,7 @@ class CreateCharacterTable extends Migration
             $table->increments('id');
 			$table->binary('avatar')->nullable();
 			$table->integer('mapId')->unsigned()->nullable();
+			$table->json('mapPosition')->nullable();
 			$table->integer('raceId')->unsigned();
 			$table->integer('ownerUser')->unsigned();
 			$table->string('characterName')->unique();

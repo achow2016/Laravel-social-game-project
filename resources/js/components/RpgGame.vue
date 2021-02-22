@@ -36,7 +36,7 @@
 				<div id="directionGrid" class="text-center">
 					<div class="row mb-4 controllerRow">
 						<div class="col-4"><b-icon icon="arrow-up-left-circle"></b-icon></div>
-						<div class="col-4"><b-icon icon="arrow-up-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="up" class="col-4"><b-icon icon="arrow-up-circle"></b-icon></div>
 						<div class="col-4"><b-icon icon="arrow-up-right-circle"></b-icon></div>
 					</div>
 					<div class="row mb-4 controllerRow">
@@ -83,7 +83,9 @@
 		props : [],
 		data() {
 			return {
-				mapData: ''
+				mapData: '',
+				playerPosition: '',
+				terrainLayerData: '',
 			}
 		},
 		beforeMount() { 
@@ -95,6 +97,7 @@
 				.then((response) => {
 					console.log(JSON.parse(response.data.mapData));
 					this.mapData = JSON.parse(response.data.mapData);
+					this.playerPosition = response.data.playerPosition;
 					
 					document.getElementById('mapGrid').innerHTML = ""; 
 					for (let i = 0; i < 8; i++) {
@@ -108,25 +111,26 @@
 							element.setAttribute('id', 'row' + i + 'col' + j);
 							
 							if(this.mapData[i][j].terrain == 'grass')
-								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2');
+								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
 							else
-								element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2');
+								element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
 							
 							if(this.mapData[i][j].treeCover == true) {
 								let treeMarker = document.createTextNode('T');
+								element.id = i + '-' + j;
 								element.appendChild(treeMarker);
 								element.classList.add('tree');
 							}
 							else {
 								let openMarker = document.createTextNode('-');
+								element.id = i + '-' + j;
 								element.appendChild(openMarker);
 								element.classList.add('open');
 							}
 							document.getElementById('row' + i).appendChild(element);
 						}
 					}
-						
-					
+					this.drawPlayerPosition();
 				});
 			
 				
@@ -150,12 +154,49 @@
 
 			if(screen.height > 800) {
 				document.getElementsByTagName('body')[0].style.fontSize = '1.0rem';
-			}				
-			
+			}	
 		},
 		methods: {
+			drawPlayerPosition() {
+				let row = this.playerPosition[0];
+				let column = this.playerPosition[1];
+				let playerSquare = document.getElementById(row + '-' + column);
+				
+				//outlines player square
+				playerSquare.classList.toggle('border-dark');
+				playerSquare.classList.toggle('border-warning');
+				
+				//remembers what was on the square so player icon can be drawn over it
+				this.terrainLayerData = playerSquare.textContent;
+				
+				//draws player onto square
+				playerSquare.innerHTML = '';
+				let playerIcon = document.createElement('img');   
+				playerIcon.setAttribute('src', 'http://127.0.0.1:8000/img/pawn.svg');   
+				playerIcon.classList.toggle('img-fluid');   
+				playerSquare.appendChild(playerIcon);
+			},
 			moveCharacter(event) {
 
+				this.formData = new FormData();
+				this.formData.append('direction', event.currentTarget.id);
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/moveCharacter',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					console.log(response);
+				})
 			},
 			openInventory() {
 

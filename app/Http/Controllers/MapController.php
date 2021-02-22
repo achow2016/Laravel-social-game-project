@@ -39,7 +39,7 @@ class MapController extends Controller {
 				
 				//generates tileset here, percentages of terrain
 				$tileSet = new GameMapTileset();
-				$tileSet->setAttribute('mapId', $gameMap->id);
+				$tileSet->setAttribute('mapId', $existingMap->id);
 				$allocLimit = 1;
 				
 				//grass
@@ -75,22 +75,27 @@ class MapController extends Controller {
 							$map[$row][$col]->treeCover = false;
 					}
 				}
-				$tileSet->setAttribute('mapData', json_encode($map));
-
-					
+				//sets map tile data to tileset
+				$tileSet->setAttribute('mapData', json_encode($map));	
+				//saves tileset onto map
 				$existingMap->tileset()->save($tileSet);
+				//places character onto map starting position
+				$charObj->mapPosition = $existingMap->startPoint;
+				
 				return response(['gameMap' => $existingMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
 			else {
 				$gameMap = new GameMap();				
 				$gameMap->setAttribute('startPoint', [rand(0,8), rand(0,8)]);
 				$gameMap->setAttribute('level', 1);
+				
 				//attach enemy and player after start position defined
 				$gameMap->save();
 				$charObj->mapId = $gameMap->id;
+				$charObj->mapPosition = $gameMap->startPoint;
 				$charObj->save();
-				//$gameMap->character()->save($charObj);
 				
+				//replace or generate tileset data for map
 				$tileCheck = $gameMap->tileset()->first();
 				if($tileCheck)
 					$gameMap->tileset()->delete();
@@ -133,6 +138,8 @@ class MapController extends Controller {
 							$map[$row][$col]->treeCover = false;
 					}
 				}
+				
+				//sets tileset onto map
 				$tileSet->setAttribute('mapData', json_encode($map));
 				$gameMap->tileset()->save($tileSet);
 			
@@ -145,13 +152,15 @@ class MapController extends Controller {
 		}	
 	}	
 	
+	//gets generated map in game
 	public function getMap(Request $request) 
 	{
 		try {
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
 			if($existingMap)
-				return response(['mapData' => $existingMap->tileset()->first()->mapData], 200);
+				return response(['playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData], 200);
 			else
 				return response(['status' => 'No map, please start a new game.'], 422);
 		}
@@ -160,6 +169,36 @@ class MapController extends Controller {
 			return response(['status' => 'Map could not be listed. Please report to admin.'], 422);
 		}	
 	}	
+	
+	//moves character position
+	public function moveCharacter(Request $request) 
+	{
+		try {
+			$charObj = Character::where('ownerUser', $request->user()->id)->first();
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$movementChoice = null;
+			
+			Log::debug($request);
+			
+			if($existingMap) {
+				switch($request->direction) {
+					case 'up':
+						$movementChoice = 'up';
+						break;
+					default:	
+						break;
+				}		
+			
+				return response(['move' => $movementChoice, 'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData], 200);
+			}
+			else
+				return response(['status' => 'No map, please start a new game.'], 422);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Could not update player position. Please report to admin.'], 422);
+		}
+	}
 }
 ?>	
 
