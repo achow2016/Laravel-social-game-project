@@ -12,6 +12,8 @@ character creation screen, response
 https://user-images.githubusercontent.com/16962503/104146260-f79a4780-537e-11eb-9dd3-73b8e92bdabc.png  
 game map generation  
 https://user-images.githubusercontent.com/16962503/105568101-bc3b3980-5ceb-11eb-9b26-5ee2ef84c72e.png  
+early gameplay main screen  
+https://user-images.githubusercontent.com/16962503/108664315-5aefbd00-7487-11eb-8a5b-6146501766fd.png  
 
 Game chat board    
 Working on adding more functionality over the old textboard  
