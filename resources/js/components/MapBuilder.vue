@@ -61,10 +61,11 @@
 		data() {
 			return {
 				startPoint: '',
-				mapData: ''
+				mapData: '',
+				playerPosition: ''
 			}
 		},
-		mounted() { 
+		beforeMount() { 
 			User.generateMap({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 
@@ -84,22 +85,26 @@
 						row.classList.add('row');
 						row.setAttribute('id', 'row' + i);
 						document.getElementById('mapGrid').appendChild(row);
+						
 						for (let j = 0; j < 8; j++) {
 							let element = document.createElement('div');
 							element.classList.add('col');
-							element.setAttribute('id', 'row' + i + 'col' + j);
+							//element.setAttribute('id', 'row' + i + 'col' + j);
+							
 							if(mapData[i][j].terrain == 'grass')
-								element.classList.add('bg-success', 'border', 'border-dark');
+								element.classList.add('bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
 							else
-								element.classList.add('bg-primary', 'border', 'border-dark');
+								element.classList.add('bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
 							
 							if(mapData[i][j].treeCover == true) {
 								let treeMarker = document.createTextNode('T');
+								element.id = i + '-' + j;
 								element.appendChild(treeMarker);
 								element.classList.add('tree');
 							}
 							else {
 								let openMarker = document.createTextNode('-');
+								element.id = i + '-' + j;
 								element.appendChild(openMarker);
 								element.classList.add('open');
 							}
@@ -108,11 +113,34 @@
 					}
 					let startPoint = document.createTextNode('Starting point: ' + this.startPoint[0] + ',' + this.startPoint[1]);
 					document.getElementById('startPoint').appendChild(startPoint);
+					this.drawPlayerPosition();
 				});
+		},
+		mounted() {
 		},
 		methods: {
 			beginGame() {
 				this.$router.push('rpgGame');
+			},
+			drawPlayerPosition() {
+				//get current coords
+				let row = this.startPoint[0];
+				let column = this.startPoint[1];
+				let playerSquare = document.getElementById(row + '-' + column);
+				
+				//outlines player square
+				playerSquare.classList.toggle('border-dark');
+				playerSquare.classList.toggle('border-warning');
+				
+				//remembers what was on the square so player icon can be drawn over it
+				this.terrainLayerData = playerSquare.textContent;
+				
+				//draws player onto square
+				playerSquare.innerHTML = '';
+				let playerIcon = document.createElement('img');   
+				playerIcon.setAttribute('src', 'http://127.0.0.1:8000/img/pawn.svg');   
+				playerIcon.classList.toggle('img-fluid');   
+				playerSquare.appendChild(playerIcon);
 			},
 			logout() {
 				User.logout({

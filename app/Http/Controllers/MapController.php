@@ -22,24 +22,23 @@ class MapController extends Controller {
 			$charMapId = $charObj->mapId;
 			
 			//creates and matchs the game map to the character and enemies
-			$existingMap = GameMap::where('id', $charMapId)->first();
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			//if map present delete old one
 			if($existingMap) {
-				$existingMap->startPoint = [rand(0,8), rand(0,8)];
-				$existingMap->playerPosition = $existingMap->startPoint;
+				$existingMap->delete();
+				$gameMap = new GameMap();				
+				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
+				$gameMap->setAttribute('level', 1);
+				$gameMap->save();
 				
-				//attach enemy and player after start position defined
-				//attach player
-				$existingMap->save();
-				
-				
-				$tileCheck = $existingMap->tileset()->first();
+				$tileCheck = $gameMap->tileset()->first();
 				
 				if($tileCheck) 
-					$existingMap->tileset()->delete();
+					$gameMap->tileset()->delete();
 				
 				//generates tileset here, percentages of terrain
 				$tileSet = new GameMapTileset();
-				$tileSet->setAttribute('mapId', $existingMap->id);
+				$tileSet->setAttribute('mapId', $gameMap->id);
 				$allocLimit = 1;
 				
 				//grass
@@ -78,15 +77,15 @@ class MapController extends Controller {
 				//sets map tile data to tileset
 				$tileSet->setAttribute('mapData', json_encode($map));	
 				//saves tileset onto map
-				$existingMap->tileset()->save($tileSet);
+				$gameMap->tileset()->save($tileSet);
 				//places character onto map starting position
-				$charObj->mapPosition = $existingMap->startPoint;
+				$charObj->mapPosition = $gameMap->startPoint;
 				
-				return response(['gameMap' => $existingMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
+				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
 			else {
 				$gameMap = new GameMap();				
-				$gameMap->setAttribute('startPoint', [rand(0,8), rand(0,8)]);
+				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
 				$gameMap->setAttribute('level', 1);
 				
 				//attach enemy and player after start position defined
@@ -170,21 +169,94 @@ class MapController extends Controller {
 		}	
 	}	
 	
-	//moves character position
+	//moves character position 
+	//array is row, col with top left being [0,0]
 	public function moveCharacter(Request $request) 
 	{
 		try {
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			$movementChoice = null;
+			$currentRow = $charObj->mapPosition[0];
+			$currentColumn = $charObj->mapPosition[1];
 			
-			Log::debug($request);
+			Log::debug($currentRow . ',' . $currentColumn);
 			
 			if($existingMap) {
 				switch($request->direction) {
+				//NS or EW
 					case 'up':
 						$movementChoice = 'up';
+						if($currentRow >= 1) {
+							$currentRow--;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
 						break;
+					case 'down':
+						$movementChoice = 'down';
+						if($currentRow <= 6) {
+							$currentRow++;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					case 'left':
+						$movementChoice = 'left';
+						if($currentColumn >= 1) {
+							$currentColumn--;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					case 'right':
+						$movementChoice = 'right';
+						if($currentColumn <= 6) {
+							$currentColumn++;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					//diagonals
+					case 'upLeft':
+						$movementChoice = 'upLeft';
+						if($currentRow >= 1 && $currentColumn >= 1) {
+							$currentRow--;
+							$currentColumn--;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					case 'upRight':
+						$movementChoice = 'upRight';
+						if($currentRow >= 1 && $currentColumn <= 6) {
+							$currentRow--;
+							$currentColumn++;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					case 'downLeft':
+						$movementChoice = 'downLeft';
+						if($currentRow <= 6 && $currentColumn >= 1) {
+							$currentRow++;
+							$currentColumn--;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;
+					case 'downRight':
+						$movementChoice = 'downRight';
+						if($currentRow <= 6 && $currentColumn <= 6) {
+							$currentRow++;
+							$currentColumn++;
+							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
+							$charObj->save();
+						}	
+						break;	
+					case 'wait':
+						$movementChoice = 'wait';
+						break;	
 					default:	
 						break;
 				}		

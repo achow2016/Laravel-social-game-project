@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Character;
 use App\Models\CharacterRace;
 use App\Models\User;
+use App\Models\GameMap;
+use App\Models\GameMapTileset;
 
 //use DateTime;
 
@@ -18,10 +20,15 @@ class CharacterController extends Controller {
 	{
 		try {
 			$user = User::where('name', $request->user()->name)->first();
-			$charCheck = $user->character()->first();
-			if($charCheck)
-				$user->character()->delete();
 			
+			//deletes old character and map data if any
+			$charCheck = $user->character()->first();
+			if($charCheck) {
+				$gameMap = GameMap::where('id', $charCheck->mapId)->first();
+				$gameMap->tileset()->first()->delete();
+				$gameMap->delete();
+				$user->character()->delete();
+			}
 			
 			$request->validate([
 				'username' => 'required',

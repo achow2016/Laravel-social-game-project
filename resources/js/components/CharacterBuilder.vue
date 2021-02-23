@@ -185,7 +185,8 @@
 			User.getData({_method: 'POST', token: sessionStorage.getItem('token')},
 				sessionStorage.getItem('token'))
 				.then((response) => {
-					this.username = response.data.name;
+					console.log(response);
+					this.username = response.data.user.name;
 				});
 		},
 		methods: {

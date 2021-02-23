@@ -2,7 +2,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Hash;
 
 //use App\Mail\welcome;
 //use Illuminate\Support\Facades\Mail;
+
+//for getting character state if any
+use App\Models\Character;
+use App\Models\User;
 
 class SessionController extends Controller
 {
@@ -50,8 +55,13 @@ class SessionController extends Controller
 		return response('User logged out.', 200)->header('Content-Type', 'text/plain');
 	}
 	
-	//sends user data back to spa
+	//sends user data back to spa and character existence confirmation if any saved
 	public function getData(Request $request) {
-		return response($request->user(), 200)->header('Content-Type', 'text/plain');
+		$charObj = Character::where('ownerUser', $request->user()->id)->first();
+		if($charObj != null && $charObj->mapPosition != null) {
+			return response(['user' => $request->user(), 'characterState' => 'true'], 200);
+		}
+		else
+			return response(['user' => $request->user()], 200)->header('Content-Type', 'text/plain');
 	}
 }

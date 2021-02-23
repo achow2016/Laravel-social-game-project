@@ -27,7 +27,7 @@
 						
 						<div v-if="!!saveGame" class="row mt-5 menuOption">
 							<div class="col">
-								<button v-on:click="loadGame" id="continueButton" type="button" class="btn btn-dark active w-100">Continue</button>
+								<button v-on:click="continueGame" id="continueButton" type="button" class="btn btn-dark active w-100">Continue</button>
 							</div>
 						</div>
 						
@@ -80,13 +80,14 @@
 		},
 		created() {
 			let responseData = this.$route.params.response.data;
-			this.username = responseData.name;
-			if(responseData.saveGame != null)
+			this.username = responseData.user.name;
+			if(responseData.characterState == 'true')
 				this.saveGame = true;
+			console.log(responseData);
 		},
 		methods: {
-			loadGame(){
-			
+			continueGame(){
+				this.$router.push('rpgGame')
 			},
 			newGame() {
 				this.$router.push('characterBuilder')

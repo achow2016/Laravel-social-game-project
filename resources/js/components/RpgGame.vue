@@ -35,19 +35,19 @@
 			<div class="col-6">		
 				<div id="directionGrid" class="text-center">
 					<div class="row mb-4 controllerRow">
-						<div class="col-4"><b-icon icon="arrow-up-left-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="upLeft" class="col-4"><b-icon icon="arrow-up-left-circle"></b-icon></div>
 						<div v-on:click="moveCharacter($event)" id="up" class="col-4"><b-icon icon="arrow-up-circle"></b-icon></div>
-						<div class="col-4"><b-icon icon="arrow-up-right-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="upRight" class="col-4"><b-icon icon="arrow-up-right-circle"></b-icon></div>
 					</div>
 					<div class="row mb-4 controllerRow">
-						<div class="col-4"><b-icon icon="arrow-left-circle"></b-icon></div>
-						<div class="col-4"><b-icon icon="app"></b-icon></div>
-						<div class="col-4"><b-icon icon="arrow-right-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="left" class="col-4"><b-icon icon="arrow-left-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="wait" class="col-4"><b-icon icon="app"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="right" class="col-4"><b-icon icon="arrow-right-circle"></b-icon></div>
 					</div>
 					<div class="row mb-4 controllerRow">
-						<div class="col-4"><b-icon icon="arrow-down-left-circle"></b-icon></div>
-						<div class="col-4"><b-icon icon="arrow-down-circle"></b-icon></div>
-						<div class="col-4"><b-icon icon="arrow-down-right-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="downLeft" class="col-4"><b-icon icon="arrow-down-left-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="down" class="col-4"><b-icon icon="arrow-down-circle"></b-icon></div>
+						<div v-on:click="moveCharacter($event)" id="downRight" class="col-4"><b-icon icon="arrow-down-right-circle"></b-icon></div>
 					</div>
 				</div>				
 			</div>
@@ -85,6 +85,7 @@
 			return {
 				mapData: '',
 				playerPosition: '',
+				lastPlayerPosition: '',
 				terrainLayerData: '',
 			}
 		},
@@ -105,10 +106,11 @@
 						row.classList.add('row', 'mapGridRow');
 						row.setAttribute('id', 'row' + i);
 						document.getElementById('mapGrid').appendChild(row);
+						
 						for (let j = 0; j < 8; j++) {
 							let element = document.createElement('div');
 							element.classList.add('col');
-							element.setAttribute('id', 'row' + i + 'col' + j);
+							//element.setAttribute('id', 'row' + i + 'col' + j);
 							
 							if(this.mapData[i][j].terrain == 'grass')
 								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
@@ -158,6 +160,8 @@
 		},
 		methods: {
 			drawPlayerPosition() {
+				//store, get current coords
+				this.lastPlayerPosition = this.playerPosition;
 				let row = this.playerPosition[0];
 				let column = this.playerPosition[1];
 				let playerSquare = document.getElementById(row + '-' + column);
@@ -176,8 +180,21 @@
 				playerIcon.classList.toggle('img-fluid');   
 				playerSquare.appendChild(playerIcon);
 			},
+			clearPlayerPosition() {
+				//get current coords
+				let row = this.lastPlayerPosition[0];
+				let column = this.lastPlayerPosition[1];
+				let playerSquare = document.getElementById(row + '-' + column);
+				
+				//reverses outline of player square
+				playerSquare.classList.add('border-dark');
+				playerSquare.classList.remove('border-warning');
+				
+				//draws terrain data back onto square
+				playerSquare.innerHTML = '';
+				playerSquare.innerHTML = this.terrainLayerData;
+			},
 			moveCharacter(event) {
-
 				this.formData = new FormData();
 				this.formData.append('direction', event.currentTarget.id);
 				this.formData.append('_method', 'POST');
@@ -196,6 +213,9 @@
 					headers: headers,
 				}).then(response => {
 					console.log(response);
+					this.playerPosition = response.data.playerPosition;
+					this.clearPlayerPosition();
+					this.drawPlayerPosition();
 				})
 			},
 			openInventory() {
