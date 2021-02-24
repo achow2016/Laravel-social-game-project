@@ -13,7 +13,7 @@ class CreateCharacterRaceTable extends Migration
      */
     public function up()
     {
-        Schema::create('character_race', function (Blueprint $table) {
+        Schema::create('character_races', function (Blueprint $table) {
             $table->increments('id');
 			$table->string('race');
 			$table->integer('attack');
@@ -22,6 +22,8 @@ class CreateCharacterRaceTable extends Migration
 			$table->integer('stamina');
 			$table->integer('staminaRegen');
 			$table->integer('agility');
+			$table->json('weaknesses')->nullable();
+			$table->json('resistances')->nullable();
 			$table->binary('avatar')->nullable();
             $table->timestamps();
         });

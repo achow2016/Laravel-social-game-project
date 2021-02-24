@@ -93,6 +93,13 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async getCharacterStatus(form, token) {
+		await Csrf.getCookie();
+		return Api.post('/getCharacterStatus',form,{headers: {
+			'Content-type' : 'application/json',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},	
 	async generateMap(form, token) {
 		await Csrf.getCookie();
 		return Api.post('/generateMap',form,{headers: {

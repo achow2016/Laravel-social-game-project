@@ -19,7 +19,7 @@ class Character extends Model
      */
     protected $fillable = [
 		'mapId', 'mapPosition',
-        'ownerUser', 'charactername', 'raceId', 'avatar',
+        'ownerUser', 'charactername', 'raceId', 'classId', 'avatar',
 		'page', 'chapter', 
 		'health', 'stamina', 'accuracy', 'agility', 'attack',
 		'scoreTotal', 'damageDone', 'damageReceived', 'chaptersCleared', 'money', 'earningsTotal',
@@ -57,12 +57,12 @@ class Character extends Model
 		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
 	}
 	
-	//many other models and db game data tables needed to be added and seeded
-	/*
-	public function class() {
-		return $this->hasOne('App\Models\Class', 'user_id', 'id');
+	public function gameClass() {
+		return $this->hasOne('App\Models\Class', 'id', 'classId');
 	}
 	
+	//many other models and db game data tables needed to be added and seeded
+	/*
 	public function skills() {
 		return $this->hasMany('App\Models\Skill', 'user_id', 'id');
 	}

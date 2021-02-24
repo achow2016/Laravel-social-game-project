@@ -43,7 +43,7 @@ class CreateGameActiveEnemiesTable extends Migration
             
 			
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
-			$table->foreign('raceId')->references('id')->on('character_race')->onDelete('cascade'); 
+			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 

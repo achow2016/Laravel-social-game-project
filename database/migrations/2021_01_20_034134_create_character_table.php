@@ -20,9 +20,9 @@ class CreateCharacterTable extends Migration
 			$table->integer('mapId')->unsigned()->nullable();
 			$table->json('mapPosition')->nullable();
 			$table->integer('raceId')->unsigned();
+			$table->integer('classId')->unsigned();
 			$table->integer('ownerUser')->unsigned();
 			$table->string('characterName')->unique();
-			$table->string('gameClass');
 			$table->integer('page')->default('0');
 			$table->integer('chapter')->default('0');
 			$table->integer('health')->default('0');
@@ -46,7 +46,8 @@ class CreateCharacterTable extends Migration
             
 			$table->timestamps();
 			$table->foreign('ownerUser')->references('id')->on('rpggameusers')->onDelete('cascade'); 
-			$table->foreign('raceId')->references('id')->on('character_race')->onDelete('cascade'); 
+			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
+			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 //use Illuminate\Support\Facades\File;
 //use Illuminate\Support\Facades\Storage;
 use App\Models\CharacterRace;
+use App\Models\CharacterClass;
 use App\Models\GameEnemy;
 use App\Models\CashShopItem;
 use App\Models\Post;
@@ -44,6 +45,20 @@ class DatabaseSeeder extends Seeder
 			$characterRace->setAttribute('staminaRegen', $item['staminaRegen']);
 			$characterRace->setAttribute('agility', $item['agility']);
 			$characterRace->save();	
+		}
+		
+		//character classes
+		
+		$raceJsonPath = public_path() . '\json\CharacterClass.json';
+		$data = file_get_contents($raceJsonPath);
+		$data = json_decode($data, true);
+		
+		foreach ($data['class'] as $item) {            
+			$characterClass = new CharacterClass();
+			$characterClass->setAttribute('name', $item['name']);
+			$characterClass->setAttribute('resistances', $item['resistances']);
+			$characterClass->setAttribute('weaknesses', $item['weaknesses']);
+			$characterClass->save();	
 		}
 		
 		//enemies

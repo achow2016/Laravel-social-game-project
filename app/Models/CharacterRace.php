@@ -9,7 +9,7 @@ class CharacterRace extends Model
 {
 	use HasFactory;
 	
-	protected $table = 'character_race';
+	protected $table = 'character_races';
 	protected $primaryKey = 'id';
 
     /**
@@ -18,8 +18,8 @@ class CharacterRace extends Model
      * @var array
      */
     protected $fillable = [
-        "race", "health", "attack", "stamina", "staminaRegen", "healthRegen", 
-		"agility", "avatar" 
+        'race', 'health', 'attack', 'stamina', 'staminaRegen', 'healthRegen', 
+		'agility', 'avatar', 'weaknesses', 'resistances'
     ];
 
     /**
@@ -37,9 +37,11 @@ class CharacterRace extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
+		'weaknesses' => 'array',
+		'resistances' => 'array'		
     ];
 	
 	public function character() {
-		return $this->belongsTo('App\Models\Character', 'id');	
+		return $this->belongsTo('App\Models\Character', 'raceId', 'id');	
 	}	
 }

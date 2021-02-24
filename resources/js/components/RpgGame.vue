@@ -59,18 +59,38 @@
 			</div>
 		</div>
 		
+		<div class="row mt-5 mb-5" id="menuDataArea">
+			<div class="col">
+				
+			</div>
+		</div>
+		
 		<div class="row fixed-bottom">
-			<div class="col text-center d-flex">		
+		
+			<div id="bottomMenuBar" class="col text-center d-flex">		
 				<div class="flex-fill w-33">
-					<button v-on:click="openInventory" type="button" class="btn btn-dark flex-fill w-100">Inventory</button>
+					<button v-on:click="toggleInventory" type="button" class="btn btn-dark flex-fill w-100 pl-0 pr-0">Inventory</button>
 				</div>	
 				<div class="flex-fill w-33 h-75">
-					<button v-on:click="openStatus" type="button" class="btn btn-dark flex-fill w-100">Status</button>
+					<button v-on:click="toggleStatus" type="button" class="btn btn-dark flex-fill w-100">Status</button>
 				</div>	
 				<div class="flex-fill w-33">
-					<button v-on:click="openGameMenu" type="button" class="btn btn-dark flex-fill w-100">Menu</button>
+					<button v-on:click="toggleGameMenu" type="button" class="btn btn-dark flex-fill w-100">Menu</button>
+				</div>
+			</div>
+			
+			<div id="currentMenuControl" class="col text-center d-none">
+				<div id="closeInventoryContainer" class="flex-fill w-100 d-none">
+					<button v-on:click="toggleInventory" type="button" class="btn btn-dark flex-fill w-100">Close Inventory</button>
+				</div>	
+				<div id="closeStatusContainer" class="flex-fill w-100 d-none">
+					<button v-on:click="toggleStatus" type="button" class="btn btn-dark flex-fill w-100">Close Status</button>
+				</div>	
+				<div id="closeGameMenuContainer" class="flex-fill w-100 d-none">
+					<button v-on:click="toggleGameMenu" type="button" class="btn btn-dark flex-fill w-100">Close Menu</button>
 				</div>	
 			</div>
+			
 		</div>
 				
 		
@@ -218,20 +238,57 @@
 					this.drawPlayerPosition();
 				})
 			},
-			openInventory() {
-
+			toggleInventory() {
+				//closes map controls area
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				//closes bottom game menu bar
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+				
+				//shows target meny button
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				document.getElementById('closeInventoryContainer').classList.toggle('d-none');
 			},
-			openStatus() {
-
+			toggleStatus() {
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+				
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				document.getElementById('closeStatusContainer').classList.toggle('d-none');
+				
+				this.populateStatus();
 			},
-			openGameMenu() {
-
-			},
+			toggleGameMenu() {
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+				
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
+			
+			},	
 			inspect() {
 
 			},
 			saveAndQuit() {
 
+			},
+			populateStatus() {
+				User.getCharacterStatus({
+					_method: 'POST', token: sessionStorage.getItem('token')
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					console.log(response.data.character);
+				});
 			},
 			logout() {
 				User.logout({
