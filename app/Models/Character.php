@@ -18,12 +18,16 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
-		'mapId', 'mapPosition',
+		'gameLevel', 'mapId', 'mapPosition',
         'ownerUser', 'charactername', 'raceId', 'classId', 'avatar',
 		'page', 'chapter', 
-		'health', 'stamina', 'accuracy', 'agility', 'attack',
+		'accuracy', 'agility', 'attack',
+		'currentAccuracy', 'currentAgility', 'currentAttack',
 		'scoreTotal', 'damageDone', 'damageReceived', 'chaptersCleared', 'money', 'earningsTotal',
+		'currentHealth', 'currentStamina',
+		'health', 'stamina',
 		'staminaRegen', 'healthRegen',
+		'currentStaminaRegen', 'currentHealthRegen',
 		'attackMultiplier', 'defenseMultiplier'
 	];
 

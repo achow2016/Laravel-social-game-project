@@ -19,8 +19,11 @@ class Enemy extends Model
      */
     protected $fillable = [
         'mapId', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
-		'health', 'stamina', 'accuracy', 'agility', 'attack', 'baseAttackCost',
-		'staminaRegen', 'healthRegen',
+		'health', 'stamina', 'accuracy', 'agility', 'attack', 'staminaRegen', 'healthRegen',
+		'currentHealth', 'currentStamina', 'currentAccuracy', 'currentAgility',
+		'currentAttack', 'currentStaminaRegen', 'currentHealthRegen',
+		'baseAttackCost',
+		'currentHealth', 'currentStamina',
 		'attackMultiplier', 'defenseMultiplier',
 		'mapPosition',
 		'money'

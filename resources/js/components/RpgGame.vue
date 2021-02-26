@@ -25,7 +25,7 @@
 			<div class="col">		
 				<div>
 					<div id="mapGrid" class="col text-center">
-						Generating map.
+						Generating map...
 					</div>					
 				</div>
 			</div>
@@ -34,6 +34,12 @@
 		<div class="row mt-5 mb-5" id="controlArea">
 			<div class="col-6">		
 				<div id="directionGrid" class="text-center">
+					<div id="directionplaceholder" class="row mb-4 d-none">
+						<div class="col text-center">
+							moving...
+						</div>
+					</div>
+					
 					<div class="row mb-4 controllerRow">
 						<div v-on:click="moveCharacter($event)" id="upLeft" class="col-4"><b-icon icon="arrow-up-left-circle"></b-icon></div>
 						<div v-on:click="moveCharacter($event)" id="up" class="col-4"><b-icon icon="arrow-up-circle"></b-icon></div>
@@ -59,9 +65,9 @@
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5" id="menuDataArea">
-			<div class="col">
-				
+		<div class="row mt-5 mb-5">
+			<div class="col overflow-auto text-center" id="menuDataArea">
+				loading data...
 			</div>
 		</div>
 		
@@ -107,6 +113,7 @@
 				playerPosition: '',
 				lastPlayerPosition: '',
 				terrainLayerData: '',
+				playerStatus: '',
 			}
 		},
 		beforeMount() { 
@@ -215,6 +222,13 @@
 				playerSquare.innerHTML = this.terrainLayerData;
 			},
 			moveCharacter(event) {
+				//document.getElementById('directionGrid').classList.toggle('d-none');
+				let controllerArray = document.getElementsByClassName('controllerRow');
+				for(let i = 0; i < controllerArray.length; i++) {
+					controllerArray[i].classList.toggle('d-none');
+				}
+				document.getElementById('directionplaceholder').classList.toggle('d-none');
+			
 				this.formData = new FormData();
 				this.formData.append('direction', event.currentTarget.id);
 				this.formData.append('_method', 'POST');
@@ -236,6 +250,12 @@
 					this.playerPosition = response.data.playerPosition;
 					this.clearPlayerPosition();
 					this.drawPlayerPosition();
+					//document.getElementById('directionGrid').classList.toggle('d-none');
+					let controllerArray = document.getElementsByClassName('controllerRow');
+					for(let i = 0; i < controllerArray.length; i++) {
+						controllerArray[i].classList.toggle('d-none');
+					}
+					document.getElementById('directionplaceholder').classList.toggle('d-none');
 				})
 			},
 			toggleInventory() {
@@ -252,6 +272,12 @@
 				document.getElementById('closeInventoryContainer').classList.toggle('d-none');
 			},
 			toggleStatus() {
+				//gets status data only when toggle to make status container visible
+				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
+					this.populateStatus();
+				else
+					document.getElementById('menuDataArea').textContent = 'loading data...';
+					
 				document.getElementById('controlArea').classList.toggle('d-none');
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
@@ -260,8 +286,6 @@
 				document.getElementById('currentMenuControl').classList.toggle('d-none');
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
 				document.getElementById('closeStatusContainer').classList.toggle('d-none');
-				
-				this.populateStatus();
 			},
 			toggleGameMenu() {
 				document.getElementById('controlArea').classList.toggle('d-none');
@@ -271,6 +295,7 @@
 				
 				document.getElementById('currentMenuControl').classList.toggle('d-none');
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
 				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
 			
 			},	
@@ -280,7 +305,24 @@
 			saveAndQuit() {
 
 			},
+			generateDataRow(key, data) {
+				let dataRowContainer = document.createElement('div');   
+				dataRowContainer.classList.add('row');
+				
+				let dataRowFieldKey = document.createElement('div');   
+				dataRowFieldKey.classList.add('col-6', 'text-center');
+				dataRowFieldKey.textContent = key;
+				dataRowContainer.appendChild(dataRowFieldKey);
+				
+				let dataRowFieldData = document.createElement('div'); 
+				dataRowFieldData.classList.add('col-6', 'text-center');
+				dataRowFieldData.textContent = data;
+				dataRowContainer.appendChild(dataRowFieldData);
+				
+				document.getElementById('menuDataArea').appendChild(dataRowContainer);
+			},
 			populateStatus() {
+			/*
 				User.getCharacterStatus({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 
@@ -288,7 +330,50 @@
 				)
 				.then((response) => {
 					console.log(response.data.character);
+					this.playerStatus = response.data.character;
+					document.getElementById('menuDataArea').textContent = '';
+					
+					this.generateDataRow('Game Level', response.data.character.gameLevel);
+					this.generateDataRow('Name', response.data.character.characterName);
+					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
+					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
+					this.generateDataRow('Recovery', 'H ' + response.data.character.healthRegen + ' / ' + 'S ' + response.data.character.staminaRegen);
+					this.generateDataRow('Agility', response.data.character.agility);
+					this.generateDataRow('Accuracy', response.data.character.accuracy);
+					this.generateDataRow('money', response.data.character.money);
 				});
+			*/	
+				this.formData = new FormData();
+				this.formData.append('token', sessionStorage.getItem('token'));
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'application/json',
+				  'enctype' : 'application/x-www-form-urlencoded',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/getCharacterStatus',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					console.log(response.data.character);
+					this.playerStatus = response.data.character;
+					document.getElementById('menuDataArea').textContent = '';
+					
+					this.generateDataRow('Name', response.data.character.characterName);
+					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
+					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
+					this.generateDataRow('Recovery', 'H ' + response.data.character.healthRegen + ' / ' + 'S ' + response.data.character.staminaRegen);
+					this.generateDataRow('Agility', response.data.character.agility);
+					this.generateDataRow('Accuracy', response.data.character.accuracy);
+					this.generateDataRow('money', response.data.character.money);					
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			logout() {
 				User.logout({

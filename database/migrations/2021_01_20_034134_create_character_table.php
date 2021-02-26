@@ -18,6 +18,7 @@ class CreateCharacterTable extends Migration
             $table->increments('id');
 			$table->binary('avatar')->nullable();
 			$table->integer('mapId')->unsigned()->nullable();
+			$table->integer('gameLevel')->default('1');
 			$table->json('mapPosition')->nullable();
 			$table->integer('raceId')->unsigned();
 			$table->integer('classId')->unsigned();
@@ -27,13 +28,19 @@ class CreateCharacterTable extends Migration
 			$table->integer('chapter')->default('0');
 			$table->integer('health')->default('0');
 			$table->integer('stamina')->default('0');
+			$table->integer('currentHealth')->default('0');
+			$table->integer('currentStamina')->default('0');
 			$table->integer('accuracy')->default('1');
+			$table->integer('currentAccuracy')->default('1');
 			$table->integer('attack')->default('0');
 			$table->integer('scoreTotal')->default('0');
 			$table->integer('damageDone')->default('0');
 			$table->integer('staminaRegen')->default('0');
+			$table->integer('currentStaminaRegen')->default('0');
 			$table->integer('healthRegen')->default('0');
+			$table->integer('currentHealthRegen')->default('0');
 			$table->integer('agility')->default('0');
+			$table->integer('currentAgility')->default('0');
 			$table->integer('damageReceived')->default('0');
 			$table->integer('chaptersCleared')->default('0');
 			$table->integer('money')->default('0');
