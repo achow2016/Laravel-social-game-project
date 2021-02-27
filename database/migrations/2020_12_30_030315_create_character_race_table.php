@@ -13,6 +13,7 @@ class CreateCharacterRaceTable extends Migration
      */
     public function up()
     {
+		Schema::dropIfExists('character_races');
         Schema::create('character_races', function (Blueprint $table) {
             $table->increments('id');
 			$table->string('race');
@@ -36,6 +37,6 @@ class CreateCharacterRaceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('character_race');
+        Schema::dropIfExists('character_races');
     }
 }

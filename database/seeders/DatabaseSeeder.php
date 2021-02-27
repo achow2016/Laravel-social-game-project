@@ -72,6 +72,7 @@ class DatabaseSeeder extends Seeder
 		foreach ($data['enemy'] as $item) {            
 			$enemy = new GameEnemy();
 			$enemy->setAttribute('name', $item['name']);
+			$enemy->setAttribute('gameLevel', $item['gameLevel']);
 			$enemy->setAttribute('gameRace', $item['gameRace']);
 			$enemy->setAttribute('gameClass', $item['gameClass']);
 			$enemy->setAttribute('attack', $item['attack']);

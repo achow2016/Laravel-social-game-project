@@ -335,11 +335,13 @@
 					
 					this.generateDataRow('Game Level', response.data.character.gameLevel);
 					this.generateDataRow('Name', response.data.character.characterName);
+					this.generateDataRow('Attack', response.data.character.currentAttack + '/' + response.data.character.attack);
 					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
 					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
-					this.generateDataRow('Recovery', 'H ' + response.data.character.healthRegen + ' / ' + 'S ' + response.data.character.staminaRegen);
-					this.generateDataRow('Agility', response.data.character.agility);
-					this.generateDataRow('Accuracy', response.data.character.accuracy);
+					this.generateDataRow('Recovery', 'H: ' + response.data.character.currentHealthRegen + '/' + response.data.character.healthRegen
+						+ ' | ' + 'S: ' + response.data.character.currentstaminaRegen + '/' + response.data.character.staminaRegen);
+					this.generateDataRow('Agility', response.data.character.currentAgility + '/' + response.data.character.agility);
+					this.generateDataRow('Accuracy', response.data.character.currentAccuracy + '/' + response.data.character.accuracy);
 					this.generateDataRow('money', response.data.character.money);
 				});
 			*/	

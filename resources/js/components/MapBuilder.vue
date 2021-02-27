@@ -62,7 +62,8 @@
 			return {
 				startPoint: '',
 				mapData: '',
-				playerPosition: ''
+				playerPosition: '',
+				enemyData: ''
 			}
 		},
 		beforeMount() { 
@@ -114,7 +115,23 @@
 					let startPoint = document.createTextNode('Starting point: ' + this.startPoint[0] + ',' + this.startPoint[1]);
 					document.getElementById('startPoint').appendChild(startPoint);
 					this.drawPlayerPosition();
+					
+					
+					
+					User.generateEnemies({
+					_method: 'POST', token: sessionStorage.getItem('token')
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then((response) => {
+						console.log(response);
+						this.enemyData = response.data.enemies;
+						this.drawEnemyPositions();
+					});	
+					
+					
 				});
+			
 		},
 		mounted() {
 		},
@@ -141,6 +158,29 @@
 				playerIcon.setAttribute('src', 'http://127.0.0.1:8000/img/pawn.svg');   
 				playerIcon.classList.toggle('img-fluid');   
 				playerSquare.appendChild(playerIcon);
+			},
+			drawEnemyPositions() {
+				console.log('hi');
+				for(let i = 0; i < this.enemyData.length; i++) {					
+					//get current coords
+					let row = this.enemyData[i].mapPosition[0];
+					let column = this.enemyData[i].mapPosition[1];
+					let enemySquare = document.getElementById(row + '-' + column);
+					
+					//outlines player square
+					enemySquare.classList.toggle('border-dark');
+					enemySquare.classList.toggle('border-warning');
+					
+					//remembers what was on the square so player icon can be drawn over it
+					//this.terrainLayerData = playerSquare.textContent;
+					
+					//draws player onto square
+					enemySquare.innerHTML = '';
+					let enemyIcon = document.createElement('img');   
+					enemyIcon.setAttribute('src', 'http://127.0.0.1:8000/img/bishop.svg');   
+					enemyIcon.classList.toggle('img-fluid');   
+					enemySquare.appendChild(enemyIcon);
+				}
 			},
 			logout() {
 				User.logout({

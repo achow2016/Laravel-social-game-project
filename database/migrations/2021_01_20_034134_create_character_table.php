@@ -33,6 +33,7 @@ class CreateCharacterTable extends Migration
 			$table->integer('accuracy')->default('1');
 			$table->integer('currentAccuracy')->default('1');
 			$table->integer('attack')->default('0');
+			$table->integer('currentAttack')->default('0');
 			$table->integer('scoreTotal')->default('0');
 			$table->integer('damageDone')->default('0');
 			$table->integer('staminaRegen')->default('0');

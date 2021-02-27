@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Database\Factories\CharacterFactory;
 
-class Enemy extends Model
+class GameActiveEnemy extends Model
 {
 	//use HasFactory;
 	

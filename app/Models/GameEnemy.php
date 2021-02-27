@@ -18,6 +18,7 @@ class GameEnemy extends Model
      * @var array
      */
     protected $fillable = [
+		'gameLevel',
         'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'baseAttackCost',
 		'staminaRegen', 'healthRegen',
