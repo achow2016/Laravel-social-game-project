@@ -24,14 +24,9 @@ class EnemyController extends Controller {
 		try {
 			$user = User::where('name', $request->user()->name)->first();
 			
-			if (!$user) {
-				throw ValidationException::withMessages([
-					'message' => ['database error, user does not exist.'],
-				]);
-			}
-			
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
 			$gameLevel = $charObj->gameLevel;
 			$enemyChoices = GameEnemy::where('gameLevel', $gameLevel)->get();
 			$enemyChoicesCount = $enemyChoices->count();

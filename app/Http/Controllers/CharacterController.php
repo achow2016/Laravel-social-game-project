@@ -21,13 +21,16 @@ class CharacterController extends Controller {
 	{
 		try {
 			$user = User::where('name', $request->user()->name)->first();
-			
+
 			//deletes old character and map data if any
 			$charCheck = $user->character()->first();
+			
 			if($charCheck) {
 				$gameMap = GameMap::where('id', $charCheck->mapId)->first();
-				$gameMap->tileset()->first()->delete();
-				$gameMap->delete();
+				if($gameMap) {
+					$gameMap->tileset()->first()->delete();
+					$gameMap->delete();
+				}
 				$user->character()->delete();
 			}
 			
@@ -45,12 +48,7 @@ class CharacterController extends Controller {
 			$characterRace = CharacterRace::where('race', $request->gameRace)->first();
 			$characterClass = CharacterClass::where('name', $request->gameClass)->first();
 
-			
-			if (!$user) {
-				throw ValidationException::withMessages([
-					'message' => ['database error, user does not exist.'],
-				]);
-			}			
+					
 				
 			$character = new Character();
 			$character->setAttribute('raceId', $characterRace->id);

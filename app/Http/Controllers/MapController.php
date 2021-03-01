@@ -6,18 +6,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 //models
+use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameMapTileset;
 use App\Models\Character;
+use App\Models\GameActiveEnemy;
 
 //use DateTime;
+
+//Log::debug($mapGrid); player placed on matching 2d array
+
 
 class MapController extends Controller {
 	
 	public function generateMap(Request $request) 
 	{
 		try {
+			$user = User::where('name', $request->user()->name)->first();
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
+			
+			if(!$charObj) {
+				return response(['message' => 'No character found, please create a new character.'], 422);
+			}
+			
 			$charId = $charObj->id;
 			$charMapId = $charObj->mapId;
 			
@@ -25,11 +36,38 @@ class MapController extends Controller {
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//if map present delete old one
 			if($existingMap) {
+				//store character
+				$charObj = $existingMap->character()->first();
+				
+				$character = new Character();
+				$character->setAttribute('raceId', $charObj->raceId);
+				$character->setAttribute('classId', $charObj->classId);
+				$character->setAttribute('ownerUser', $charObj->id);
+				$character->setAttribute('characterName', $charObj->characterName);
+				$character->setAttribute('health', $charObj->health);
+				$character->setAttribute('currentHealth', $charObj->currentHealth);
+				$character->setAttribute('healthRegen', $charObj->healthRegen);
+				$character->setAttribute('currentHealthRegen', $charObj->currentHealthRegen);
+				$character->setAttribute('stamina', $charObj->stamina);
+				$character->setAttribute('currentStamina', $charObj->currentStamina);
+				$character->setAttribute('staminaRegen', $charObj->staminaRegen);
+				$character->setAttribute('currentStaminaRegen', $charObj->currentStaminaRegen);
+				$character->setAttribute('agility', $charObj->agility);
+				$character->setAttribute('currentAgility', $charObj->currentAgility);
+				$character->setAttribute('attack', $charObj->attack);
+				$character->setAttribute('currentAttack', $charObj->currentAttack);
+				
+				//delete old map
 				$existingMap->delete();
+				
 				$gameMap = new GameMap();				
 				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
 				$gameMap->setAttribute('level', 1);
 				$gameMap->save();
+				
+				$charObj->mapId = $gameMap->id;
+				$gameMap->character()->save($charObj);
+				$user->character()->save($charObj);
 				
 				$tileCheck = $gameMap->tileset()->first();
 				
@@ -78,8 +116,11 @@ class MapController extends Controller {
 				$tileSet->setAttribute('mapData', json_encode($map));	
 				//saves tileset onto map
 				$gameMap->tileset()->save($tileSet);
+				
 				//places character onto map starting position
-				$charObj->mapPosition = $gameMap->startPoint;
+				$character->mapPosition = $gameMap->startPoint;
+				$character->mapId = $gameMap->id;
+				$user->character()->save($character);
 				
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
@@ -179,8 +220,6 @@ class MapController extends Controller {
 			$movementChoice = null;
 			$currentRow = $charObj->mapPosition[0];
 			$currentColumn = $charObj->mapPosition[1];
-			
-			Log::debug($currentRow . ',' . $currentColumn);
 			
 			if($existingMap) {
 				switch($request->direction) {

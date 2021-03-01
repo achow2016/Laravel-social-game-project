@@ -35,7 +35,8 @@
 			<div class="col">		
 				
 				<div class="row">
-					<div id="startPoint" class="col text-center">		
+					<div id="reseedButton" class="col text-center d-none">	
+						<button v-on:click="reseed" id="beginGame" type="button" class="w-100 btn btn-dark active">Reseed Map</button>
 					</div>
 				</div>
 				
@@ -112,8 +113,6 @@
 							document.getElementById('row' + i).appendChild(element);
 						}
 					}
-					let startPoint = document.createTextNode('Starting point: ' + this.startPoint[0] + ',' + this.startPoint[1]);
-					document.getElementById('startPoint').appendChild(startPoint);
 					this.drawPlayerPosition();
 					
 					
@@ -130,12 +129,108 @@
 					});	
 					
 					
+				}).catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						document.getElementById('mapGrid').textContent = error.response.data.message;
+						document.getElementById('beginGame').remove();
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
 				});
-			
 		},
 		mounted() {
+			document.getElementById('reseedButton').classList.toggle('d-none');
 		},
 		methods: {
+			reseed() {
+				User.generateMap({
+					_method: 'POST', token: sessionStorage.getItem('token')
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					let gameMap = response.data.gameMap;
+					let mapData = response.data.mapData;
+					let tileSet = response.data.tileSet;
+					
+					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
+					this.mapData = mapData;
+					
+					document.getElementById('mapGrid').innerHTML = ""; 
+					for (let i = 0; i < 8; i++) {
+						let row = document.createElement('div');
+						row.classList.add('row');
+						row.setAttribute('id', 'row' + i);
+						document.getElementById('mapGrid').appendChild(row);
+						
+						for (let j = 0; j < 8; j++) {
+							let element = document.createElement('div');
+							element.classList.add('col');
+							//element.setAttribute('id', 'row' + i + 'col' + j);
+							
+							if(mapData[i][j].terrain == 'grass')
+								element.classList.add('bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
+							else
+								element.classList.add('bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
+							
+							if(mapData[i][j].treeCover == true) {
+								let treeMarker = document.createTextNode('T');
+								element.id = i + '-' + j;
+								element.appendChild(treeMarker);
+								element.classList.add('tree');
+							}
+							else {
+								let openMarker = document.createTextNode('-');
+								element.id = i + '-' + j;
+								element.appendChild(openMarker);
+								element.classList.add('open');
+							}
+							document.getElementById('row' + i).appendChild(element);
+						}
+					}
+					this.drawPlayerPosition();
+					
+					
+					
+					User.generateEnemies({
+					_method: 'POST', token: sessionStorage.getItem('token')
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then((response) => {
+						console.log(response);
+						this.enemyData = response.data.enemies;
+						this.drawEnemyPositions();
+					});	
+					
+					
+				}).catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						document.getElementById('mapGrid').textContent = error.response.data.message;
+						document.getElementById('beginGame').remove();
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});	
+			},
 			beginGame() {
 				this.$router.push('rpgGame');
 			},
@@ -169,7 +264,7 @@
 					
 					//outlines player square
 					enemySquare.classList.toggle('border-dark');
-					enemySquare.classList.toggle('border-warning');
+					enemySquare.classList.toggle('border-danger');
 					
 					//remembers what was on the square so player icon can be drawn over it
 					//this.terrainLayerData = playerSquare.textContent;
