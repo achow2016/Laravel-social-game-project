@@ -116,6 +116,22 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async getEnemies(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/getEnemies',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
+	async inspectEnemies(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/inspectEnemies',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	async getMap(form, token) {
 		await Csrf.getCookie();
 		return Api.post('/getMap',form,{headers: {

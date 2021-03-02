@@ -255,7 +255,6 @@
 				playerSquare.appendChild(playerIcon);
 			},
 			drawEnemyPositions() {
-				console.log('hi');
 				for(let i = 0; i < this.enemyData.length; i++) {					
 					//get current coords
 					let row = this.enemyData[i].mapPosition[0];

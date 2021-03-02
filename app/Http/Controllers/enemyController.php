@@ -86,6 +86,58 @@ class EnemyController extends Controller {
 			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
 		}	
 	}
+	
+	public function getEnemies(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			return response(['enemies' => $existingMap->enemies()->get()], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}		
+	}
+
+	public function inspectEnemies(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$charRow = $charObj->mapPosition[0];
+			$charColumn = $charObj->mapPosition[1];
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$enemies = $existingMap->enemies()->get();
+			$inspectableTargets = array();
+
+			$observedSquares = array(
+				'upLeft' => [$charRow - 1, $charColumn - 1],
+				'up' => [$charRow - 1, $charColumn],
+				'upRight' => [$charRow - 1, $charColumn + 1],
+				'left' => [$charRow, $charColumn - 1],
+				'right' => [$charRow, $charColumn + 1],
+				'downLeft' => [$charRow + 1, $charColumn - 1],
+				'down' => [$charRow + 1, $charColumn],
+				'downRight' => [$charRow + 1, $charColumn + 1],
+			);
+			
+			foreach ($observedSquares as $key => $val) {
+				foreach($enemies as $enemy => $e) {
+					if($e->mapPosition === $val) {
+						array_push($inspectableTargets, $e);
+						$enemies->forget((string)$enemy);
+					}
+				}
+			}
+			return response(['squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}		
+	}	
 
 	public function getCharacterStatus(Request $request) 
 	{

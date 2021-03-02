@@ -16,8 +16,7 @@
 		</header>
 	
 		<div class="row text-center mt-5 mb-2">
-			<div class="col">
-				<h5><!--level number--></h5>
+			<div id="messageContainer" class="col text-center">
 			</div>
 		</div>
 		
@@ -58,7 +57,7 @@
 				</div>				
 			</div>
 			<div id="actionGrid" class="col-6">
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
+				<div v-on:click="inspectEnemies" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
@@ -114,6 +113,7 @@
 				lastPlayerPosition: '',
 				terrainLayerData: '',
 				playerStatus: '',
+				enemyData: ''
 			}
 		},
 		beforeMount() { 
@@ -123,7 +123,6 @@
 					sessionStorage.getItem('token')
 				)
 				.then((response) => {
-					console.log(JSON.parse(response.data.mapData));
 					this.mapData = JSON.parse(response.data.mapData);
 					this.playerPosition = response.data.playerPosition;
 					
@@ -160,6 +159,7 @@
 						}
 					}
 					this.drawPlayerPosition();
+					this.drawEnemyPositions();
 				});
 			
 				
@@ -206,6 +206,54 @@
 				playerIcon.setAttribute('src', 'http://127.0.0.1:8000/img/pawn.svg');   
 				playerIcon.classList.toggle('img-fluid');   
 				playerSquare.appendChild(playerIcon);
+			},
+			drawEnemyPositions() {
+				User.getEnemies({
+					_method: 'POST', token: sessionStorage.getItem('token')
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then((response) => {
+						this.enemyData = response.data.enemies;
+						for(let i = 0; i < this.enemyData.length; i++) {					
+							//get current coords
+							let row = this.enemyData[i].mapPosition[0];
+							let column = this.enemyData[i].mapPosition[1];
+							let enemySquare = document.getElementById(row + '-' + column);
+							
+							//outlines enemy square
+							if(!enemySquare.classList.contains('border-danger')) {
+								enemySquare.classList.toggle('border-dark');
+								enemySquare.classList.toggle('border-danger');
+							}
+							
+							//remembers what was on the square so player icon can be drawn over it
+							//this.terrainLayerData = playerSquare.textContent;
+							
+							//draws enemy onto square
+							enemySquare.innerHTML = '';
+							let enemyIcon = document.createElement('img');   
+							enemyIcon.setAttribute('src', 'http://127.0.0.1:8000/img/bishop.svg');   
+							enemyIcon.classList.toggle('img-fluid');   
+							enemySquare.appendChild(enemyIcon);
+						}
+					})
+					.catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						document.getElementById('messageContainer').textContent = error.response.data.message;
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});
 			},
 			clearPlayerPosition() {
 				//get current coords
@@ -257,6 +305,8 @@
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
 				})
+				
+				this.drawEnemyPositions();
 			},
 			toggleInventory() {
 				//closes map controls area
@@ -299,8 +349,31 @@
 				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
 			
 			},	
-			inspect() {
-
+			inspectEnemies() {
+				User.inspectEnemies({
+					_method: 'POST', token: sessionStorage.getItem('token')
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					console.log(response.data.enemies);
+				})
+				.catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						document.getElementById('messageContainer').textContent = error.response.data.message;
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});	
 			},
 			saveAndQuit() {
 
@@ -362,7 +435,6 @@
 					data   : this.formData,
 					headers: headers,
 				}).then(response => {
-					console.log(response.data.character);
 					this.playerStatus = response.data.character;
 					document.getElementById('menuDataArea').textContent = '';
 					
