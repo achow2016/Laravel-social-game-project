@@ -28,7 +28,7 @@ export default {
 		return Api.post('/login', form);
 	},	
 	async getData(form, token) { 
-		await Csrf.getCookie();
+		//await Csrf.getCookie();
 		return Api.post('/getData',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
@@ -87,21 +87,21 @@ export default {
 		game
 	*/
 	async createCharacter(form, token) {
-		await Csrf.getCookie();
+		//await Csrf.getCookie();
 		return Api.post('/createCharacter',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
 	async getCharacterStatus(form, token) {
-		await Csrf.getCookie();
+		//await Csrf.getCookie();
 		return Api.post('/getCharacterStatus',form,{headers: {
 			'Content-type' : 'application/json',
 			'Authorization': `Bearer ${token}` 
 		}});
 	},	
 	async generateMap(form, token) {
-		await Csrf.getCookie();
+		//await Csrf.getCookie();
 		return Api.post('/generateMap',form,{headers: {
 			//'Content-type' : 'application/json',
 			'Content-Type':'application/x-www-form-urlencoded',
@@ -133,7 +133,7 @@ export default {
 		}});
 	},
 	async getMap(form, token) {
-		await Csrf.getCookie();
+		//await Csrf.getCookie();
 		return Api.post('/getMap',form,{headers: {
 			//'Content-type' : 'application/json',
 			'Content-Type':'application/x-www-form-urlencoded',

@@ -257,8 +257,10 @@
 			drawEnemyPositions() {
 				for(let i = 0; i < this.enemyData.length; i++) {					
 					//get current coords
-					let row = this.enemyData[i].mapPosition[0];
-					let column = this.enemyData[i].mapPosition[1];
+					//let row = this.enemyData[i].mapPosition[0];
+					let row = this.enemyData[i][0];
+					//let column = this.enemyData[i].mapPosition[1];
+					let column = this.enemyData[i][1];
 					let enemySquare = document.getElementById(row + '-' + column);
 					
 					//outlines player square

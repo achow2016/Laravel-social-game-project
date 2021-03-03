@@ -19,6 +19,7 @@ use App\Models\GameMapTileset;
 
 class EnemyController extends Controller {
 
+	//generates enemies and return coordinates for display on map builder
 	public function generateEnemies(Request $request) 
 	{
 		try {
@@ -79,7 +80,11 @@ class EnemyController extends Controller {
 				$existingMap->enemies()->save($enemy);
 			}
 			
-			return response(['enemies' => $existingMap->enemies()->get()], 200);
+			//returns coordinates only for map generator
+			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			
+			//return response(['enemies' => $existingMap->enemies()->get()], 200);
+			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -93,7 +98,10 @@ class EnemyController extends Controller {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			return response(['enemies' => $existingMap->enemies()->get()], 200);
+			//returns coordinates only for map generator
+			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			//return response(['enemies' => $existingMap->enemies()->get()], 200);
+			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -113,19 +121,20 @@ class EnemyController extends Controller {
 			$inspectableTargets = array();
 
 			$observedSquares = array(
-				'upLeft' => [$charRow - 1, $charColumn - 1],
-				'up' => [$charRow - 1, $charColumn],
-				'upRight' => [$charRow - 1, $charColumn + 1],
-				'left' => [$charRow, $charColumn - 1],
-				'right' => [$charRow, $charColumn + 1],
-				'downLeft' => [$charRow + 1, $charColumn - 1],
-				'down' => [$charRow + 1, $charColumn],
-				'downRight' => [$charRow + 1, $charColumn + 1],
+				'northwest' => [$charRow - 1, $charColumn - 1],
+				'north' => [$charRow - 1, $charColumn],
+				'northeast' => [$charRow - 1, $charColumn + 1],
+				'west' => [$charRow, $charColumn - 1],
+				'east' => [$charRow, $charColumn + 1],
+				'southwest' => [$charRow + 1, $charColumn - 1],
+				'south' => [$charRow + 1, $charColumn],
+				'southeast' => [$charRow + 1, $charColumn + 1],
 			);
 			
 			foreach ($observedSquares as $key => $val) {
 				foreach($enemies as $enemy => $e) {
 					if($e->mapPosition === $val) {
+						$e->mapOrientation = $key;
 						array_push($inspectableTargets, $e);
 						$enemies->forget((string)$enemy);
 					}

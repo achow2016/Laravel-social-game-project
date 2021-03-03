@@ -17,6 +17,7 @@
 	
 		<div class="row text-center mt-5 mb-2">
 			<div id="messageContainer" class="col text-center">
+				Messages
 			</div>
 		</div>
 		
@@ -57,7 +58,7 @@
 				</div>				
 			</div>
 			<div id="actionGrid" class="col-6">
-				<div v-on:click="inspectEnemies" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
+				<div v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
@@ -90,7 +91,10 @@
 				</div>	
 				<div id="closeStatusContainer" class="flex-fill w-100 d-none">
 					<button v-on:click="toggleStatus" type="button" class="btn btn-dark flex-fill w-100">Close Status</button>
-				</div>	
+				</div>
+				<div id="closeInspectContainer" class="flex-fill w-100 d-none">
+					<button v-on:click="toggleInspectMenu" type="button" class="btn btn-dark flex-fill w-100">Close Inspect</button>
+				</div>				
 				<div id="closeGameMenuContainer" class="flex-fill w-100 d-none">
 					<button v-on:click="toggleGameMenu" type="button" class="btn btn-dark flex-fill w-100">Close Menu</button>
 				</div>	
@@ -113,7 +117,8 @@
 				lastPlayerPosition: '',
 				terrainLayerData: '',
 				playerStatus: '',
-				enemyData: ''
+				enemyData: '',
+				enemyStatusData: ''
 			}
 		},
 		beforeMount() { 
@@ -217,11 +222,13 @@
 						this.enemyData = response.data.enemies;
 						for(let i = 0; i < this.enemyData.length; i++) {					
 							//get current coords
-							let row = this.enemyData[i].mapPosition[0];
-							let column = this.enemyData[i].mapPosition[1];
+							let row = this.enemyData[i][0];
+							//let row = this.enemyData[i].mapPosition[0];
+							let column = this.enemyData[i][1];
+							//let column = this.enemyData[i].mapPosition[1];
 							let enemySquare = document.getElementById(row + '-' + column);
 							
-							//outlines enemy square
+							//outlines enemy square 
 							if(!enemySquare.classList.contains('border-danger')) {
 								enemySquare.classList.toggle('border-dark');
 								enemySquare.classList.toggle('border-danger');
@@ -295,6 +302,9 @@
 					headers: headers,
 				}).then(response => {
 					console.log(response);
+					if(response.data.message)
+						document.getElementById('messageContainer').textContent = response.data.message;
+					
 					this.playerPosition = response.data.playerPosition;
 					this.clearPlayerPosition();
 					this.drawPlayerPosition();
@@ -348,8 +358,26 @@
 				
 				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
 			
-			},	
-			inspectEnemies() {
+			},
+			toggleInspectMenu() {
+				//gets status data only when toggle to make status container visible
+				if(document.getElementById('closeInspectContainer').classList.contains('d-none'))
+					this.populateInspect();
+				else
+					document.getElementById('menuDataArea').textContent = 'loading data...';
+					
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+				
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
+				document.getElementById('closeInspectContainer').classList.toggle('d-none');
+				
+			},			
+			populateInspect() {
 				User.inspectEnemies({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 
@@ -357,6 +385,21 @@
 				)
 				.then((response) => {
 					console.log(response.data.enemies);
+					this.enemyStatusData = response.data.enemies;
+					document.getElementById('menuDataArea').textContent = '';
+					
+					for(let i = 0; i < this.enemyStatusData.length; i++) {
+						this.generateDataRow('Name', this.enemyStatusData[i].name);
+						this.generateDataRow('Direction', this.enemyStatusData[i].mapOrientation);
+						this.generateDataRow('Attack', this.enemyStatusData[i].currentAttack + '/' + this.enemyStatusData[i].attack);
+						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
+						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
+						//this.generateDataRow('Recovery', 'H: ' + this.enemyStatusData[i].currentHealthRegen + '/' + //this.enemyStatusData[i].healthRegen
+						//	+ ' | ' + 'S: ' + this.enemyStatusData[i].currentstaminaRegen + '/' + this.enemyStatusData[i].staminaRegen);
+						//this.generateDataRow('Agility', this.enemyStatusData[i].currentAgility + '/' + this.enemyStatusData[i].agility);
+						//this.generateDataRow('Accuracy', this.enemyStatusData[i].currentAccuracy + '/' + this.enemyStatusData[i].accuracy);
+						//this.generateDataRow('money', this.enemyStatusData[i].money);
+					}
 				})
 				.catch(error => {
 					//server response errors
