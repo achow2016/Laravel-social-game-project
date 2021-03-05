@@ -3,7 +3,7 @@
 		<div class="row mx-auto">
 			<div class="col">
 				
-				<header class="row fixed-top">
+				<header id="headerMenu" class="row fixed-top">
 					<div class="col text-center d-flex">		
 						<div class="flex-fill w-33">
 							<router-link :to="{ name: 'welcome' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
@@ -13,6 +13,14 @@
 						</div>	
 						<div class="flex-fill w-33">
 							<button v-on:click="logout" type="button" class="btn btn-dark flex-fill w-100">Logout</button>
+						</div>	
+					</div>
+				</header>
+				
+				<header id="headerMessage" class="row fixed-top d-none">
+					<div class="col text-center d-flex">		
+						<div id="errorMessage" class="flex-fill w-33">
+							
 						</div>	
 					</div>
 				</header>
@@ -77,8 +85,11 @@
 										<div v-else-if="key == 'profile_image' && value == null"" class="col">
 											No Avatar  
 										</div>
+										
 										<div v-else class="col">
-											{{value}}
+											<div v-bind:id="key">
+												{{value}}
+											</div>
 										</div>
 									</div>
 									
@@ -91,7 +102,7 @@
 											</div>
 											<div class="row">
 												<div class="col-10">		
-													<input class="mt-1 mb-1" type="text" name="confirmNewName" id="confirmNewName" placeholder="confirm new name"></input>
+													<input class="mt-1 mb-1" type="text" name="nameConfirmation" id="nameConfirmation" placeholder="confirm new name"></input>
 												</div>
 												<div class="col-2 mb-1 mt-1 float-right">
 													<button v-on:click="updateName()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
@@ -110,7 +121,7 @@
 											</div>
 											<div class="row">
 												<div class="col-10">		
-													<input class="mt-1 mb-1" type="text" name="confirmNewEmail" id="confirmNewEmail" placeholder="confirm new email"></input>
+													<input class="mt-1 mb-1" type="text" name="emailConfirmation" id="emailConfirmation" placeholder="confirm new email"></input>
 												</div>
 												<div class="col-2 mb-1 mt-1 float-right">
 													<button v-on:click="updateEmail()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
@@ -187,7 +198,7 @@
 										<div class="col">
 											<div class="row">
 												<div class="col-10">
-													<input class="mt-1 mb-1" type="text" name="currentPassword" id="currentPassword" placeholder="enter current password"></input>
+													<input class="mt-1 mb-1" type="text" name="oldPassword" id="oldPassword" placeholder="enter current password"></input>
 												</div>
 											</div>
 											<div class="row">
@@ -197,7 +208,7 @@
 											</div>
 											<div class="row">
 												<div class="col-10">		
-													<input class="mt-1 mb-1" type="text" name="confirmPassword" id="confirmPassword" placeholder="confirm new password"></input>
+													<input class="mt-1 mb-1" type="text" name="passwordConfirmation" id="passwordConfirmation" placeholder="confirm new password"></input>
 												</div>
 												<div class="col-2 mb-1 mt-1 float-right">
 													<button v-on:click="updatePassword()" class="float-right border border-danger badge badge-pill badge-secondary mt-1 mb-1">
@@ -236,7 +247,9 @@
 				currentPassword: '',
 				profileVideo: '',
 				profileImage: '',
-				formData: ''
+				formData: '',
+				name: '',
+				nameConfirmation: ''
 			}
 		},
 		filters: {
@@ -246,7 +259,7 @@
 				}
 		},
 		mounted() {
-			Csrf.getCookie().then(() => {
+			//Csrf.getCookie().then(() => {
 					User.getUserProfile({
 						_method: 'POST',
 						token: sessionStorage.getItem('token')
@@ -259,11 +272,11 @@
 					.catch(error => {
 					
 					});
-				});
+			//	});
 		},		
 		methods: {
 			getUserData() {
-				Csrf.getCookie().then(() => {
+				//Csrf.getCookie().then(() => {
 					User.getUserProfile({
 						_method: 'POST',
 						token: sessionStorage.getItem('token')
@@ -276,7 +289,7 @@
 					.catch(error => {
 					
 					});
-				});
+				//});
 			},
 			getUserVideo() {
 				return this.userData['profile_video'];
@@ -285,10 +298,274 @@
 				return this.userData['profile_image'];
 			},
 			updateName() {
+				this.name = document.querySelector('#newName').value;
+				this.nameConfirmation = document.querySelector('#nameConfirmation').value;
 				
+				//client side validation
+				if(this.name == '' || this.nameConfirmation == '') {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'name fields incomplete';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}	
+				
+				if(this.name != this.nameConfirmation) {
+					document.querySelector('#newName').value = '';
+					document.querySelector('#nameConfirmation').value = '';
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'name fields don\'t match';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}
+				
+				User.updateName({
+					_method: 'POST', 
+					token: sessionStorage.getItem('token'),
+					name: this.name,
+					name_confirmation: this.nameConfirmation
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-success');
+					document.querySelector('#errorMessage').textContent = response.data.status;
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-success');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					//new value shown with colour queue
+					document.querySelector('#newName').value = '';
+					document.querySelector('#nameConfirmation').value = '';
+					document.querySelector('#name').textContent = response.data.name;
+					document.querySelector('#name').classList.toggle('bg-success');
+					setTimeout(function(){ 
+						document.querySelector('#name').classList.toggle('bg-success');
+					}, 500);
+				}).catch(error => {
+					//server response errors
+					if(error.response) {
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = error.response.data.status;
+						setTimeout(function(){ 
+							document.querySelector('#headerMenu').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('bg-danger');
+							document.querySelector('#errorMessage').textContent = '';
+						}, 3000);
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});	
 			},
 			updateEmail() {
+				this.email = document.querySelector('#newEmail').value;
+				this.emailConfirmation = document.querySelector('#emailConfirmation').value;
 				
+				//client side validation
+				if(this.email == '' || this.emailConfirmation == '') {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'email fields incomplete';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}	
+				
+				if(this.email != this.emailConfirmation) {
+					document.querySelector('#newEmail').value = '';
+					document.querySelector('#emailConfirmation').value = '';
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'email fields don\'t match';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}
+				
+				User.updateEmail({
+					_method: 'POST', 
+					token: sessionStorage.getItem('token'),
+					email: this.email,
+					email_confirmation: this.emailConfirmation
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-success');
+					document.querySelector('#errorMessage').textContent = response.data.status;
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-success');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					//new value shown with colour queue
+					document.querySelector('#newEmail').value = '';
+					document.querySelector('#emailConfirmation').value = '';
+					document.querySelector('#email').textContent = response.data.email;
+					document.querySelector('#email').classList.toggle('bg-success');
+					setTimeout(function(){ 
+						document.querySelector('#email').classList.toggle('bg-success');
+					}, 500);
+				}).catch(error => {
+					//server response errors
+					if(error.response) {
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = error.response.data.status;
+						setTimeout(function(){ 
+							document.querySelector('#headerMenu').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('bg-danger');
+							document.querySelector('#errorMessage').textContent = '';
+						}, 3000);
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});	
+			},
+			updatePassword() {
+				this.oldPassword = document.querySelector('#oldPassword').value;
+				this.password = document.querySelector('#newPassword').value;
+				this.passwordConfirmation = document.querySelector('#passwordConfirmation').value;
+				
+				//client side validation
+				if(this.oldPassword == '' || this.password == '' || this.passwordConfirmation == '') {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'password fields incomplete';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}	
+				
+				if(this.password != this.passwordConfirmation) {
+					document.querySelector('#oldPassword').value = '';
+					document.querySelector('#newPassword').value = '';
+					document.querySelector('#passwordConfirmation').value = '';
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-danger');
+					document.querySelector('#errorMessage').textContent = 'password fields don\'t match';
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					return;
+				}
+				
+				User.updatePassword({
+					_method: 'POST', 
+					token: sessionStorage.getItem('token'),
+					oldPassword: this.oldPassword,
+					password: this.password,
+					password_confirmation: this.passwordConfirmation
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					//top header message
+					document.querySelector('#headerMenu').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('d-none');
+					document.querySelector('#headerMessage').classList.toggle('bg-success');
+					document.querySelector('#errorMessage').textContent = response.data.status;
+					setTimeout(function(){ 
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-success');
+						document.querySelector('#errorMessage').textContent = '';
+					}, 3000);
+					//no password shown
+					document.querySelector('#oldPassword').value = '';
+					document.querySelector('#newPassword').value = '';
+					document.querySelector('#passwordConfirmation').value = '';
+				}).catch(error => {
+					//server response errors
+					if(error.response) {
+						console.log(error.response.data.status);
+						document.querySelector('#headerMenu').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('d-none');
+						document.querySelector('#headerMessage').classList.toggle('bg-danger');
+						document.querySelector('#errorMessage').textContent = error.response.data.status;
+						setTimeout(function(){ 
+							document.querySelector('#headerMenu').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('d-none');
+							document.querySelector('#headerMessage').classList.toggle('bg-danger');
+							document.querySelector('#errorMessage').textContent = '';
+						}, 3000);
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});	
 			},
 			expandPasswordMenu() {
 				document.querySelector('#passwordForm').classList.toggle('d-none');
@@ -343,9 +620,6 @@
 				}).then(response => {
 					location.reload();
 				})
-			},
-			updatePassword() {
-			
 			},
 			updateMembership() {
 				

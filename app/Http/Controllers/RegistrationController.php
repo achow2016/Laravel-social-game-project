@@ -202,7 +202,7 @@ class RegistrationController extends Controller
 		}
 	}
 
-//spa add a profile video
+	//spa add a profile video
 	public function updateProfileImage(Request $request) 
 	{
 
@@ -256,5 +256,75 @@ class RegistrationController extends Controller
 			report($e);
 			return response(['status' => 'Profile image could not be processed. Please report to admin.'], 422);
 		}
-	}	
+	}
+
+	public function updateName(Request $request) 
+	{
+		try {		
+			/*
+			$request->validate([
+				'name' => 'required|confirmed'
+			]);
+			*/
+			if($request->name == null || $request->name_confirmation == null) 
+				return response(['status' => 'Name fields cannot be empty'], 422);
+			
+			if($request->name != $request->name_confirmation) 
+				return response(['status' => 'Name fields must match'], 422);
+			
+			$userData = User::where('name', $request->user()->name)->first();			
+			$userData->name = $request->name;
+			$userData->save();
+			return response(['status' => 'change saved', 'name' => $request->name], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'New name could not be processed. Please report to admin.'], 422);
+		}
+	}
+	
+	public function updateEmail(Request $request) 
+	{
+		try {			
+			if($request->email == null || $request->email_confirmation == null) 
+				return response(['status' => 'Email fields cannot be empty'], 422);
+			
+			if($request->email != $request->email_confirmation) 
+				return response(['status' => 'Email fields must match'], 422);
+			
+			$userData = User::where('name', $request->user()->name)->first();			
+			$userData->email = $request->email;
+			$userData->save();
+			return response(['status' => 'change saved', 'email' => $request->email], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'New email could not be processed. Please report to admin.'], 422);
+		}
+	}
+	
+	public function updatePassword(Request $request) 
+	{
+		try {			
+			if($request->oldPassword == null || $request->password == null || $request->password_confirmation == null) 
+				return response(['status' => 'Password fields cannot be empty'], 422);
+			
+			if($request->password != $request->password_confirmation) 
+				return response(['status' => 'Password fields must match'], 422);
+			
+			$userData = User::where('name', $request->user()->name)->first();		
+
+			if($request->password != $userData->password) 
+				return response(['status' => 'Old password field incorrect'], 422);
+			
+			$userData->password = $request->password;
+			$userData->save();
+			return response(['status' => 'change saved'], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'New email could not be processed. Please report to admin.'], 422);
+		}
+	}
+	
 }
