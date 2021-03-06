@@ -46,6 +46,7 @@ import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
 import GuestBook from './components/GuestBook'
 import Profile from './components/Profile'
+import Sitemap from './components/Sitemap'
 
 //user api for sanctum auth
 import User from './apis/User';
@@ -75,6 +76,18 @@ function recordGuest(to, from, next) {
 			if(error.response.status == 422)
 				next({name:'home', params:{navError: 'Database error, could not record guest.'}, replace:true});
 		});
+}
+
+function getSitemap(to, from, next, routes, pre) {
+	
+	console.log(routes);
+	
+	//return array;
+	//next({name:'sitemap', params:{routes: routes}});	
+	//next();	
+	to.params.sitemap = routes;
+	next(to.params);
+
 }
 
 const router = new VueRouter({
@@ -209,7 +222,16 @@ const router = new VueRouter({
 			beforeEnter (to, from, next) {
 				loginCheck(to,from,next);
 			}
-		},		
+		},
+		{
+			path: '/sitemap',
+			name: 'sitemap',
+			component: Sitemap,
+			props: {},
+			beforeEnter (to, from, next) {
+				getSitemap(to, from, next, router.options.routes, 'http://127.0.0.1:8000');
+			}
+		},
 		//catch all if non-defined url is entered. Goes to login page or user welcome landing
 		/*
 		{
