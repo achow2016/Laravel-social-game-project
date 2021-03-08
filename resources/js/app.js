@@ -96,6 +96,7 @@ const router = new VueRouter({
 		//home or base url goes to welcome user landing or login page
 		{
 			path: '/',
+			alias: ['/home'],
 			name: 'home',
 			component: Home,
 			props: {}
@@ -129,12 +130,14 @@ const router = new VueRouter({
 		},
 		{
 			path: '/loginForm',
+			alias: ['/login'],
 			name: 'login',
 			component: Login,
 			props: {}
 		},
 		{
 			path: '/registerForm',
+			alias: ['/register'],
 			name: 'register',
 			component: Register,
 			props: {}

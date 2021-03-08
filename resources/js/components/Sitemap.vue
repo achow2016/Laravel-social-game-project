@@ -2,19 +2,23 @@
 	<div dusk="main" class="vh-100 container pt-3 pb-3">
 	
 		<div class="row fixed-top">
-			<div id="themeOptions" class="bg-secondary col-11 d-flex justify-content-end invisible">
-				<a href="#" v-on:click="toggleToLight()" class="badge badge-pill badge-light mr-4">
+			<div class="col-3 d-flex justify-content-end">
+				<router-link :to="{ name: 'home' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
+			</div>
+	
+			<div id="themeOptions" class="bg-secondary col-7 d-flex justify-content-end invisible">
+				<a href="#" v-on:click="toggleToLight()" class="badge badge-pill badge-light mr-4 pt-2">
 					<b-icon-brightness-high-fill></b-icon-brightness-high-fill>
 				</a>
-				<a href="#" v-on:click="toggleToDefault()" class="badge badge-pill badge-secondary mr-4">
+				<a href="#" v-on:click="toggleToDefault()" class="badge badge-pill badge-secondary mr-4 pt-2">
 					<b-icon-brightness-low-fill></b-icon-brightness-low-fill>
 				</a>
-				<a href="#" v-on:click="toggleToDark()" class="badge badge-pill badge-dark mr-4">
+				<a href="#" v-on:click="toggleToDark()" class="badge badge-pill badge-dark mr-4 pt-2">
 					<b-icon-brightness-low></b-icon-brightness-low>
 				</a>
 			</div>
-			<div class="col-1 d-flex justify-content-end">
-				<a href="#" v-on:click="showThemeToggle()" class="badge badge-pill badge-light">&#9680;</a>
+			<div id="themeToggle"class="col-2 d-flex justify-content-end">
+				<a href="#" v-on:click="showThemeToggle()" class="badge badge-pill badge-light pt-2">&#9680;</a>			
 			</div>
 		</div>
 		
@@ -22,7 +26,7 @@
 			<div class="col">
 				<div class="row text-center">
 					<div class="col">
-						<h1>Alan's Website</h1>
+						<h1>Sitemap</h1>
 					</div>	
 				</div>	
 				<div class="row text-center">
@@ -38,22 +42,11 @@
 				<div class="col-12 mx-auto">
 					<div class="row">
 						<div class="col text-center">
-							<h5>Works</h5>
+							<h5>links</h5>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-6">
-							<div class="mx-auto w-30">
-								<img src="/img/guestbook_snapshot.jpg" id="guestbookSnapshot" alt="Guestbook Snapshot" style="width:300px;height:300px" class="mx-auto d-block mb-3">
-								<router-link :to="{ name: 'guestbook' }"><button type="button" class="btn btn-dark w-100 mb-3">guest book</button></router-link>
-							</div>
-						</div>
-						<div class="col-6">
-							<div class="mx-auto w-30">
-								<img src="/img/game_snapshot.jpg" id="gameSnapshot" alt="Game Snapshot" style="width:300px;height:300px" class="mx-auto d-block mb-3">
-								<router-link :to="{ name: 'login' }"><button type="button" class="btn btn-dark w-100">social rpg game</button></router-link>
-							</div>
-						</div>
+					<div class="row linksArea">
+						
 					</div>
 				</div>		
 			</nav>			
@@ -63,16 +56,14 @@
 			<nav v-bind:style="topNav" class="row p-3 m-3">
 				<div class="col-9 mx-auto">
 					<div class="row">
-						<div class="col text-center">
-							<h5>Works</h5>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12">
-							<div class="mx-auto w-30">
-								<router-link :to="{ name: 'guestbook' }"><button type="button" class="btn btn-dark w-100 mb-3">guest book<span class="badge badge-secondary">New</span></button></router-link>
-								<router-link :to="{ name: 'login' }"><button type="button" class="btn btn-dark w-100">social rpg game<span class="badge badge-secondary">New</span></button></router-link>
-							</div>
+						<div class="col linksArea">
+							<div class="row" v-for="link in links" :key="link.name">
+								<div class="col-12">
+									<div class="mx-auto w-30">
+										<button v-on:click="navigateTo($event)" v-bind:id="link.name" type="button" class="btn btn-dark w-100 mb-3">{{link.name}}</button>
+									</div>
+								</div>
+							</div>	
 						</div>
 					</div>
 				</div>
@@ -98,13 +89,11 @@
 	</div>
 </template>
 <script>
-	//https://www.publicdomainpictures.net/en/view-image.php?image=23549&picture=newspapers-and-glasses
-	//https://www.publicdomainpictures.net/pictures/100000/velka/night-sky-with-lonely-tree.jpg
-	
 	import personalInfo from '../../../public/json/PersonalInfo.json';
 	export default {
 		data() {
 			return {
+				links: '',
 				personalInfo: personalInfo,
 				user: {
 					name: 'demo',
@@ -133,12 +122,18 @@
 			}
 		},
 		mounted() {
+		
 		},
 		created() {
 			let responseData = this.$route.params;
 			console.log(responseData);
+			this.links = this.$route.params.sitemap;
 		},
 		methods: {
+			navigateTo(event) {
+				console.log(event.target.id);
+				this.$router.push(event.target.id) 
+			},
 			toggleToDefault() {
 				var container = document.querySelector('.container');
 				if(!container.classList.contains('darkMode')) {
@@ -162,6 +157,7 @@
 				}
 			},
 			showThemeToggle() {
+				document.querySelector('#themeToggle').classList.toggle('bg-secondary');
 				var container = document.querySelector('#themeOptions');				
 				container.classList.toggle('invisible');
 			}			
