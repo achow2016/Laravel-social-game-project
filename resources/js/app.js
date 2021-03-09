@@ -41,6 +41,7 @@ import Home from './components/Home'
 import ResetPassword from './components/ResetPassword'
 import CharacterBuilder from './components/CharacterBuilder'
 import RpgGame from './components/RpgGame'
+import RpgGameBattle from './components/RpgGameBattle'
 import Chat from './components/Chat'
 import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
@@ -64,6 +65,48 @@ function loginCheck(to, from, next) {
 			else
 				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
 		});
+}
+
+//check if logged in and has character
+function getCharacterExistenceStatus(to, from, next) {			
+	let status = User.getCharacterExistenceStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+		.then((response) => {
+			if(response.data.characterStatus == false) {
+				return false;
+			}
+			else
+				return true;
+		})
+		.catch(error => {
+			if(error.response.status == 401)
+				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});	
+			else if(error.response.status == 422)
+				return false;
+			else
+				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
+		});
+	return status;	
+}
+
+//check if logged in and if character is in battle
+function getBattleStatus(to, from, next) {			
+	let status = User.getBattleStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+		.then((response) => {
+			if(response.data.battleStatus == false) {
+				return false;
+			}
+			else
+				return true;
+		})
+		.catch(error => {
+			if(error.response.status == 401)
+				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
+			else if(error.response.status == 422)
+				next({name:'welcome', params:{message: 'You must have a character to access that resource.'}, replace:true});		
+			else
+				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
+		});
+	return status;	
 }
 
 function recordGuest(to, from, next) {
@@ -223,6 +266,33 @@ const router = new VueRouter({
 			component: RpgGame,
 			props: {},
 			beforeEnter (to, from, next) {
+				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
+				characterExistenceStatus.then(function(result) {
+					console.log(result);
+					if(result == false)
+						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
+				});
+				loginCheck(to,from,next);
+			}
+		},
+		{
+			path: '/rpgGameBattle',
+			name: 'rpgGameBattle',
+			component: RpgGameBattle,
+			props: {},
+			beforeEnter (to, from, next) {
+				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
+				characterExistenceStatus.then(function(result) {
+					console.log(result);
+					if(result == false)
+						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
+				});
+				let battleStatusCheck = getBattleStatus(to, from, next);
+				battleStatusCheck.then(function(result) {
+					console.log(result);
+					if(result == false)
+						next({name:'rpgGame', params:{message: 'You are not in battle.'}, replace:true});	
+				});
 				loginCheck(to,from,next);
 			}
 		},
@@ -262,6 +332,16 @@ const router = new VueRouter({
 		*/
 	],
 })
+
+//router.beforeEach((to, from, next) => {
+	//if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
+	//else next()
+//})
+
+//router.afterEach((to, from) => {
+  // ...
+//})
+
 const app = new Vue({
 	el: '#app',
 	components: { App },

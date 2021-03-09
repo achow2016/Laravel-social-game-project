@@ -16,6 +16,12 @@
 					</div>
 				</div>
 				
+				<div v-if="!!errorMessage" class="row text-center">
+					<div class="col-sm-8 alert alert-warning" role="alert">
+						<span class="text-danger">{{errorMessage}}</span>
+					</div>
+				</div>
+				
 				<div class="row mt-5 pt-5">
 					<div class="col">
 					
@@ -79,6 +85,7 @@
 			}
 		},
 		created() {
+			console.log(this.$route.params.errorMessage);
 			let responseData = this.$route.params.response.data;
 			this.username = responseData.user.name;
 			if(responseData.characterState == 'true')
@@ -112,8 +119,14 @@
 			}
 		},
 		computed: {
-			navError (){
+			navError() {
 				return this.$route.params.navError;
+			},
+			
+			errorMessage() {
+				//return this.$route.params.navError;
+				
+				return this.$route.params.errorMessage;
 			}
 		}
 	}

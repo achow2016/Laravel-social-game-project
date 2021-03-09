@@ -16,6 +16,7 @@ class CreateCharacterTable extends Migration
 		Schema::dropIfExists('character');
 		Schema::create('character', function (Blueprint $table) {
             $table->increments('id');
+            $table->boolean('battle')->default(false);
 			$table->binary('avatar')->nullable();
 			$table->integer('mapId')->unsigned()->nullable();
 			$table->integer('gameLevel')->default('1');

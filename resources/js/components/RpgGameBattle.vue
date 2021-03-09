@@ -7,61 +7,46 @@
 					<router-link :to="{ name: 'welcome' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
 				</div>	
 				<div class="flex-fill w-33 h-75">
-					<h3 class="mt-1">Rpg Game</h3>
+					<h3 class="mt-1">Rpg Game Battle</h3>
 				</div>	
 				<div class="flex-fill w-33">
 					<button v-on:click="logout" type="button" class="btn btn-dark flex-fill w-100">Logout</button>
 				</div>	
 			</div>
 		</header>
-	
+		
+		<div class="row mt-5 mb-5" id="battleSceneArea">
+			<div class="col">		
+				<div>
+					<div id="battleScene" class="col text-center">
+						Generating battle scene...
+					</div>					
+				</div>
+			</div>
+		</div>
+		
+		<div class="row mt-5 mb-5" id="distanceGridArea">
+			<div class="col">		
+				<div>
+					<div id="distanceGrid" class="col text-center">
+						Generating distance grid...
+					</div>					
+				</div>
+			</div>
+		</div>
+		
 		<div class="row text-center mt-5 mb-2">
 			<div id="messageContainer" class="col text-center">
 				Messages
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5" id="gridArea">
-			<div class="col">		
-				<div>
-					<div id="mapGrid" class="col text-center">
-						Generating map...
-					</div>					
-				</div>
-			</div>
-		</div>
-		
 		<div class="row mt-5 mb-5" id="controlArea">
-			<div class="col-6">		
-				<div id="directionGrid" class="text-center">
-					<div id="directionplaceholder" class="row mb-4 d-none">
-						<div class="col text-center">
-							moving...
-						</div>
-					</div>
-					
-					<div class="row mb-4 controllerRow">
-						<div v-on:click="moveCharacter($event)" id="upLeft" class="col-4"><b-icon icon="arrow-up-left-circle"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="up" class="col-4"><b-icon icon="arrow-up-circle"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="upRight" class="col-4"><b-icon icon="arrow-up-right-circle"></b-icon></div>
-					</div>
-					<div class="row mb-4 controllerRow">
-						<div v-on:click="moveCharacter($event)" id="left" class="col-4"><b-icon icon="arrow-left-circle"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="wait" class="col-4"><b-icon icon="app"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="right" class="col-4"><b-icon icon="arrow-right-circle"></b-icon></div>
-					</div>
-					<div class="row mb-4 controllerRow">
-						<div v-on:click="moveCharacter($event)" id="downLeft" class="col-4"><b-icon icon="arrow-down-left-circle"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="down" class="col-4"><b-icon icon="arrow-down-circle"></b-icon></div>
-						<div v-on:click="moveCharacter($event)" id="downRight" class="col-4"><b-icon icon="arrow-down-right-circle"></b-icon></div>
-					</div>
-				</div>				
-			</div>
 			<div id="actionGrid" class="col-6">
 				<div v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
+				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Flee</div>
 			</div>
 		</div>
 		
@@ -170,12 +155,6 @@
 				
 		},
 		mounted() {
-			//console.log(this.$route.params);
-			
-			if(this.$route.params.message) {
-				document.getElementById('messageContainer').textContent = this.$route.params.message;
-			}
-		
 			//dynamic style fix for small screen
 			//remove large margins around map
 			if(screen.height < 600) {
@@ -444,6 +423,29 @@
 				document.getElementById('menuDataArea').appendChild(dataRowContainer);
 			},
 			populateStatus() {
+			/*
+				User.getCharacterStatus({
+					_method: 'POST', token: sessionStorage.getItem('token')
+				}, 
+					sessionStorage.getItem('token')
+				)
+				.then((response) => {
+					console.log(response.data.character);
+					this.playerStatus = response.data.character;
+					document.getElementById('menuDataArea').textContent = '';
+					
+					this.generateDataRow('Game Level', response.data.character.gameLevel);
+					this.generateDataRow('Name', response.data.character.characterName);
+					this.generateDataRow('Attack', response.data.character.currentAttack + '/' + response.data.character.attack);
+					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
+					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
+					this.generateDataRow('Recovery', 'H: ' + response.data.character.currentHealthRegen + '/' + response.data.character.healthRegen
+						+ ' | ' + 'S: ' + response.data.character.currentstaminaRegen + '/' + response.data.character.staminaRegen);
+					this.generateDataRow('Agility', response.data.character.currentAgility + '/' + response.data.character.agility);
+					this.generateDataRow('Accuracy', response.data.character.currentAccuracy + '/' + response.data.character.accuracy);
+					this.generateDataRow('money', response.data.character.money);
+				});
+			*/	
 				this.formData = new FormData();
 				this.formData.append('token', sessionStorage.getItem('token'));
 				this.formData.append('_method', 'POST');

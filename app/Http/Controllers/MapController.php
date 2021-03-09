@@ -227,6 +227,12 @@ class MapController extends Controller {
 				switch($request->direction) {
 				//NS or EW
 					case 'up':
+						if($currentRow == 0) {
+							return response([
+								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
+							], 200);
+						}	
 						$movementChoice = 'north';
 						if($currentRow >= 1) {
 							$currentRow--;
@@ -243,6 +249,12 @@ class MapController extends Controller {
 						}	
 						break;
 					case 'down':
+						if($currentRow == 7) {
+							return response([
+								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
+							], 200);
+						}
 						$movementChoice = 'south';
 						if($currentRow <= 6) {
 							$currentRow++;
@@ -259,7 +271,13 @@ class MapController extends Controller {
 						}	
 						break;
 					case 'left':
-						$movementChoice = 'east';
+						if($currentColumn == 0) {
+							return response([
+								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
+							], 200);
+						}
+						$movementChoice = 'west';
 						if($currentColumn >= 1) {
 							$currentColumn--;
 							foreach($enemyCoords as $enemyCoord) {
@@ -275,7 +293,13 @@ class MapController extends Controller {
 						}	
 						break;
 					case 'right':
-						$movementChoice = 'west';
+						if($currentColumn == 7) {
+							return response([
+								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
+							], 200);
+						}
+						$movementChoice = 'east';
 						if($currentColumn <= 6) {
 							$currentColumn++;
 							foreach($enemyCoords as $enemyCoord) {

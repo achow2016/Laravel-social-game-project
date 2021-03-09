@@ -140,6 +140,22 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async getBattleStatus(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/getCharacterBattleStatus',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
+	async getCharacterExistenceStatus(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/getCharacterExistenceStatus',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	async moveCharacter(form, token) {
 		//await Csrf.getCookie();
 		return Api.post('/moveCharacter',form,{headers: {

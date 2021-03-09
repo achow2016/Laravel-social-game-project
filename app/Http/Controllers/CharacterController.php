@@ -91,6 +91,46 @@ class CharacterController extends Controller {
 			report($e);
 			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
 		}
+	}
+	
+	public function getCharacterBattleStatus(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$character = $user->character()->first();
+			if($character) {
+				//return response(['character' => $character], 200);
+				if($character->battle == true) {
+					return response(['battleStatus' => true], 200);
+				}
+				else
+					return response(['battleStatus' => false], 200);
+			}
+			else {
+				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
+			}	
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Character battle status could not be determined. Please report to admin.'], 422);
+		}
+	}
+	public function getCharacterExistenceStatus(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$character = $user->character()->first();
+			if(!$character->isEmpty()) {
+				return response(['characterStatus' => true], 200);
+			}
+			else {
+				return response(['characterStatus' => false], 200);
+			}	
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Character status could not be determined. Please report to admin.'], 422);
+		}
 	}	
 }
 ?>

@@ -117,7 +117,16 @@ class EnemyController extends Controller {
 			$charRow = $charObj->mapPosition[0];
 			$charColumn = $charObj->mapPosition[1];
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			$enemies = $existingMap->enemies()->get();
+			
+			//$enemies = $existingMap->enemies()->get();
+			//returns coordinates only for map generator
+			//$enemies = $existingMap->enemies()->get()->pluck('attack', 'currentAttack', 'health', 'currentHealth', 'stamina', 			//'currentStamina', 'mapPosition');
+			
+			$enemies = $existingMap->enemies()->get([
+				'name', 'attack', 'currentAttack', 'health',
+				'currentHealth', 'stamina', 'currentStamina', 'mapPosition'
+			]);
+			
 			$inspectableTargets = array();
 
 			$observedSquares = array(
@@ -146,24 +155,6 @@ class EnemyController extends Controller {
 			report($e);
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}		
-	}	
-
-	public function getCharacterStatus(Request $request) 
-	{
-		try {
-			$user = User::where('name', $request->user()->name)->first();
-			$character = $user->character()->first();
-			if($character) {
-				return response(['character' => $character], 200);
-			}
-			else {
-				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
-			}	
-		}
-		catch(Throwable $e) {
-			report($e);
-			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
-		}
 	}	
 }
 ?>
