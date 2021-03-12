@@ -280,21 +280,31 @@ const router = new VueRouter({
 			name: 'rpgGameBattle',
 			component: RpgGameBattle,
 			props: {},
+			
 			beforeEnter (to, from, next) {
+				//requires return to stop nav
+				//next(false);
+				//return;
+				
 				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 				characterExistenceStatus.then(function(result) {
 					console.log(result);
-					if(result == false)
-						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
+					if(result == false) {
+						next(false);
+						return;
+					}	
 				});
 				let battleStatusCheck = getBattleStatus(to, from, next);
 				battleStatusCheck.then(function(result) {
 					console.log(result);
-					if(result == false)
-						next({name:'rpgGame', params:{message: 'You are not in battle.'}, replace:true});	
+					if(result == false) {
+						next(false)
+						return;
+					}	
 				});
 				loginCheck(to,from,next);
 			}
+			
 		},
 		{
 			path: '/sitemap',

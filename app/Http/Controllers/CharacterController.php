@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-//use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 //models
 use App\Models\Character;
@@ -115,6 +115,7 @@ class CharacterController extends Controller {
 			return response(['status' => 'Character battle status could not be determined. Please report to admin.'], 422);
 		}
 	}
+	
 	public function getCharacterExistenceStatus(Request $request) 
 	{
 		try {
@@ -131,6 +132,46 @@ class CharacterController extends Controller {
 			report($e);
 			return response(['status' => 'Character status could not be determined. Please report to admin.'], 422);
 		}
-	}	
+	}
+
+	//gets enemy detail, distance to enemy and moves to battle component
+	public function fightEnemy(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$charRow = $charObj->mapPosition[0];
+			$charColumn = $charObj->mapPosition[1];
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
+			/*
+			applies damage, can be used for item use in map
+			
+			$mapCoord = explode(",", $request->input('mapPosition'));
+			$enemy = $existingMap->enemies()->get()->where('mapPosition', $mapCoord)->first();
+			$playerDamage = $charObj->currentAttack * $charObj->attackMultiplier;
+			$enemy->currentHealth = $enemy->currentHealth - $playerDamage;
+			//Log::debug($enemy->currentHealth); 
+			$existingMap->enemies()->save($enemy);
+			
+			return response(['enemy' => $enemy, 'playerDamage' => $playerDamage], 200);
+			*/
+			$charObj->battle = true;
+			$charObj->save();
+			
+			$enemyMapCoord = explode(",", $request->input('mapPosition'));
+			$enemy = $existingMap->enemies()->get()->where('mapPosition', $enemyMapCoord)->first();
+			$enemyRow = $enemyMapCoord[0];
+			$enemyColumn = $enemyMapCoord[1];
+			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
+			return response(['distance' => $distance, 'enemy' => $enemy], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}		
+	}		
+	
+	
 }
 ?>

@@ -37,6 +37,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/inspectEnemies', 'App\Http\Controllers\EnemyController@inspectEnemies');
 	Route::post('/getMap', 'App\Http\Controllers\MapController@getMap');
 	Route::post('/moveCharacter', 'App\Http\Controllers\MapController@moveCharacter');
+	Route::post('/fightEnemy', 'App\Http\Controllers\CharacterController@fightEnemy');
 	Route::post('/getUserProfile', 'App\Http\Controllers\RegistrationController@getUserProfile');
 	Route::post('/updateProfileVideo', 'App\Http\Controllers\RegistrationController@updateProfileVideo');
 	Route::post('/updateProfileImage', 'App\Http\Controllers\RegistrationController@updateProfileImage');

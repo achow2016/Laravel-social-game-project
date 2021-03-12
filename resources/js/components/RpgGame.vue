@@ -58,10 +58,10 @@
 				</div>				
 			</div>
 			<div id="actionGrid" class="col-6">
-				<div v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
+				<div id="inspectDiv" v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
+				<div id="fightDiv" v-on:click="selectFight" class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
+				<div id="skillDiv" class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
+				<div id="lootDiv" class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
 			</div>
 		</div>
 		
@@ -382,7 +382,67 @@
 				
 				document.getElementById('closeInspectContainer').classList.toggle('d-none');
 				
-			},			
+			},
+			selectFight() {	
+				document.getElementById('messageContainer').textContent = 'Select enemy.';
+				
+				let gameGridSquares = document.getElementsByClassName('gameGridSquare');
+				
+				const vm = this;
+				
+				for(let i = 0; i < gameGridSquares.length; i++) {
+				
+					gameGridSquares[i].onclick = function() {
+						let all = document.getElementsByTagName("*");
+
+						for (let i = 0, count = all.length; i < count; i++) {
+							//all[i].classList.add('d-none');
+							all[i].style.pointerEvents = 'none';
+						}	
+							
+						let mapCoord = gameGridSquares[i].id.split('-').map(Number);
+						console.log(mapCoord);	
+						
+						this.formData = new FormData();
+						this.formData.append('mapPosition', mapCoord);
+						this.formData.append('_method', 'POST');
+			
+						const headers = { 
+						  'Content-Type': 'multipart/form-data',
+						  'enctype' : 'multipart/form-data',
+						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+						}
+						
+						axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/fightEnemy',
+							params : '',
+							data   : this.formData,
+							headers: headers,
+						}).then(response => {
+							console.log(response);
+							
+							vm.$router.push({ 
+								name: 'rpgGameBattle', 
+								params: {distance: response.data.distance, enemy: response.data.enemy} 
+							}).catch((err) => {
+								for (let i = 0, count = all.length; i < count; i++) {
+									all[i].style.pointerEvents = 'auto';
+								}
+								document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+								console.log(err);
+							});;
+							
+							//enable all butttons
+							//for (let i = 0, count = all.length; i < count; i++) {
+							//	all[i].style.pointerEvents = 'auto';
+							//}
+							
+						})
+					}	
+				};
+			},
 			populateInspect() {
 				User.inspectEnemies({
 					_method: 'POST', token: sessionStorage.getItem('token')

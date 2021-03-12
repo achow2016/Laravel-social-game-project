@@ -155,6 +155,6 @@ class EnemyController extends Controller {
 			report($e);
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}		
-	}	
+	}
 }
 ?>

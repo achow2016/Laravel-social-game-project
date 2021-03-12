@@ -164,6 +164,14 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async fightEnemy(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/fightEnemy',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	async updateProfileVideo(form, token) {
 		//await Csrf.getCookie();
 		return Api.post('/updateProfileVideo',form,{headers: {

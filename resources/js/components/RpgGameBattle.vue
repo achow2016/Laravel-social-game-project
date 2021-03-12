@@ -155,6 +155,8 @@
 				
 		},
 		mounted() {
+			console.log(this.$route.params);
+		
 			//dynamic style fix for small screen
 			//remove large margins around map
 			if(screen.height < 600) {
