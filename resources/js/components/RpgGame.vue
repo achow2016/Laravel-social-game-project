@@ -320,7 +320,7 @@
 						controllerArray[i].classList.toggle('d-none');
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
-				})
+				});
 				
 				this.drawEnemyPositions();
 			},
@@ -413,33 +413,46 @@
 						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 						}
 						
-						axios({
-							method : "POST",
-							baseURL: 'http://127.0.0.1:8000/api',
-							url    : 'http://127.0.0.1:8000/api/fightEnemy',
-							params : '',
-							data   : this.formData,
-							headers: headers,
-						}).then(response => {
-							console.log(response);
-							
-							vm.$router.push({ 
-								name: 'rpgGameBattle', 
-								params: {distance: response.data.distance, enemy: response.data.enemy} 
-							}).catch((err) => {
-								for (let i = 0, count = all.length; i < count; i++) {
-									all[i].style.pointerEvents = 'auto';
-								}
-								document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
-								console.log(err);
-							});;
-							
-							//enable all butttons
-							//for (let i = 0, count = all.length; i < count; i++) {
-							//	all[i].style.pointerEvents = 'auto';
-							//}
-							
-						})
+						const fightEnemy = async () => {
+							try {
+								const req = await axios({
+									method : "POST",
+									baseURL: 'http://127.0.0.1:8000/api',
+									url    : 'http://127.0.0.1:8000/api/fightEnemy',
+									params : '',
+									data   : this.formData,
+									headers: headers,
+								}).then(response => {
+									if(response.data.error != null) {
+										for (let i = 0, count = all.length; i < count; i++) {
+											all[i].style.pointerEvents = 'auto';
+										}
+										document.getElementById('messageContainer').textContent = response.data.error;
+										return;
+									}	
+									else {
+										vm.$router.push({ 
+											name: 'rpgGameBattle', 
+											params: {distance: response.data.distance, enemy: response.data.enemy} 
+										}).catch((err) => {
+											for (let i = 0, count = all.length; i < count; i++) {
+												all[i].style.pointerEvents = 'auto';
+											}
+											
+											document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+											console.log(err);
+										});
+									}
+								}).catch(error => {
+									document.getElementById('messageContainer').textContent = error.response.data;
+									return;
+								});
+							}
+							catch(error) {
+								console.log(error);
+							}
+						};
+						fightEnemy();
 					}	
 				};
 			},

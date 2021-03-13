@@ -107,55 +107,25 @@
 			}
 		},
 		beforeMount() { 
-			User.getMap({
-					_method: 'POST', token: sessionStorage.getItem('token')
-				}, 
-					sessionStorage.getItem('token')
-				)
-				.then((response) => {
-					this.mapData = JSON.parse(response.data.mapData);
-					this.playerPosition = response.data.playerPosition;
-					
-					document.getElementById('mapGrid').innerHTML = ""; 
-					for (let i = 0; i < 8; i++) {
-						let row = document.createElement('div');
-						row.classList.add('row', 'mapGridRow');
-						row.setAttribute('id', 'row' + i);
-						document.getElementById('mapGrid').appendChild(row);
-						
-						for (let j = 0; j < 8; j++) {
-							let element = document.createElement('div');
-							element.classList.add('col');
-							//element.setAttribute('id', 'row' + i + 'col' + j);
-							
-							if(this.mapData[i][j].terrain == 'grass')
-								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
-							else
-								element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
-							
-							if(this.mapData[i][j].treeCover == true) {
-								let treeMarker = document.createTextNode('T');
-								element.id = i + '-' + j;
-								element.appendChild(treeMarker);
-								element.classList.add('tree');
-							}
-							else {
-								let openMarker = document.createTextNode('-');
-								element.id = i + '-' + j;
-								element.appendChild(openMarker);
-								element.classList.add('open');
-							}
-							document.getElementById('row' + i).appendChild(element);
-						}
-					}
-					this.drawPlayerPosition();
-					this.drawEnemyPositions();
-				});
 			
-				
 		},
 		mounted() {
 			console.log(this.$route.params);
+			//if refreshed params are gone so go backwards
+			if(this.$route.params.distance == null || this.$route.params.enemy == null) {
+				this.$router.push({ 
+					name: 'rpgGame', 
+					params: {message: 'No active battle found.'} 
+				}).catch((err) => {
+					console.log(err);
+				});
+			}
+			
+			let all = document.getElementsByTagName("*");
+
+			for (let i = 0, count = all.length; i < count; i++) {
+				all[i].style.pointerEvents = 'auto';
+			}	
 		
 			//dynamic style fix for small screen
 			//remove large margins around map

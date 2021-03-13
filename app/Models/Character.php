@@ -18,7 +18,10 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
-		'battle', //battle state
+		//battle state
+		'battle',//bool
+		'enemyId',
+		
 		'gameLevel', 'mapId', 'mapPosition',
         'ownerUser', 'charactername', 'raceId', 'classId', 'avatar',
 		'page', 'chapter', 
@@ -64,6 +67,10 @@ class Character extends Model
 	
 	public function gameClass() {
 		return $this->hasOne('App\Models\Class', 'id', 'classId');
+	}
+	
+	public function currentEnemy() {
+		return $this->hasOne('App\Models\GameActiveEnemy', 'id', 'enemyId');
 	}
 	
 	//many other models and db game data tables needed to be added and seeded

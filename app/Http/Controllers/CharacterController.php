@@ -156,11 +156,18 @@ class CharacterController extends Controller {
 			
 			return response(['enemy' => $enemy, 'playerDamage' => $playerDamage], 200);
 			*/
-			$charObj->battle = true;
-			$charObj->save();
 			
 			$enemyMapCoord = explode(",", $request->input('mapPosition'));
 			$enemy = $existingMap->enemies()->get()->where('mapPosition', $enemyMapCoord)->first();
+			
+			$charObj->battle = true;
+			$charObj->battleEnemyId = $enemy->id;
+			$charObj->save();
+			
+			if(!$enemy) {
+				return response(['error' => 'No enemy found on square.'], 200);
+			}	
+			
 			$enemyRow = $enemyMapCoord[0];
 			$enemyColumn = $enemyMapCoord[1];
 			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
