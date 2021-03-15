@@ -103,13 +103,15 @@
 				terrainLayerData: '',
 				playerStatus: '',
 				enemyData: '',
-				enemyStatusData: ''
+				enemyStatusData: '',
+				engageDistance: ''
 			}
 		},
 		beforeMount() { 
 			
 		},
 		mounted() {
+			
 			console.log(this.$route.params);
 			//if refreshed params are gone so go backwards
 			if(this.$route.params.distance == null || this.$route.params.enemy == null) {
@@ -120,13 +122,11 @@
 					console.log(err);
 				});
 			}
+			else {
+				this.enemyData = this.$route.params.enemy;
+				this.engageDistance = this.$route.params.distance;
+			}
 			
-			let all = document.getElementsByTagName("*");
-
-			for (let i = 0, count = all.length; i < count; i++) {
-				all[i].style.pointerEvents = 'auto';
-			}	
-		
 			//dynamic style fix for small screen
 			//remove large margins around map
 			if(screen.height < 600) {

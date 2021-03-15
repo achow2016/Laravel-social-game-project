@@ -122,6 +122,8 @@
 			}
 		},
 		beforeMount() { 
+			
+			
 			User.getMap({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 

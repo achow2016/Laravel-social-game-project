@@ -13,12 +13,12 @@ class CreateCharacterTable extends Migration
      */
     public function up()
     {
-		Schema::dropIfExists('character');
 		Schema::create('character', function (Blueprint $table) {
             $table->increments('id');
 			//battle state
             $table->boolean('battle')->default(false);
-            $table->boolean('enemyId')->default(false);
+            $table->integer('enemyId')->unsigned()->nullable();
+			$table->integer('engageDistance')->nullable();
 			
 			$table->binary('avatar')->nullable();
 			$table->integer('mapId')->unsigned()->nullable();
@@ -61,7 +61,7 @@ class CreateCharacterTable extends Migration
 			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
 			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
-			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade'); 
+			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade');
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 

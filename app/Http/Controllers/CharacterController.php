@@ -101,7 +101,8 @@ class CharacterController extends Controller {
 			if($character) {
 				//return response(['character' => $character], 200);
 				if($character->battle == true) {
-					return response(['battleStatus' => true], 200);
+					$enemy = $character->currentEnemy()->first();
+					return response(['battleStatus' => true, 'distance' => $character->engageDistance, 'enemy' => $enemy], 200);
 				}
 				else
 					return response(['battleStatus' => false], 200);
@@ -160,17 +161,29 @@ class CharacterController extends Controller {
 			$enemyMapCoord = explode(",", $request->input('mapPosition'));
 			$enemy = $existingMap->enemies()->get()->where('mapPosition', $enemyMapCoord)->first();
 			
-			$charObj->battle = true;
-			$charObj->battleEnemyId = $enemy->id;
-			$charObj->save();
+			$enemyRow = $enemyMapCoord[0];
+			$enemyColumn = $enemyMapCoord[1];
+			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
+			$decimalDistance = floor($distance);
+			$fractionDistance = $distance - $decimalDistance;
+			$finalDistance = 0;
+			if($fractionDistance < .5)
+				$finalDistance = floor($distance);
+			else
+				$finalDistance = ceil($distance);
 			
 			if(!$enemy) {
 				return response(['error' => 'No enemy found on square.'], 200);
 			}	
 			
-			$enemyRow = $enemyMapCoord[0];
-			$enemyColumn = $enemyMapCoord[1];
-			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
+			$charObj->battle = true;
+			$charObj->enemyId = $enemy->id;
+			$charObj->engageDistance = $distance;
+			$charObj->save();
+			
+
+			
+			
 			return response(['distance' => $distance, 'enemy' => $enemy], 200);
 		}
 		catch(Throwable $e) {

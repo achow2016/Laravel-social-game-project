@@ -13,7 +13,6 @@ class CreateGameMapsTable extends Migration
      */
     public function up()
     {
-		Schema::dropIfExists('game_maps');
         Schema::create('game_maps', function (Blueprint $table) {
             $table->increments('id');
 			$table->integer('level')->default('0');

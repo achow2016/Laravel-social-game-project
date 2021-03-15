@@ -18,8 +18,6 @@ class GameActiveEnemy extends Model
      * @var array
      */
     protected $fillable = [
-		//battle state
-		'opponentId',
         'mapId', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'staminaRegen', 'healthRegen',
 		'currentHealth', 'currentStamina', 'currentAccuracy', 'currentAgility',
@@ -52,9 +50,5 @@ class GameActiveEnemy extends Model
 	
 	public function gameMap() {
 		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
-	}
-	
-	public function currentOpponent() {
-		return $this->belongsTo('App\Models\Character', 'id', 'opponentId');
 	}
 }

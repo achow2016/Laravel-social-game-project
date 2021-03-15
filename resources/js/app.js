@@ -88,15 +88,16 @@ function getCharacterExistenceStatus(to, from, next) {
 	return status;	
 }
 
-//check if logged in and if character is in battle
+//check if character is in battle
 function getBattleStatus(to, from, next) {			
 	let status = User.getBattleStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
 		.then((response) => {
 			if(response.data.battleStatus == false) {
-				return false;
+				return null;
 			}
-			else
-				return true;
+			else {
+				return {'enemy': response.data.enemy, 'distance': response.data.engageDistance};
+			}	
 		})
 		.catch(error => {
 			if(error.response.status == 401)
@@ -268,11 +269,20 @@ const router = new VueRouter({
 			beforeEnter (to, from, next) {
 				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 				characterExistenceStatus.then(function(result) {
-					console.log(result);
 					if(result == false)
 						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
 				});
 				loginCheck(to,from,next);
+				
+				let battleStatusCheck = getBattleStatus(to, from, next);
+				battleStatusCheck.then(function(result) {
+					if(result == null) {
+						next();
+					}
+					else {
+						next({name:'rpgGameBattle', replace:true});
+					}
+				});
 			}
 		},
 		{
@@ -285,24 +295,31 @@ const router = new VueRouter({
 				//requires return to stop nav
 				//next(false);
 				//return;
+				loginCheck(to,from,next);
 				
 				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 				characterExistenceStatus.then(function(result) {
-					console.log(result);
 					if(result == false) {
-						next(false);
+						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
 						return;
 					}	
 				});
+				
 				let battleStatusCheck = getBattleStatus(to, from, next);
 				battleStatusCheck.then(function(result) {
-					console.log(result);
-					if(result == false) {
-						next(false)
+					if(result == null) {
+						next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});	
+						return;
+					}	
+					
+					else {
+						to.params.enemy = result.enemy;
+						to.params.distance = result.distance;
+						next();
 						return;
 					}	
 				});
-				loginCheck(to,from,next);
+				
 			}
 			
 		},
