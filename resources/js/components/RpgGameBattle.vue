@@ -111,10 +111,7 @@
 			
 		},
 		mounted() {
-			
-			console.log(this.$route.params);
-			//if refreshed params are gone so go backwards
-			if(this.$route.params.distance == null || this.$route.params.enemy == null) {
+			if(this.$route.params === null) {
 				this.$router.push({ 
 					name: 'rpgGame', 
 					params: {message: 'No active battle found.'} 
@@ -125,6 +122,7 @@
 			else {
 				this.enemyData = this.$route.params.enemy;
 				this.engageDistance = this.$route.params.distance;
+				console.log(this.$route.params);
 			}
 			
 			//dynamic style fix for small screen

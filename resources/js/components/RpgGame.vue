@@ -121,55 +121,53 @@
 				enemyStatusData: ''
 			}
 		},
-		beforeMount() { 
-			
-			
-			User.getMap({
-					_method: 'POST', token: sessionStorage.getItem('token')
-				}, 
-					sessionStorage.getItem('token')
-				)
-				.then((response) => {
-					this.mapData = JSON.parse(response.data.mapData);
-					this.playerPosition = response.data.playerPosition;
-					
-					document.getElementById('mapGrid').innerHTML = ""; 
-					for (let i = 0; i < 8; i++) {
-						let row = document.createElement('div');
-						row.classList.add('row', 'mapGridRow');
-						row.setAttribute('id', 'row' + i);
-						document.getElementById('mapGrid').appendChild(row);
+		beforeMount() {
+			//if(this.$route.params.battle == false) {
+				User.getMap({
+						_method: 'POST', token: sessionStorage.getItem('token')
+					}, 
+						sessionStorage.getItem('token')
+					)
+					.then((response) => {
+						this.mapData = JSON.parse(response.data.mapData);
+						this.playerPosition = response.data.playerPosition;
 						
-						for (let j = 0; j < 8; j++) {
-							let element = document.createElement('div');
-							element.classList.add('col');
-							//element.setAttribute('id', 'row' + i + 'col' + j);
+						document.getElementById('mapGrid').innerHTML = ""; 
+						for (let i = 0; i < 8; i++) {
+							let row = document.createElement('div');
+							row.classList.add('row', 'mapGridRow');
+							row.setAttribute('id', 'row' + i);
+							document.getElementById('mapGrid').appendChild(row);
 							
-							if(this.mapData[i][j].terrain == 'grass')
-								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
-							else
-								element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
-							
-							if(this.mapData[i][j].treeCover == true) {
-								let treeMarker = document.createTextNode('T');
-								element.id = i + '-' + j;
-								element.appendChild(treeMarker);
-								element.classList.add('tree');
+							for (let j = 0; j < 8; j++) {
+								let element = document.createElement('div');
+								element.classList.add('col');
+								//element.setAttribute('id', 'row' + i + 'col' + j);
+								
+								if(this.mapData[i][j].terrain == 'grass')
+									element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
+								else
+									element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
+								
+								if(this.mapData[i][j].treeCover == true) {
+									let treeMarker = document.createTextNode('T');
+									element.id = i + '-' + j;
+									element.appendChild(treeMarker);
+									element.classList.add('tree');
+								}
+								else {
+									let openMarker = document.createTextNode('-');
+									element.id = i + '-' + j;
+									element.appendChild(openMarker);
+									element.classList.add('open');
+								}
+								document.getElementById('row' + i).appendChild(element);
 							}
-							else {
-								let openMarker = document.createTextNode('-');
-								element.id = i + '-' + j;
-								element.appendChild(openMarker);
-								element.classList.add('open');
-							}
-							document.getElementById('row' + i).appendChild(element);
 						}
-					}
-					this.drawPlayerPosition();
-					this.drawEnemyPositions();
-				});
-			
-				
+						this.drawPlayerPosition();
+						this.drawEnemyPositions();
+					});
+			//}	
 		},
 		mounted() {
 			//console.log(this.$route.params);

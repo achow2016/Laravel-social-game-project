@@ -56,8 +56,9 @@ import User from './apis/User';
 function loginCheck(to, from, next) {
 	User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
 		.then((response) => {
-			to.params.response = response;
-			next(to.params);	
+			//to.params.response = response;
+			//next(to.params);	
+			return true;
 		})
 		.catch(error => {
 			if(error.response.status == 401)
@@ -96,7 +97,7 @@ function getBattleStatus(to, from, next) {
 				return null;
 			}
 			else {
-				return {'enemy': response.data.enemy, 'distance': response.data.engageDistance};
+				return {'enemy': response.data.enemy, 'distance': response.data.distance};
 			}	
 		})
 		.catch(error => {
@@ -123,9 +124,6 @@ function recordGuest(to, from, next) {
 }
 
 function getSitemap(to, from, next, routes, pre) {
-	
-	console.log(routes);
-	
 	//return array;
 	//next({name:'sitemap', params:{routes: routes}});	
 	//next();	
@@ -267,22 +265,51 @@ const router = new VueRouter({
 			component: RpgGame,
 			props: {},
 			beforeEnter (to, from, next) {
+				loginCheck(to,from,next);
+				/*
 				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 				characterExistenceStatus.then(function(result) {
-					if(result == false)
+					if(result == false) {
 						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
+						return;
+					}
 				});
-				loginCheck(to,from,next);
 				
 				let battleStatusCheck = getBattleStatus(to, from, next);
 				battleStatusCheck.then(function(result) {
-					if(result == null) {
-						next();
-					}
-					else {
-						next({name:'rpgGameBattle', replace:true});
+					if(result != null) {
+						next({name:'rpgGameBattle', params:{enemy:result.enemy, distance:result.distance}, replace:true});
+						return;
 					}
 				});
+				
+				console.log('hi');
+				to.params.battle = false;
+				next(to.params);
+				*/
+				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
+				characterExistenceStatus.then(function(result) {
+					if(result == false) {
+						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
+						return;
+					}
+					else {
+						let battleStatusCheck = getBattleStatus(to, from, next);
+						battleStatusCheck.then(function(result) {
+							console.log(typeof(result));
+							if(typeof(result) === 'object' && result != null) {
+								next({name:'rpgGameBattle', params:{enemy:result.enemy, distance:result.distance}, replace:true});
+								return;
+							}
+							else {
+								//to.params.battle = false;
+								//next(to.params);
+								next();
+							}	
+						});
+					}	
+				});
+				
 			}
 		},
 		{
@@ -299,7 +326,7 @@ const router = new VueRouter({
 				
 				let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 				characterExistenceStatus.then(function(result) {
-					if(result == false) {
+					if(result === false) {
 						next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
 						return;
 					}	
@@ -307,16 +334,11 @@ const router = new VueRouter({
 				
 				let battleStatusCheck = getBattleStatus(to, from, next);
 				battleStatusCheck.then(function(result) {
-					if(result == null) {
-						next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});	
-						return;
+					if(typeof(result) === 'object' && result != null) {
+						next({params:{enemy: result.enemy, distance: result.distance}});
 					}	
-					
 					else {
-						to.params.enemy = result.enemy;
-						to.params.distance = result.distance;
-						next();
-						return;
+						next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
 					}	
 				});
 				
