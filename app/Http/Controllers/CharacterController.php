@@ -178,13 +178,13 @@ class CharacterController extends Controller {
 			
 			$charObj->battle = true;
 			$charObj->enemyId = $enemy->id;
-			$charObj->engageDistance = $distance;
+			$charObj->engageDistance = $finalDistance;
 			$charObj->save();
 			
 
 			
 			
-			return response(['distance' => $distance, 'enemy' => $enemy], 200);
+			return response(['distance' => $finalDistance, 'enemy' => $enemy], 200);
 		}
 		catch(Throwable $e) {
 			report($e);

@@ -28,8 +28,10 @@
 		<div class="row mt-5 mb-5" id="distanceGridArea">
 			<div class="col">		
 				<div>
-					<div id="distanceGrid" class="col text-center">
-						Generating distance grid...
+					<div class="col text-center">
+						<div id="distanceGrid" class="row">
+							
+						</div>
 					</div>					
 				</div>
 			</div>
@@ -111,6 +113,8 @@
 			
 		},
 		mounted() {
+			const vm = this;
+			
 			if(this.$route.params === null) {
 				this.$router.push({ 
 					name: 'rpgGame', 
@@ -120,9 +124,134 @@
 				});
 			}
 			else {
-				this.enemyData = this.$route.params.enemy;
-				this.engageDistance = this.$route.params.distance;
-				console.log(this.$route.params);
+				//refresh page fix
+				if(this.$route.params.enemy == null || this.$route.params.distance == null) {
+				
+					let test = User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+					.then((response) => {
+						return true;
+					})
+					.catch(error => {
+						if(error.response.status == 401) {
+							this.$router.push({ 
+								name: 'login', 
+								params: {navError: 'You must be logged in to access that resource.'} 
+							}).catch((err) => {
+								console.log(err);
+							});
+						}
+						else
+							this.$router.push({ 
+								name: 'login', 
+								params: {navError: 'Could not get user state from database, please create an account or contact admin.'} 
+							}).catch((err) => {
+								console.log(err);
+							});
+					});
+					
+					if(test) {
+						let characterExistenceStatus = User.getCharacterExistenceStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+						.then((response) => {
+							if(response.data.characterStatus == false) {
+								return false;
+							}
+							else
+								return true;
+						})
+						.catch(error => {
+							if(error.response.status == 401)
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'You must be logged in to access that resource.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+							else if(error.response.status == 422)
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'Could not get character state from database, please create a character or contact admin.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+							else
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'Could not get user state from database, please create an account or contact admin.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+						});
+						characterExistenceStatus.then(function(result) {
+							if(result === false) {
+								this.$router.push({ 
+									name: 'welcome', 
+									params: {errorMessage: 'You do not have an active character.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+							}
+						});
+						
+						
+						let battleStatusCheck = User.getBattleStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+						.then((response) => {
+							if(response.data.battleStatus == false) {
+								return null;
+							}
+							else {
+								return {'enemy': response.data.enemy, 'distance': response.data.distance};
+							}	
+						})
+						.catch(error => {
+							if(error.response.status == 401)
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'You must be logged in to access that resource.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+							else if(error.response.status == 422)
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'Could not get character state from database, please create a character or contact admin.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+							else
+								this.$router.push({ 
+									name: 'login', 
+									params: {navError: 'Could not get user state from database, please create an account or contact admin.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
+						});
+						battleStatusCheck.then(function(result) {
+							if(typeof(result) === 'object' && result != null) {
+								vm.enemyData = result.enemy;
+								vm.engageDistance = result.distance;
+							}	
+							else {
+								next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
+							}	
+						});
+						
+					}
+					else {
+						this.$router.push({ 
+							name: 'home', 
+							params: {message: 'You need to be logged in to access that resource'} 
+						}).catch((err) => {
+							console.log(err);
+						});
+					}
+					
+				
+				}
+				else {
+					this.enemyData = this.$route.params.enemy;
+					this.engageDistance = this.$route.params.distance;
+					console.log(this.$route.params);
+				}
 			}
 			
 			//dynamic style fix for small screen
@@ -144,8 +273,19 @@
 			if(screen.height > 800) {
 				document.getElementsByTagName('body')[0].style.fontSize = '1.0rem';
 			}	
+			
+			this.drawDistanceGrid();
 		},
 		methods: {
+			drawDistanceGrid() {
+				for(let i = 0; i < this.engageDistance; i++) {
+					console.log(i);
+					let gridItem = document.createElement('div');
+					gridItem.classList.add('col', 'border', 'border-white');
+					gridItem.setAttribute('id', 'square' + i);
+					document.getElementById('distanceGrid').appendChild(gridItem);
+				}
+			},
 			drawPlayerPosition() {
 				//store, get current coords
 				this.lastPlayerPosition = this.playerPosition;

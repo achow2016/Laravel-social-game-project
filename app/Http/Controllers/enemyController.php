@@ -32,7 +32,7 @@ class EnemyController extends Controller {
 			$enemyChoices = GameEnemy::where('gameLevel', $gameLevel)->get();
 			$enemyChoicesCount = $enemyChoices->count();
 			
-			$usedMapPositions = array($charObj->mapPosition);
+			$usedMapPositions[] = $charObj->mapPosition;
 			$freeSpaceFound = false;
 			
 			//$mapGrid = array_fill(0, 8, array_fill(0, 8, 0));
@@ -56,7 +56,7 @@ class EnemyController extends Controller {
 					$key = array_search($randEnemyPosition, $usedMapPositions);
 					if(!$key) {
 						$freeSpaceFound = true;
-						$usedMapPositions += $randEnemyPosition;
+						$usedMapPositions[] = $randEnemyPosition;
 						$enemy->setAttribute('mapPosition', $randEnemyPosition);
 					}	
 				}

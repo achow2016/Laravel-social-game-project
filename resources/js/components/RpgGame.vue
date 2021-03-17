@@ -283,7 +283,13 @@
 				playerSquare.innerHTML = this.terrainLayerData;
 			},
 			moveCharacter(event) {
-				//document.getElementById('directionGrid').classList.toggle('d-none');
+			
+				//disable controls
+				let all = document.getElementsByTagName("*");
+				for (let i = 0, count = all.length; i < count; i++) {
+					all[i].style.pointerEvents = 'none';
+				}
+				
 				let controllerArray = document.getElementsByClassName('controllerRow');
 				for(let i = 0; i < controllerArray.length; i++) {
 					controllerArray[i].classList.toggle('d-none');
@@ -312,17 +318,26 @@
 						document.getElementById('messageContainer').textContent = response.data.message;
 					
 					this.playerPosition = response.data.playerPosition;
+					
 					this.clearPlayerPosition();
 					this.drawPlayerPosition();
+					this.drawEnemyPositions();
+					
 					//document.getElementById('directionGrid').classList.toggle('d-none');
 					let controllerArray = document.getElementsByClassName('controllerRow');
 					for(let i = 0; i < controllerArray.length; i++) {
 						controllerArray[i].classList.toggle('d-none');
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
+					
+					//enable controls
+					let all = document.getElementsByTagName("*");
+					for (let i = 0, count = all.length; i < count; i++) {
+						all[i].style.pointerEvents = 'auto';
+					}
 				});
 				
-				this.drawEnemyPositions();
+				//this.drawEnemyPositions();
 			},
 			toggleInventory() {
 				//closes map controls area
