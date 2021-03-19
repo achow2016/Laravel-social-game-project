@@ -132,6 +132,14 @@ export default {
 			'Authorization': `Bearer ${token}` 
 		}});
 	},
+	async inspectBattleEnemy(form, token) {
+		//await Csrf.getCookie();
+		return Api.post('/inspectBattleEnemy',form,{headers: {
+			//'Content-type' : 'application/json',
+			'Content-Type':'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${token}` 
+		}});
+	},
 	async getMap(form, token) {
 		//await Csrf.getCookie();
 		return Api.post('/getMap',form,{headers: {

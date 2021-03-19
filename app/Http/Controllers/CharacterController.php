@@ -102,7 +102,7 @@ class CharacterController extends Controller {
 				//return response(['character' => $character], 200);
 				if($character->battle == true) {
 					$enemy = $character->currentEnemy()->first();
-					return response(['battleStatus' => true, 'distance' => $character->engageDistance, 'enemy' => $enemy], 200);
+					return response(['battleStatus' => true, 'player' => $character,  'enemy' => $enemy, 'distance' => $character->engageDistance], 200);
 				}
 				else
 					return response(['battleStatus' => false], 200);

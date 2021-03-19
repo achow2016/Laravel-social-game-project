@@ -43,8 +43,15 @@
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5" id="controlArea">
-			<div id="actionGrid" class="col-6">
+		<div class="row mt-5 controlArea">
+			<div id="playerInfo" class="col-6">
+			</div>
+			<div id="enemyInfo" class="col-6">
+			</div>
+		</div>
+		
+		<div class="row mt-5 mb-5 controlArea">
+			<div id="actionGrid" class="col">
 				<div v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
 				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
@@ -53,7 +60,7 @@
 		</div>
 		
 		<div class="row mt-5 mb-5">
-			<div class="col overflow-auto text-center" id="menuDataArea">
+			<div class="col overflow-auto text-center d-none" id="menuDataArea">
 				loading data...
 			</div>
 		</div>
@@ -106,7 +113,8 @@
 				playerStatus: '',
 				enemyData: '',
 				enemyStatusData: '',
-				engageDistance: ''
+				engageDistance: '',
+				playerData: '',
 			}
 		},
 		beforeMount() { 
@@ -199,7 +207,7 @@
 								return null;
 							}
 							else {
-								return {'enemy': response.data.enemy, 'distance': response.data.distance};
+								return {'player': response.data.player, 'enemy': response.data.enemy, 'distance': response.data.distance};
 							}	
 						})
 						.catch(error => {
@@ -228,7 +236,20 @@
 						battleStatusCheck.then(function(result) {
 							if(typeof(result) === 'object' && result != null) {
 								vm.enemyData = result.enemy;
+								vm.playerData = result.player;
 								vm.engageDistance = result.distance;
+								
+								vm.drawDistanceGrid(vm);
+								vm.generateActiveData('Name', vm.playerData.characterName);
+								vm.generateActiveData('Attack', vm.playerData.currentAttack + '/' + vm.playerData.attack);
+								vm.generateActiveData('Health', vm.playerData.currentHealth + '/' + vm.playerData.health);
+								vm.generateActiveData('Stamina', vm.playerData.currentStamina + '/' + vm.playerData.stamina);
+								
+								vm.generateActiveDataEnemy(vm.enemyData.name);
+								vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack);
+								vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health);
+								vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina);
+								
 							}	
 							else {
 								next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
@@ -248,6 +269,7 @@
 				
 				}
 				else {
+					this.playerData = this.$route.params.player;
 					this.enemyData = this.$route.params.enemy;
 					this.engageDistance = this.$route.params.distance;
 					console.log(this.$route.params);
@@ -274,17 +296,32 @@
 				document.getElementsByTagName('body')[0].style.fontSize = '1.0rem';
 			}	
 			
-			this.drawDistanceGrid();
+			
 		},
 		methods: {
-			drawDistanceGrid() {
-				for(let i = 0; i < this.engageDistance; i++) {
-					console.log(i);
-					let gridItem = document.createElement('div');
-					gridItem.classList.add('col', 'border', 'border-white');
+			playerInfo(vm) {
+			
+			},
+			drawDistanceGrid(vm) {
+				let playerItem = document.createElement('p');
+				playerItem.classList.add('col-1', 'p-0', 'border', 'border-white');
+				playerItem.setAttribute('id', 'square' + 0);
+				playerItem.textContent = 'P';
+				document.getElementById('distanceGrid').appendChild(playerItem);
+				
+				for(let i = 1; i <= vm.engageDistance; i++) {
+					let gridItem = document.createElement('p');
+					gridItem.classList.add('col-1', 'p-0', 'border', 'border-white');
 					gridItem.setAttribute('id', 'square' + i);
+					gridItem.textContent = '-';
 					document.getElementById('distanceGrid').appendChild(gridItem);
 				}
+				
+				let EnemyItem = document.createElement('p');
+				EnemyItem.classList.add('col-1', 'p-0', 'border', 'border-white');
+				EnemyItem.setAttribute('id', 'square' + 0);
+				EnemyItem.textContent = 'E';
+				document.getElementById('distanceGrid').appendChild(EnemyItem);
 			},
 			drawPlayerPosition() {
 				//store, get current coords
@@ -414,8 +451,13 @@
 				this.drawEnemyPositions();
 			},
 			toggleInventory() {
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				
 				//closes map controls area
-				document.getElementById('controlArea').classList.toggle('d-none');
+				let controlAreas = document.getElementsByClassName('controlArea');
+				for(let i = 0; i < controlAreas.length; i++) {
+					controlAreas[i].classList.toggle('d-none');
+				}
 				
 				//closes bottom game menu bar
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
@@ -433,7 +475,10 @@
 				else
 					document.getElementById('menuDataArea').textContent = 'loading data...';
 					
-				document.getElementById('controlArea').classList.toggle('d-none');
+				let controlAreas = document.getElementsByClassName('controlArea');
+				for(let i = 0; i < controlAreas.length; i++) {
+					controlAreas[i].classList.toggle('d-none');
+				}
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
@@ -441,9 +486,13 @@
 				document.getElementById('currentMenuControl').classList.toggle('d-none');
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
 				document.getElementById('closeStatusContainer').classList.toggle('d-none');
+				document.getElementById('menuDataArea').classList.toggle('d-none');
 			},
 			toggleGameMenu() {
-				document.getElementById('controlArea').classList.toggle('d-none');
+				let controlAreas = document.getElementsByClassName('controlArea');
+				for(let i = 0; i < controlAreas.length; i++) {
+					controlAreas[i].classList.toggle('d-none');
+				}
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
@@ -455,13 +504,18 @@
 			
 			},
 			toggleInspectMenu() {
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				
 				//gets status data only when toggle to make status container visible
 				if(document.getElementById('closeInspectContainer').classList.contains('d-none'))
 					this.populateInspect();
 				else
 					document.getElementById('menuDataArea').textContent = 'loading data...';
 					
-				document.getElementById('controlArea').classList.toggle('d-none');
+				let controlAreas = document.getElementsByClassName('controlArea');
+				for (let i = 0; i < controlAreas.length; i++) {
+					controlAreas[i].classList.toggle('d-none');
+				}
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
@@ -473,28 +527,25 @@
 				
 			},			
 			populateInspect() {
-				User.inspectEnemies({
+				User.inspectBattleEnemy({
 					_method: 'POST', token: sessionStorage.getItem('token')
 				}, 
 					sessionStorage.getItem('token')
 				)
 				.then((response) => {
-					console.log(response.data.enemies);
-					this.enemyStatusData = response.data.enemies;
+					this.enemyStatusData = response.data.enemy;
 					document.getElementById('menuDataArea').textContent = '';
 					
-					for(let i = 0; i < this.enemyStatusData.length; i++) {
-						this.generateDataRow('Name', this.enemyStatusData[i].name);
-						this.generateDataRow('Direction', this.enemyStatusData[i].mapOrientation);
-						this.generateDataRow('Attack', this.enemyStatusData[i].currentAttack + '/' + this.enemyStatusData[i].attack);
-						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
-						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
-						//this.generateDataRow('Recovery', 'H: ' + this.enemyStatusData[i].currentHealthRegen + '/' + //this.enemyStatusData[i].healthRegen
-						//	+ ' | ' + 'S: ' + this.enemyStatusData[i].currentstaminaRegen + '/' + this.enemyStatusData[i].staminaRegen);
-						//this.generateDataRow('Agility', this.enemyStatusData[i].currentAgility + '/' + this.enemyStatusData[i].agility);
-						//this.generateDataRow('Accuracy', this.enemyStatusData[i].currentAccuracy + '/' + this.enemyStatusData[i].accuracy);
-						//this.generateDataRow('money', this.enemyStatusData[i].money);
-					}
+					this.generateDataRow('Name', this.enemyStatusData.name);
+					this.generateDataRow('Attack', this.enemyStatusData.currentAttack + '/' + this.enemyStatusData.attack);
+					this.generateDataRow('Health', this.enemyStatusData.currentHealth + '/' + this.enemyStatusData.health);
+					this.generateDataRow('Stamina', this.enemyStatusData.currentStamina + '/' + this.enemyStatusData.stamina);
+					//this.generateDataRow('Recovery', 'H: ' + this.enemyStatusData.currentHealthRegen + '/' + //this.enemyStatusData.healthRegen
+					//	+ ' | ' + 'S: ' + this.enemyStatusData[i].currentstaminaRegen + '/' + this.enemyStatusData.staminaRegen);
+					//this.generateDataRow('Agility', this.enemyStatusData.currentAgility + '/' + this.enemyStatusData.agility);
+					//this.generateDataRow('Accuracy', this.enemyStatusData.currentAccuracy + '/' + this.enemyStatusData.accuracy);
+					//this.generateDataRow('money', this.enemyStatusData.money);
+					
 				})
 				.catch(error => {
 					//server response errors
@@ -515,6 +566,33 @@
 			},
 			saveAndQuit() {
 
+			},
+			generateActiveData(key, data) {
+				let dataRowContainer = document.createElement('div');   
+				dataRowContainer.classList.add('row');
+				
+				let dataRowFieldKey = document.createElement('div');   
+				dataRowFieldKey.classList.add('col-6', 'text-center');
+				dataRowFieldKey.textContent = key;
+				dataRowContainer.appendChild(dataRowFieldKey);
+				
+				let dataRowFieldData = document.createElement('div'); 
+				dataRowFieldData.classList.add('col-6', 'text-center');
+				dataRowFieldData.textContent = data;
+				dataRowContainer.appendChild(dataRowFieldData);
+				
+				document.getElementById('playerInfo').appendChild(dataRowContainer);
+			},
+			generateActiveDataEnemy(data) {
+				let dataRowContainer = document.createElement('div');   
+				dataRowContainer.classList.add('row', 'justify-content-center');
+				
+				let dataRowFieldData = document.createElement('div'); 
+				dataRowFieldData.classList.add('col-6', 'text-center');
+				dataRowFieldData.textContent = data;
+				dataRowContainer.appendChild(dataRowFieldData);
+				
+				document.getElementById('enemyInfo').appendChild(dataRowContainer);
 			},
 			generateDataRow(key, data) {
 				let dataRowContainer = document.createElement('div');   

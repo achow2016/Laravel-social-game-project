@@ -156,5 +156,25 @@ class EnemyController extends Controller {
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}		
 	}
+	
+		public function inspectBattleEnemy(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$enemy = GameActiveEnemy::where('id', $charObj->enemyId)->first();
+			//['name', 'attack', 'currentAttack', 'health',
+			//	'currentHealth', 'stamina', 'currentStamina', 'mapPosition'
+			//]);
+			
+			Log::debug($enemy); 
+			
+			return response(['enemy' => $enemy], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}		
+	}
 }
 ?>

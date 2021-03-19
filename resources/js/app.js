@@ -115,7 +115,7 @@ function getBattleStatus(to, from, next) {
 				return null;
 			}
 			else {
-				return {'enemy': response.data.enemy, 'distance': response.data.distance};
+				return {'player': response.data.player, 'enemy': response.data.enemy, 'distance': response.data.distance};
 			}	
 		})
 		.catch(error => {
@@ -317,7 +317,7 @@ const router = new VueRouter({
 							let battleStatusCheck = getBattleStatus(to, from, next);
 							battleStatusCheck.then(function(result) {
 								if(typeof(result) === 'object' && result != null) {
-									next({name:'rpgGameBattle', params:{enemy:result.enemy, distance:result.distance}, replace:true});
+									next({name:'rpgGameBattle', params:{player:result.player, enemy:result.enemy, distance:result.distance}, replace:true});
 									return;
 								}
 								else {
@@ -357,7 +357,7 @@ const router = new VueRouter({
 					let battleStatusCheck = getBattleStatus(to, from, next);
 					battleStatusCheck.then(function(result) {
 						if(typeof(result) === 'object' && result != null) {
-							next({params:{enemy: result.enemy, distance: result.distance}});
+							next({params:{player: result.player, enemy: result.enemy, distance: result.distance}});
 						}	
 						else {
 							next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
