@@ -14,6 +14,8 @@ game map generation
 https://user-images.githubusercontent.com/16962503/105568101-bc3b3980-5ceb-11eb-9b26-5ee2ef84c72e.png  
 early gameplay main screen  
 https://user-images.githubusercontent.com/16962503/108664315-5aefbd00-7487-11eb-8a5b-6146501766fd.png  
+battle scene  
+https://user-images.githubusercontent.com/16962503/111857183-0bb57480-88ed-11eb-9903-8e93003c0c9c.png  
 
 Game chat board    
 Working on adding more functionality over the old textboard  
