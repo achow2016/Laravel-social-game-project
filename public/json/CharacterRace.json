@@ -9,8 +9,8 @@
 			"healthRegen": "0",
 			"baseAttackCost": "10",
 			"agility": "10",
-			"avatar": "/img/playerFace.jpg",
-			"melee": "/img/playerFaceMelee.jpg"
+			"avatar": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"meleeAnimation": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		},
 		{
 			"race": "android",
@@ -21,8 +21,8 @@
 			"healthRegen": "1",
 			"baseAttackCost": "7",
 			"agility": "15",
-			"avatar": "/img/playerFace.jpg",
-			"melee": "/img/playerFaceMelee.jpg"
+			"avatar": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"meleeAnimation": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		}
 	]
 }

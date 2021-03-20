@@ -23,7 +23,8 @@
 					"quantity":"1"
 				}
 			], 
-			"avatar":"/img/enemyFace.jpg" 
+			"avatar":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"meleeAnimation'":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		},
 		{ 
 			"gameLevel":"2",
@@ -47,7 +48,8 @@
 					"quantity":"2"
 				}
 			], 
-			"avatar":"/img/enemyFace.jpg" 
+			"avatar":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"meleeAnimation'":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		},
 		{ 
 			"gameLevel":"3",
@@ -72,7 +74,8 @@
 					"quantity":"2"
 				}
 			], 
-			"avatar":"/img/enemyFace.jpg" 
+			"avatar":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"meleeAnimation'":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		}
 	]
 }

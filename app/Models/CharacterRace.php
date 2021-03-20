@@ -19,7 +19,7 @@ class CharacterRace extends Model
      */
     protected $fillable = [
         'race', 'health', 'attack', 'stamina', 'staminaRegen', 'healthRegen', 
-		'agility', 'avatar', 'weaknesses', 'resistances'
+		'agility', 'avatar', 'meleeAnimation', 'weaknesses', 'resistances'
     ];
 
     /**

@@ -17,6 +17,7 @@ class CreateGameActiveEnemiesTable extends Migration
             $table->increments('id');
 			$table->string('name');
 			$table->binary('avatar')->nullable();
+			$table->binary('meleeAnimation')->nullable();
 			$table->integer('mapId')->unsigned();
 			$table->integer('raceId')->unsigned();
 			$table->integer('classId')->unsigned();

@@ -25,6 +25,7 @@ class CreateCharacterRaceTable extends Migration
 			$table->json('weaknesses')->nullable();
 			$table->json('resistances')->nullable();
 			$table->binary('avatar')->nullable();
+			$table->binary('meleeAnimation')->nullable();
             $table->timestamps();
         });
     }

@@ -16,12 +16,11 @@
 		</header>
 		
 		<div class="row mt-5 mb-5" id="battleSceneArea">
-			<div class="col">		
-				<div>
-					<div id="battleScene" class="col text-center">
-						Generating battle scene...
-					</div>					
-				</div>
+			<div id="battleScenePlayer" class="col-6 bg-white text-center">
+				Generating player avatar...
+			</div>
+			<div id="battleSceneEnemy" class="col-6 bg-white text-center">
+				Generating enemy avatar...
 			</div>
 		</div>
 		
@@ -29,8 +28,8 @@
 			<div class="col">		
 				<div>
 					<div class="col text-center">
-						<div id="distanceGrid" class="row">
-							
+						<div id="distanceGrid" class="row justify-content-center">
+							Generating distance grid...
 						</div>
 					</div>					
 				</div>
@@ -250,6 +249,8 @@
 								vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health);
 								vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina);
 								
+								vm.drawAvatars(vm);
+								
 							}	
 							else {
 								next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
@@ -299,10 +300,21 @@
 			
 		},
 		methods: {
-			playerInfo(vm) {
-			
+			drawAvatars(vm) {
+				let playerAvatar = document.createElement('img');
+				//playerAvatar.classList.add();
+				playerAvatar.setAttribute('src', vm.playerData.avatar);
+				document.getElementById('battleScenePlayer').textContent = '';
+				document.getElementById('battleScenePlayer').appendChild(playerAvatar);
+				
+				let enemyAvatar = document.createElement('img');
+				//enemyAvatar.classList.add();
+				enemyAvatar.setAttribute('src', vm.enemyData.avatar);
+				document.getElementById('battleSceneEnemy').textContent = '';
+				document.getElementById('battleSceneEnemy').appendChild(enemyAvatar);
 			},
 			drawDistanceGrid(vm) {
+				document.getElementById('distanceGrid').textContent = '';
 				let playerItem = document.createElement('p');
 				playerItem.classList.add('col-1', 'p-0', 'border', 'border-white');
 				playerItem.setAttribute('id', 'square' + 0);

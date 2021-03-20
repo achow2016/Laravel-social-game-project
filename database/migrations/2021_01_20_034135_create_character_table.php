@@ -19,8 +19,8 @@ class CreateCharacterTable extends Migration
             $table->boolean('battle')->default(false);
             $table->integer('enemyId')->unsigned()->nullable();
 			$table->integer('engageDistance')->nullable();
-			
 			$table->binary('avatar')->nullable();
+			$table->binary('meleeAnimation')->nullable();
 			$table->integer('mapId')->unsigned()->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->json('mapPosition')->nullable();

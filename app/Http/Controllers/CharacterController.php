@@ -65,6 +65,8 @@ class CharacterController extends Controller {
 			$character->setAttribute('currentStaminaRegen', $characterRace->staminaRegen);
 			$character->setAttribute('agility', $characterRace->agility);
 			$character->setAttribute('currentAgility', $characterRace->agility);
+			$character->setAttribute('avatar', $characterRace->avatar);
+			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
 			$character->setAttribute('attack', $characterRace->attack  + $request->strengthAlloc);
 			$character->setAttribute('currentAttack', $characterRace->attack  + $request->strengthAlloc);
 			$user->character()->save($character);

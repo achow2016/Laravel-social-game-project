@@ -75,6 +75,8 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('currentStaminaRegen', $enemyRace->staminaRegen);
 				$enemy->setAttribute('agility', $enemyRace->agility);
 				$enemy->setAttribute('currentAgility', $enemyRace->agility);
+				$enemy->setAttribute('avatar', $enemyRace->avatar);
+				$enemy->setAttribute('meleeAnimation', $enemyRace->meleeAnimation);
 				$enemy->setAttribute('attack', $enemyRace->attack  + $strengthAlloc);
 				$enemy->setAttribute('currentAttack', $enemyRace->attack  + $strengthAlloc);
 				$existingMap->enemies()->save($enemy);

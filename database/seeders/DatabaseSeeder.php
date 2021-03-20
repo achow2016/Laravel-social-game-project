@@ -44,6 +44,8 @@ class DatabaseSeeder extends Seeder
 			$characterRace->setAttribute('stamina', $item['stamina']);
 			$characterRace->setAttribute('staminaRegen', $item['staminaRegen']);
 			$characterRace->setAttribute('agility', $item['agility']);
+			$characterRace->setAttribute('avatar', $item['avatar']);
+			$characterRace->setAttribute('meleeAnimation', $item['meleeAnimation']);
 			$characterRace->save();	
 		}
 		
