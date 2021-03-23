@@ -32,7 +32,10 @@ class Character extends Model
 		'health', 'stamina',
 		'staminaRegen', 'healthRegen',
 		'currentStaminaRegen', 'currentHealthRegen',
-		'attackMultiplier', 'defenseMultiplier'
+		'attackMultiplier', 'defenseMultiplier',
+		'defense', 'currentDefense',
+		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
+		'stance'
 	];
 
     /**
@@ -51,6 +54,7 @@ class Character extends Model
     protected $casts = [
         //'email_verified_at' => 'datetime',
 		'mapPosition' => 'array',
+		'stance' => 'array',
     ];
 	
 	public function user() {
@@ -73,26 +77,42 @@ class Character extends Model
 		return $this->hasOne('App\Models\GameActiveEnemy', 'id', 'enemyId');
 	}
 	
+	public function items() {
+		return $this->hasMany('App\Models\ActiveGameCharacterItem', 'ownerId', 'id');
+	}
+	
+	public function skills() {
+		return $this->hasMany('App\Models\ActiveGameCharacterSkill', 'ownerId', 'id');
+	}
+	
+	public function weapon() {
+		return $this->hasOne('App\Models\GameWeapon', 'id', 'weaponId');
+	}
+	
+	public function legEquipment() {
+		return $this->hasMany('App\Models\GameLegEquipment', 'id', 'legEquipmentId');
+	}
+	
+	public function armsEquipment() {
+		return $this->hasMany('App\Models\GameArmsEquipment', 'id', 'armsEquipmentId');
+	}
+	
+	public function headEquipment() {
+		return $this->hasMany('App\Models\GameHeadEquipment', 'id', 'headEquipmentId');
+	}
+	
+	public function bodyEquipment() {
+		return $this->hasMany('App\Models\GameBodyEquipment', 'id', 'bodyEquipmentId');
+	}
+	
+	public function offHand() {
+		return $this->hasMany('App\Models\GameOffhand', 'id', 'offHandEquipmentId');
+	}
+	
 	//many other models and db game data tables needed to be added and seeded
 	/*
 	public function skills() {
 		return $this->hasMany('App\Models\Skill', 'user_id', 'id');
-	}
-	
-	public function weapons() {
-		return $this->hasMany('App\Models\Weapon', 'user_id', 'id');
-	}
-	
-	public function armors() {
-		return $this->hasMany('App\Models\Armor', 'user_id', 'id');
-	}
-	
-	public function items() {
-		return $this->hasMany('App\Models\Item', 'user_id', 'id');
-	}
-	
-	public function enemies() {
-		return $this->hasMany('App\Models\Enemy', 'user_id', 'id');
 	}
 	
 	public function statusEffects() {

@@ -24,6 +24,7 @@ class CreateCharacterTable extends Migration
 			$table->integer('mapId')->unsigned()->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->json('mapPosition')->nullable();
+			$table->json('stance')->nullable();
 			$table->integer('raceId')->unsigned();
 			$table->integer('classId')->unsigned();
 			$table->integer('ownerUser')->unsigned();
@@ -34,10 +35,13 @@ class CreateCharacterTable extends Migration
 			$table->integer('stamina')->default('0');
 			$table->integer('currentHealth')->default('0');
 			$table->integer('currentStamina')->default('0');
-			$table->integer('accuracy')->default('1');
-			$table->integer('currentAccuracy')->default('1');
+			$table->integer('accuracy')->default('100');
+			$table->integer('currentAccuracy')->default('100');
+			$table->integer('defense')->default('0');
+			$table->integer('currentDefense')->default('0');
 			$table->integer('attack')->default('0');
 			$table->integer('currentAttack')->default('0');
+			$table->integer('armour')->default('0');
 			$table->integer('scoreTotal')->default('0');
 			$table->integer('damageDone')->default('0');
 			$table->integer('staminaRegen')->default('0');
@@ -52,7 +56,12 @@ class CreateCharacterTable extends Migration
 			$table->integer('earningsTotal')->default('0');
 			$table->integer('attackMultiplier')->default('1');
 			$table->integer('defenseMultiplier')->default('1');
-			
+			$table->string('weapon')->unsigned()->nullable();
+			$table->string('offHand')->unsigned()->nullable();
+			$table->string('bodyEquipment')->unsigned()->nullable();
+			$table->string('headEquipment')->unsigned()->nullable();
+			$table->string('armsEquipment')->unsigned()->nullable();
+			$table->string('legsEquipment')->unsigned()->nullable();
 			//$table->integer('skillSet')->unsigned();
 			//$table->integer('inventorySet')->unsigned();
             
@@ -62,7 +71,12 @@ class CreateCharacterTable extends Migration
 			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade');
-			
+			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 
+			$table->foreign('offHand')->references('name')->on('offhand_equipment')->onDelete('cascade'); 
+			$table->foreign('bodyEquipment')->references('name')->on(body_equipment)->onDelete('cascade'); 
+			$table->foreign('headEquipment')->references('name')->on('head_equipment')->onDelete('cascade'); 
+			$table->foreign('armsEquipment')->references('name')->on('arms_equipment')->onDelete('cascade'); 
+			$table->foreign('legsEquipment')->references('name')->on('legs_equipment')->onDelete('cascade'); 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 
         });

@@ -26,7 +26,10 @@ class GameActiveEnemy extends Model
 		'currentHealth', 'currentStamina',
 		'attackMultiplier', 'defenseMultiplier',
 		'mapPosition',
-		'money'
+		'money',
+		
+		'defense', 'currentDefense','stance',
+		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId'
 	];
 
     /**
@@ -45,10 +48,43 @@ class GameActiveEnemy extends Model
     protected $casts = [
         //'email_verified_at' => 'datetime',
 		'mapPosition' => 'array',
+		'stance' => 'array',
 		
     ];
 	
 	public function gameMap() {
 		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
+	}
+	
+	public function items() {
+		return $this->hasMany('App\Models\GameActiveEnemyItem', 'ownerId', 'id');
+	}
+	
+	public function skills() {
+		return $this->hasMany('App\Models\GameActiveEnemySkill', 'ownerId', 'id');
+	}
+	
+	public function weapon() {
+		return $this->hasOne('App\Models\GameWeapon', 'id', 'weaponId');
+	}
+	
+	public function legEquipment() {
+		return $this->hasMany('App\Models\GameLegEquipment', 'id', 'legEquipmentId');
+	}
+	
+	public function armsEquipment() {
+		return $this->hasMany('App\Models\GameArmsEquipment', 'id', 'armsEquipmentId');
+	}
+	
+	public function headEquipment() {
+		return $this->hasMany('App\Models\GameHeadEquipment', 'id', 'headEquipmentId');
+	}
+	
+	public function bodyEquipment() {
+		return $this->hasMany('App\Models\GameBodyEquipment', 'id', 'bodyEquipmentId');
+	}
+	
+	public function offHand() {
+		return $this->hasMany('App\Models\GameOffhand', 'id', 'offHandEquipmentId');
 	}
 }

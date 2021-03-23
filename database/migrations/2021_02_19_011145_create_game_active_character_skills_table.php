@@ -15,22 +15,21 @@ class CreateGameActiveCharacterSkillsTable extends Migration
     {
         Schema::create('game_active_character_skills', function (Blueprint $table) {
 			$table->increments('id');
-			$table->integer('characterId')->unsigned();
+			$table->integer('ownerId')->unsigned();
 			$table->integer('skillId')->unsigned();
 			$table->string('name');
-			$table->string('bodyTarget');
-			$table->string('stanceResult');
+			$table->json('stance')->nullable();
+			$table->json('bodyTarget')->nullable();
 			$table->string('debuff');
-			$table->integer('debuffPercent');
-			$table->integer('debuffDuration');
-			$table->integer('debuffStackQuantity');
-			$table->integer('debuffStackMax');
-			$table->string('effect');
-			$table->integer('effectQuantity');
+			$table->string('debuffEffectPercentage');
+			$table->string('debuffDuration');
+			$table->string('buff');
+			$table->string('buffEffectPercentage');
+			$table->string('buffDuration');
 			$table->integer('range');
-			$table->integer('accuracyPercent');
-			$table->integer('meleePenaltyPercent');
 			$table->integer('staminaCost');
+			$table->decimal('effectChance', 3, 2);
+			$table->decimal('damagePenalty', 3, 2);
 			$table->timestamps();
 			$table->foreign('characterId')->references('id')->on('character')->onDelete('cascade');			
 			$table->foreign('skillId')->references('id')->on('game_skills')->onDelete('cascade');	

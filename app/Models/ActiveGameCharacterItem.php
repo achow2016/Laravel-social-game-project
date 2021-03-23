@@ -19,7 +19,7 @@ class ActiveGameCharacterItem extends Model
      */
     protected $fillable = [
         'itemId',
-        'inventoryId',
+        'ownerId',
         'name',
 		'effect',
 		'effectStackAmount',

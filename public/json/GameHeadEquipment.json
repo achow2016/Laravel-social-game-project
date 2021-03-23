@@ -1,0 +1,14 @@
+{
+	"headEquipment": [
+		{ 
+			"name": "Leather Cap", 
+			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"gameLevel": "1",
+			"description": "A protective leather cap.",
+			"attack":"0", 
+			"armour":"1", 
+			"defense":"0", 
+			"cost":"1"
+		}
+	]
+}	

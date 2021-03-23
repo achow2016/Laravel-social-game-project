@@ -1,0 +1,14 @@
+{
+	"legEquipment": [
+		{ 
+			"name": "Leather Leggings", 
+			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"gameLevel": "1",
+			"description": "A pair of protective leather leggings.",
+			"attack":"0", 
+			"armour":"1", 
+			"defense":"0", 
+			"cost":"1"
+		}
+	]
+}			

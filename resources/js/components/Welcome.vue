@@ -94,7 +94,7 @@
 		},
 		methods: {
 			continueGame(){
-				this.$router.push('rpgGame')
+				this.$router.push('rpgGame').catch(() => {})
 			},
 			newGame() {
 				this.$router.push('characterBuilder')

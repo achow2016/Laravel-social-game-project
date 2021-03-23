@@ -1,7 +1,7 @@
 {
 	"items": [
 		{
-			"name":"First Aid Injector",
+			"name":"Aid Kit",
 			"effect":"Regen",
 			"effectStackAmount":"1",
 			"effectStackLimit":"1",
@@ -10,7 +10,7 @@
 			"shopValue":"10",
 		},
 		{
-			"name":"Small Treatment Kit",
+			"name":"Emergency Treatment Kit",
 			"effect":"Regen",
 			"effectStackAmount":"1",
 			"effectStackLimit":"1",

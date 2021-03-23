@@ -30,8 +30,12 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('attack')->default('0');
 			$table->integer('currentAttack')->default('0');
 			$table->integer('baseAttackCost')->default('0');
-			$table->json('skills')->nullable();
-			$table->json('itemLootInventory')->nullable();
+			$table->string('weapon')->unsigned()->nullable();
+			$table->string('offHand')->unsigned()->nullable();
+			$table->string('bodyEquipment')->unsigned()->nullable();
+			$table->string('headEquipment')->unsigned()->nullable();
+			$table->string('armsEquipment')->unsigned()->nullable();
+			$table->string('legsEquipment')->unsigned()->nullable();
 			$table->json('mapPosition')->nullable();
 			$table->integer('staminaRegen')->default('0');
 			$table->integer('currentStaminaRegen')->default('0');
@@ -43,14 +47,17 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('attackMulitplier')->default('1');
 			$table->integer('defenseMulitplier')->default('1');
             $table->timestamps();
-			
-			//$table->integer('skillSet')->unsigned();
-			//$table->integer('inventorySet')->unsigned();
-            
-			
+		
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
-			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
+			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade');
+			
+			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 
+			$table->foreign('offHand')->references('name')->on('offhand_equipment')->onDelete('cascade'); 
+			$table->foreign('bodyEquipment')->references('name')->on(body_equipment)->onDelete('cascade'); 
+			$table->foreign('headEquipment')->references('name')->on('head_equipment')->onDelete('cascade'); 
+			$table->foreign('armsEquipment')->references('name')->on('arms_equipment')->onDelete('cascade'); 
+			$table->foreign('legsEquipment')->references('name')->on('legs_equipment')->onDelete('cascade'); 
 			
 			//$table->foreign('skillSet')->references('id')->on('skill_sets')->onDelete('cascade'); 
 			//$table->foreign('inventorySet')->references('id')->on('inventory_sets')->onDelete('cascade'); 

@@ -16,7 +16,7 @@ class CreateGameActiveCharacterItemsTable extends Migration
         Schema::create('game_active_character_items', function (Blueprint $table) {
 			$table->increments('id');
 			$table->integer('itemId')->unsigned();
-			$table->integer('inventoryId')->unsigned();
+			$table->integer('ownerId')->unsigned();
 			$table->string('name');
 			$table->string('effect');
 			$table->integer('effectStackAmount');
@@ -26,7 +26,7 @@ class CreateGameActiveCharacterItemsTable extends Migration
 			$table->integer('shopValue');
 			$table->timestamps();
 			$table->foreign('itemId')->references('id')->on('game_items')->onDelete('cascade');			
-			$table->foreign('inventoryId')->references('id')->on('game_character_inventories')->onDelete('cascade');			
+			$table->foreign('ownerId')->references('id')->on('character')->onDelete('cascade');			
         });
     }
 

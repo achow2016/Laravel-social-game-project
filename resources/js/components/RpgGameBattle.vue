@@ -16,10 +16,10 @@
 		</header>
 		
 		<div class="row mt-5 mb-5" id="battleSceneArea">
-			<div id="battleScenePlayer" class="col-6 bg-white text-center">
+			<div id="battleScenePlayer" class="col-6 bg-secondary text-center">
 				Generating player avatar...
 			</div>
-			<div id="battleSceneEnemy" class="col-6 bg-white text-center">
+			<div id="battleSceneEnemy" class="col-6 bg-secondary text-center">
 				Generating enemy avatar...
 			</div>
 		</div>
@@ -37,29 +37,29 @@
 		</div>
 		
 		<div class="row text-center mt-5 mb-2">
-			<div id="messageContainer" class="col text-center">
+			<div id="messageContainer" class="col text-center bg-secondary">
 				Messages
 			</div>
 		</div>
 		
-		<div class="row mt-5 controlArea">
+		<div class="row mt-5 controlArea bg-secondary">
 			<div id="playerInfo" class="col-6">
 			</div>
 			<div id="enemyInfo" class="col-6">
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5 controlArea">
+		<div class="row mt-5 mb-5 controlArea bg-secondary">
 			<div id="actionGrid" class="col">
-				<div v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
-				<div class="row-9 mb-4 actionRow d-flex justify-content-center">Flee</div>
+				<div v-on:click="toggleInspectMenu" class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Inspect</div>
+				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Fight</div>
+				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Skill</div>
+				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Flee</div>
 			</div>
 		</div>
 		
 		<div class="row mt-5 mb-5">
-			<div class="col overflow-auto text-center d-none" id="menuDataArea">
+			<div class="col overflow-auto text-center d-none bg-secondary" id="menuDataArea">
 				loading data...
 			</div>
 		</div>
@@ -270,10 +270,26 @@
 				
 				}
 				else {
-					this.playerData = this.$route.params.player;
-					this.enemyData = this.$route.params.enemy;
-					this.engageDistance = this.$route.params.distance;
 					console.log(this.$route.params);
+					
+					const vm = this;
+					vm.enemyData = this.$route.params.enemy;
+					vm.playerData = this.$route.params.player;
+					vm.engageDistance = this.$route.params.distance;
+					
+					
+					vm.drawDistanceGrid(vm);
+					vm.generateActiveData('Name', vm.playerData.characterName);
+					vm.generateActiveData('Attack', vm.playerData.currentAttack + '/' + vm.playerData.attack);
+					vm.generateActiveData('Health', vm.playerData.currentHealth + '/' + vm.playerData.health);
+					vm.generateActiveData('Stamina', vm.playerData.currentStamina + '/' + vm.playerData.stamina);
+					
+					vm.generateActiveDataEnemy(vm.enemyData.name);
+					vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack);
+					vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health);
+					vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina);
+					
+					vm.drawAvatars(vm);
 				}
 			}
 			

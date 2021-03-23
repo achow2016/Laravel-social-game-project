@@ -1,0 +1,14 @@
+{
+	"armsEquipment": [
+		{ 
+			"name": "Leather Gloves", 
+			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
+			"gameLevel": "1",
+			"description": "A pair of protective leather gloves.",
+			"attack":"0", 
+			"armour":"1", 
+			"defense":"0", 
+			"cost":"1"
+		}
+	]
+}	
