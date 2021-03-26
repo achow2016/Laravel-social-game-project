@@ -558,7 +558,8 @@
 					this.generateDataRow('Recovery', 'H ' + response.data.character.healthRegen + ' / ' + 'S ' + response.data.character.staminaRegen);
 					this.generateDataRow('Agility', response.data.character.agility);
 					this.generateDataRow('Accuracy', response.data.character.accuracy);
-					this.generateDataRow('money', response.data.character.money);					
+					this.generateDataRow('Armour', response.data.character.armour);					
+					this.generateDataRow('Money', response.data.character.money);					
 				}).catch(error => {
 					console.log(error)
 				})

@@ -15,7 +15,7 @@ class CreateWeaponsTable extends Migration
     {
         Schema::create('weapons', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('name');
+			$table->string('name')->unique();
 			$table->binary('image')->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->longText('description')->nullable();
@@ -23,6 +23,7 @@ class CreateWeaponsTable extends Migration
 			$table->integer('armour')->default('0');
 			$table->integer('defense')->default('0');
 			$table->integer('cost')->default('0');
+			$table->integer('baseAttackCost')->default('0');
             $table->timestamps();
         });
     }

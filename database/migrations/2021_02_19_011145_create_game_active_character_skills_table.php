@@ -31,7 +31,7 @@ class CreateGameActiveCharacterSkillsTable extends Migration
 			$table->decimal('effectChance', 3, 2);
 			$table->decimal('damagePenalty', 3, 2);
 			$table->timestamps();
-			$table->foreign('characterId')->references('id')->on('character')->onDelete('cascade');			
+			$table->foreign('ownerId')->references('id')->on('character')->onDelete('cascade');			
 			$table->foreign('skillId')->references('id')->on('game_skills')->onDelete('cascade');	
         });
     }

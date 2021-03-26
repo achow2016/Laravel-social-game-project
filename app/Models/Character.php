@@ -35,7 +35,7 @@ class Character extends Model
 		'attackMultiplier', 'defenseMultiplier',
 		'defense', 'currentDefense',
 		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
-		'stance'
+		'stance', 'baseAttackCost'
 	];
 
     /**

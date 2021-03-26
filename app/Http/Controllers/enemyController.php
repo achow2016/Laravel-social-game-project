@@ -15,6 +15,13 @@ use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameMapTileset;
 
+use App\Models\GameOffhand;
+use App\Models\GameWeapon;
+use App\Models\GameArmsEquipment;
+use App\Models\GameBodyEquipment;
+use App\Models\GameHeadEquipment;
+use App\Models\GameLegEquipment;
+
 //use DateTime;
 
 class EnemyController extends Controller {
@@ -49,6 +56,16 @@ class EnemyController extends Controller {
 				$enemyRace = CharacterRace::where('race', $enemyChoices[$enemyChoice]->gameRace)->first();
 				$enemyClass = CharacterClass::where('name', $enemyChoices[$enemyChoice]->gameClass)->first();			
 				
+				$enemyOffhand = GameOffhand::where('name', $enemyChoices[$enemyChoice]->offHand)->first();
+				$enemyWeapon = GameWeapon::where('name', $enemyChoices[$enemyChoice]->weapon)->first();
+				$enemyArmsEquip = GameArmsEquipment::where('name', $enemyChoices[$enemyChoice]->armsEquipment)->first();
+				$enemyBodyEquip = GameBodyEquipment::where('name', $enemyChoices[$enemyChoice]->bodyEquipment)->first();
+				$enemyHeadEquip = GameHeadEquipment::where('name', $enemyChoices[$enemyChoice]->headEquipment)->first();
+				$enemyLegEquip = GameLegEquipment::where('name', $enemyChoices[$enemyChoice]->legsEquipment)->first();
+				
+				$equipArray = [];
+				array_push($equipArray, $enemyOffhand,$enemyWeapon,$enemyArmsEquip,$enemyBodyEquip,$enemyHeadEquip,$enemyLegEquip);
+				
 				$enemy = new GameActiveEnemy();
 					
 				while(!$freeSpaceFound) {
@@ -62,23 +79,45 @@ class EnemyController extends Controller {
 				}
 				$freeSpaceFound = false;
 				
+				$additionalAttack = 0; 
+				$additionalArmour = 0; 
+				$additionalDefense = 0; 
+				
+				foreach($equipArray as $value) {
+					$additionalAttack = $additionalAttack + $value->attack; 
+					$additionalArmour = $additionalArmour + $value->armour; 
+					$additionalDefense = $additionalDefense + $value->defense; 
+				}	
+					
 				$enemy->setAttribute('raceId', $enemyRace->id);
 				$enemy->setAttribute('classId', $enemyClass->id);
 				$enemy->setAttribute('name', $enemyChoices[$enemyChoice]->name);
-				$enemy->setAttribute('health', $enemyRace->health + $lifeAlloc);
-				$enemy->setAttribute('currentHealth', $enemyRace->health + $lifeAlloc);
-				$enemy->setAttribute('healthRegen', $enemyRace->healthRegen);
-				$enemy->setAttribute('currentHealthRegen', $enemyRace->healthRegen);
-				$enemy->setAttribute('stamina', $enemyRace->stamina  + $enduranceAlloc);
-				$enemy->setAttribute('currentStamina', $enemyRace->stamina  + $enduranceAlloc);
-				$enemy->setAttribute('staminaRegen', $enemyRace->staminaRegen);
-				$enemy->setAttribute('currentStaminaRegen', $enemyRace->staminaRegen);
-				$enemy->setAttribute('agility', $enemyRace->agility);
-				$enemy->setAttribute('currentAgility', $enemyRace->agility);
+				$enemy->setAttribute('health', $enemyRace->health + $enemyClass->health + $lifeAlloc);
+				$enemy->setAttribute('currentHealth', $enemyRace->health + $enemyClass->health + $lifeAlloc);
+				$enemy->setAttribute('healthRegen', $enemyRace->healthRegen + $enemyClass->healthRegen);
+				$enemy->setAttribute('currentHealthRegen', $enemyRace->healthRegen + $enemyClass->healthRegen);
+				$enemy->setAttribute('stamina', $enemyRace->stamina + $enemyClass->stamina + $enduranceAlloc);
+				$enemy->setAttribute('currentStamina', $enemyRace->stamina + $enemyClass->stamina + $enduranceAlloc);
+				$enemy->setAttribute('staminaRegen', $enemyRace->staminaRegen + $enemyClass->staminaRegen);
+				$enemy->setAttribute('currentStaminaRegen', $enemyRace->staminaRegen + $enemyClass->staminaRegen);
+				$enemy->setAttribute('agility', $enemyRace->agility + $enemyClass->agility);
+				$enemy->setAttribute('currentAgility', $enemyRace->agility + $enemyClass->agilty);
+				$enemy->setAttribute('currentDefense', $enemyClass->defense + $additionalDefense);
+				$enemy->setAttribute('defense', $enemyClass->defense);
+				$enemy->setAttribute('armour', $additionalArmour);
+				$enemy->setAttribute('accuracy', $enemyClass->accuracy);
+				$enemy->setAttribute('baseAttackCost', $enemyClass->baseAttackCost);
 				$enemy->setAttribute('avatar', $enemyRace->avatar);
 				$enemy->setAttribute('meleeAnimation', $enemyRace->meleeAnimation);
-				$enemy->setAttribute('attack', $enemyRace->attack  + $strengthAlloc);
-				$enemy->setAttribute('currentAttack', $enemyRace->attack  + $strengthAlloc);
+				$enemy->setAttribute('attack', $enemyRace->attack + $enemyClass->attack + $strengthAlloc);
+				$enemy->setAttribute('currentAttack', $enemyRace->attack + $enemyClass->attack + $strengthAlloc + $additionalAttack);
+				$enemy->setAttribute('weapon', $enemyChoices[$enemyChoice]->weapon);
+				$enemy->setAttribute('offHand', $enemyChoices[$enemyChoice]->offHand);
+				$enemy->setAttribute('bodyEquipment', $enemyChoices[$enemyChoice]->bodyEquipment);
+				$enemy->setAttribute('headEquipment', $enemyChoices[$enemyChoice]->headEquipment);
+				$enemy->setAttribute('armsEquipment', $enemyChoices[$enemyChoice]->armsEquipment);
+				$enemy->setAttribute('legsEquipment', $enemyChoices[$enemyChoice]->legsEquipment);
+				$enemy->setAttribute('money', $enemyChoices[$enemyChoice]->money);
 				$existingMap->enemies()->save($enemy);
 			}
 			
@@ -126,7 +165,7 @@ class EnemyController extends Controller {
 			
 			$enemies = $existingMap->enemies()->get([
 				'name', 'attack', 'currentAttack', 'health',
-				'currentHealth', 'stamina', 'currentStamina', 'mapPosition'
+				'currentHealth', 'stamina', 'currentStamina', 'mapPosition', 'armour'
 			]);
 			
 			$inspectableTargets = array();

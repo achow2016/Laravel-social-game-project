@@ -23,7 +23,7 @@ class GameEnemy extends Model
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'baseAttackCost',
 		'staminaRegen', 'healthRegen',
 		'attackMultiplier', 'defenseMultiplier',
-		'money'
+		'money', 'itemLootInventory', 'skills'
 	];
 
     /**
@@ -41,6 +41,8 @@ class GameEnemy extends Model
      */
     protected $casts = [
         //'email_verified_at' => 'datetime',
+		'itemLootInventory' => 'array',
+		'skills' => 'array'
 		
     ];
 	

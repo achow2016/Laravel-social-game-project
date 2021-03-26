@@ -1,10 +1,10 @@
 {
 	"weapons": [
 		{ 
-			"name": "Small Dagger", 
+			"name":"Small Dagger", 
 			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
-			"gameLevel": "1",
-			"description": "A small dagger.",
+			"gameLevel":"1",
+			"description":"A small dagger.",
 			"attack":"5", 
 			"armour":"0", 
 			"defense":"10", 

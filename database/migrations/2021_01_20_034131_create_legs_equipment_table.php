@@ -15,7 +15,7 @@ class CreateLegsEquipmentTable extends Migration
     {
         Schema::create('legs_equipment', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('name');
+			$table->string('name')->unique();
 			$table->binary('image')->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->longText('description')->nullable();

@@ -4,25 +4,14 @@
 			"gameLevel": "1",
 			"name": "guard", 
 			"gameRace": "human", 
-			"gameClass": "warrior", 
-			"health": "30", 
-			"attack":"10", 
-			"stamina":"100", 
-			"staminaRegen":"10", 
-			"healthRegen":"0", 
-			"baseAttackCost":"10", 
-			"agility":"10", 
+			"gameClass": "warrior",  
 			"money":"100",
-			"skills":[
-				"Arm Smash", 
-				"Advancing Swing"
-			], 
 			"weapon":"Small Dagger",
 			"offHand":"Leather Buckler",
 			"bodyEquipment":"Leather Coat",
 			"headEquipment":"Leather Cap",
 			"armsEquipment":"Leather Gloves",
-			"legsEquipment":"LEather Leggings",
+			"legsEquipment":"Leather Leggings",
 			"itemLootInventory":[
 				{
 					"name":"First Aid Kit", 

@@ -3,7 +3,19 @@
 		{
 			"name": "warrior",
 			"weaknesses": [],
-			"resistances": []
+			"resistances": [],
+			"skills":[
+				"Arm Smash", 
+				"Advancing Swing"
+			], 
+			"health": "100", 
+			"attack":"10", 
+			"stamina":"100", 
+			"staminaRegen":"10", 
+			"healthRegen":"0", 
+			"baseAttackCost":"10", 
+			"agility":"10", 
+			"defense":"10"
 		}
 	]
 }

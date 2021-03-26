@@ -1,10 +1,10 @@
 {
-	"weapons": [
+	"items": [
 		{ 
-			"name": "Leather Buckler", 
+			"name":"Leather Buckler", 
 			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
-			"gameLevel": "1",
-			"description": "A protective leather buckler.",
+			"gameLevel":"1",
+			"description":"A protective leather buckler.",
 			"attack":"1", 
 			"armour":"1", 
 			"defense":"20", 

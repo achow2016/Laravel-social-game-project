@@ -562,12 +562,14 @@
 				)
 				.then((response) => {
 					this.enemyStatusData = response.data.enemy;
+					console.log(this.enemyStatusData);
 					document.getElementById('menuDataArea').textContent = '';
 					
 					this.generateDataRow('Name', this.enemyStatusData.name);
 					this.generateDataRow('Attack', this.enemyStatusData.currentAttack + '/' + this.enemyStatusData.attack);
 					this.generateDataRow('Health', this.enemyStatusData.currentHealth + '/' + this.enemyStatusData.health);
 					this.generateDataRow('Stamina', this.enemyStatusData.currentStamina + '/' + this.enemyStatusData.stamina);
+					this.generateDataRow('Armour', this.enemyStatusData.armour);
 					//this.generateDataRow('Recovery', 'H: ' + this.enemyStatusData.currentHealthRegen + '/' + //this.enemyStatusData.healthRegen
 					//	+ ' | ' + 'S: ' + this.enemyStatusData[i].currentstaminaRegen + '/' + this.enemyStatusData.staminaRegen);
 					//this.generateDataRow('Agility', this.enemyStatusData.currentAgility + '/' + this.enemyStatusData.agility);
@@ -646,7 +648,7 @@
 					sessionStorage.getItem('token')
 				)
 				.then((response) => {
-					console.log(response.data.character);
+					console.log(response);
 					this.playerStatus = response.data.character;
 					document.getElementById('menuDataArea').textContent = '';
 					
@@ -659,7 +661,8 @@
 						+ ' | ' + 'S: ' + response.data.character.currentstaminaRegen + '/' + response.data.character.staminaRegen);
 					this.generateDataRow('Agility', response.data.character.currentAgility + '/' + response.data.character.agility);
 					this.generateDataRow('Accuracy', response.data.character.currentAccuracy + '/' + response.data.character.accuracy);
-					this.generateDataRow('money', response.data.character.money);
+					this.generateDataRow('Armour', response.data.character.armour);
+					this.generateDataRow('Money', response.data.character.money);
 				});
 			*/	
 				this.formData = new FormData();
@@ -688,7 +691,8 @@
 					this.generateDataRow('Recovery', 'H ' + response.data.character.healthRegen + ' / ' + 'S ' + response.data.character.staminaRegen);
 					this.generateDataRow('Agility', response.data.character.agility);
 					this.generateDataRow('Accuracy', response.data.character.accuracy);
-					this.generateDataRow('money', response.data.character.money);					
+					this.generateDataRow('Armour', response.data.character.armour);					
+					this.generateDataRow('Money', response.data.character.money);					
 				}).catch(error => {
 					console.log(error)
 				})

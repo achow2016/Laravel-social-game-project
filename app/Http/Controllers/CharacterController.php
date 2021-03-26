@@ -48,27 +48,29 @@ class CharacterController extends Controller {
 			$characterRace = CharacterRace::where('race', $request->gameRace)->first();
 			$characterClass = CharacterClass::where('name', $request->gameClass)->first();
 
-					
-				
 			$character = new Character();
 			$character->setAttribute('raceId', $characterRace->id);
 			$character->setAttribute('classId', $characterClass->id);
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
-			$character->setAttribute('health', $characterRace->health + $request->lifeAlloc);
-			$character->setAttribute('currentHealth', $characterRace->health + $request->lifeAlloc);
-			$character->setAttribute('healthRegen', $characterRace->healthRegen);
-			$character->setAttribute('currentHealthRegen', $characterRace->healthRegen);
-			$character->setAttribute('stamina', $characterRace->stamina  + $request->enduranceAlloc);
-			$character->setAttribute('currentStamina', $characterRace->stamina  + $request->enduranceAlloc);
-			$character->setAttribute('staminaRegen', $characterRace->staminaRegen);
-			$character->setAttribute('currentStaminaRegen', $characterRace->staminaRegen);
-			$character->setAttribute('agility', $characterRace->agility);
-			$character->setAttribute('currentAgility', $characterRace->agility);
+			$character->setAttribute('health', $characterRace->health + $characterClass->health + $request->lifeAlloc);
+			$character->setAttribute('currentHealth', $characterRace->health + $characterClass->health + $request->lifeAlloc);
+			$character->setAttribute('healthRegen', $characterRace->healthRegen + $characterClass->healthRegen);
+			$character->setAttribute('currentHealthRegen', $characterRace->healthRegen + $characterClass->healthRegen);
+			$character->setAttribute('stamina', $characterRace->stamina + $characterClass->stamina + $request->enduranceAlloc);
+			$character->setAttribute('currentStamina', $characterRace->stamina + $characterClass->stamina + $request->enduranceAlloc);
+			$character->setAttribute('staminaRegen', $characterRace->staminaRegen + $characterClass->staminaRegen);
+			$character->setAttribute('currentStaminaRegen', $characterRace->staminaRegen + $characterClass->staminaRegen);
+			$character->setAttribute('agility', $characterRace->agility + $characterClass->agility);
+			$character->setAttribute('currentAgility', $characterRace->agility + $characterClass->agility);
+			$character->setAttribute('defense', $characterClass->defense);
+			$character->setAttribute('accuracy', $characterClass->accuracy);
+			$character->setAttribute('baseAttackCost', $characterClass->baseAttackCost);
 			$character->setAttribute('avatar', $characterRace->avatar);
 			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
-			$character->setAttribute('attack', $characterRace->attack  + $request->strengthAlloc);
-			$character->setAttribute('currentAttack', $characterRace->attack  + $request->strengthAlloc);
+			$character->setAttribute('attack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
+			$character->setAttribute('currentAttack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
+			$character->setAttribute('money', 0);
 			$user->character()->save($character);
 		}
 		catch(Throwable $e) {

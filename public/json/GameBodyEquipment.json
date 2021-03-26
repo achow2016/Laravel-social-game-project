@@ -1,10 +1,10 @@
 {
 	"bodyEquipment": [
 		{ 
-			"name": "Leather Coat", 
+			"name":"Leather Coat", 
 			"image":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
-			"gameLevel": "1",
-			"description": "A protective leather coat.",
+			"gameLevel":"1",
+			"description":"A protective leather coat.",
 			"attack":"0", 
 			"armour":"1", 
 			"defense":"0", 

@@ -15,7 +15,8 @@ class CreateGameItemsTable extends Migration
     {
         Schema::create('game_items', function (Blueprint $table) {
 			$table->increments('id');
-			$table->string('name');
+			$table->string('name')->unique();
+			$table->string('description');
 			$table->string('effect');
 			$table->integer('effectStackAmount');
 			$table->integer('effectStackLimit');

@@ -15,7 +15,7 @@ class CreateOffhandEquipmentTable extends Migration
     {
         Schema::create('offhand_equipment', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('name');
+			$table->string('name')->unique();
 			$table->binary('image')->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->longText('description')->nullable();

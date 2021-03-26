@@ -56,12 +56,13 @@ class CreateCharacterTable extends Migration
 			$table->integer('earningsTotal')->default('0');
 			$table->integer('attackMultiplier')->default('1');
 			$table->integer('defenseMultiplier')->default('1');
-			$table->string('weapon')->unsigned()->nullable();
-			$table->string('offHand')->unsigned()->nullable();
-			$table->string('bodyEquipment')->unsigned()->nullable();
-			$table->string('headEquipment')->unsigned()->nullable();
-			$table->string('armsEquipment')->unsigned()->nullable();
-			$table->string('legsEquipment')->unsigned()->nullable();
+			$table->integer('baseAttackCost')->default('0');
+			$table->string('weapon')->nullable();
+			$table->string('offHand')->nullable();
+			$table->string('bodyEquipment')->nullable();
+			$table->string('headEquipment')->nullable();
+			$table->string('armsEquipment')->nullable();
+			$table->string('legsEquipment')->nullable();
 			//$table->integer('skillSet')->unsigned();
 			//$table->integer('inventorySet')->unsigned();
             
@@ -73,7 +74,7 @@ class CreateCharacterTable extends Migration
 			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade');
 			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 
 			$table->foreign('offHand')->references('name')->on('offhand_equipment')->onDelete('cascade'); 
-			$table->foreign('bodyEquipment')->references('name')->on(body_equipment)->onDelete('cascade'); 
+			$table->foreign('bodyEquipment')->references('name')->on('body_equipment')->onDelete('cascade'); 
 			$table->foreign('headEquipment')->references('name')->on('head_equipment')->onDelete('cascade'); 
 			$table->foreign('armsEquipment')->references('name')->on('arms_equipment')->onDelete('cascade'); 
 			$table->foreign('legsEquipment')->references('name')->on('legs_equipment')->onDelete('cascade'); 			

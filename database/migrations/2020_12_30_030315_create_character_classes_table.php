@@ -18,6 +18,16 @@ class CreateCharacterClassesTable extends Migration
 			$table->string('name');
 			$table->json('weaknesses')->nullable();
 			$table->json('resistances')->nullable();
+			$table->json('skills')->nullable();
+			$table->integer('health')->default('0');
+			$table->integer('stamina')->default('0');
+			$table->integer('accuracy')->default('100');
+			$table->integer('attack')->default('0');
+			$table->integer('baseAttackCost')->default('0');
+			$table->integer('staminaRegen')->default('0');
+			$table->integer('healthRegen')->default('0');
+			$table->integer('agility')->default('0');
+			$table->integer('defense')->default('0');
             $table->timestamps();
         });
     }

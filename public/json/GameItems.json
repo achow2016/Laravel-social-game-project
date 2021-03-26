@@ -2,15 +2,17 @@
 	"items": [
 		{
 			"name":"Aid Kit",
+			"description":"Heals 5% over 10 turns.",
 			"effect":"Regen",
 			"effectStackAmount":"1",
 			"effectStackLimit":"1",
 			"effectPercent":"5",
-			"effectDuration":"10"
-			"shopValue":"10",
+			"effectDuration":"10",
+			"shopValue":"10"
 		},
 		{
 			"name":"Emergency Treatment Kit",
+			"description":"Heals 30% over 1 turn.",
 			"effect":"Regen",
 			"effectStackAmount":"1",
 			"effectStackLimit":"1",
@@ -20,6 +22,7 @@
 		},
 		{
 			"name":"Throwing Stone",
+			"description":"Deals 100% attack damage over 1 turn.",
 			"effect":"Direct Damage",
 			"effectStackAmount":"1",
 			"effectStackLimit":"1",

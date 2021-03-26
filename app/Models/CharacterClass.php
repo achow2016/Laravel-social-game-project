@@ -18,9 +18,10 @@ class CharacterClass extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'weaknesses', 'resistances'
+        'name', 'weaknesses', 'resistances', 'skills', 'stamina', 'accuracy', 'attack', 'baseAttackCost', 'staminaRegen', 'healthRegen', 'agility', 'defense'
     ];
 
+			
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -37,7 +38,8 @@ class CharacterClass extends Model
     protected $casts = [
         //'email_verified_at' => 'datetime',
 		'weaknesses' => 'array',
-		'resistances' => 'array'		
+		'resistances' => 'array',		
+		'skills' => 'array'		
     ];
 	
 	public function character() {
