@@ -106,6 +106,7 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('defense', $enemyClass->defense);
 				$enemy->setAttribute('armour', $additionalArmour);
 				$enemy->setAttribute('accuracy', $enemyClass->accuracy);
+				$enemy->setAttribute('currentAccuracy', $enemyClass->currentAccuracy);
 				$enemy->setAttribute('baseAttackCost', $enemyClass->baseAttackCost);
 				$enemy->setAttribute('avatar', $enemyRace->avatar);
 				$enemy->setAttribute('meleeAnimation', $enemyRace->meleeAnimation);

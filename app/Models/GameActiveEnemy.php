@@ -27,7 +27,7 @@ class GameActiveEnemy extends Model
 		'attackMultiplier', 'defenseMultiplier',
 		'mapPosition',
 		'money',
-		
+		'battleTurnMade',
 		'defense', 'currentDefense','stance',
 		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId'
 	];

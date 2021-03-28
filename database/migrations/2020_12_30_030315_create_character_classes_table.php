@@ -15,7 +15,7 @@ class CreateCharacterClassesTable extends Migration
     {
         Schema::create('character_classes', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('name');
+			$table->string('name')->unique();
 			$table->json('weaknesses')->nullable();
 			$table->json('resistances')->nullable();
 			$table->json('skills')->nullable();

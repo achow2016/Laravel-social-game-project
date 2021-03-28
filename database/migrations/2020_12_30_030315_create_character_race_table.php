@@ -15,7 +15,7 @@ class CreateCharacterRaceTable extends Migration
     {
         Schema::create('character_races', function (Blueprint $table) {
             $table->increments('id');
-			$table->string('race');
+			$table->string('race')->unique();
 			$table->integer('attack');
 			$table->integer('health');
 			$table->integer('healthRegen');

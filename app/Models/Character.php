@@ -20,6 +20,7 @@ class Character extends Model
     protected $fillable = [
 		//battle state
 		'battle',//bool
+		'battleTurnMade',//bool
 		'enemyId',
 		
 		'gameLevel', 'mapId', 'mapPosition',

@@ -12,10 +12,14 @@ use App\Models\CharacterClass;
 use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameMapTileset;
-
+use App\Models\GameActiveEnemy;
 //use DateTime;
 
+use App\Traits\GameTurnLogic;
+
 class CharacterController extends Controller {
+	
+	use GameTurnLogic;
 
 	public function createCharacter(Request $request) 
 	{
@@ -64,12 +68,13 @@ class CharacterController extends Controller {
 			$character->setAttribute('agility', $characterRace->agility + $characterClass->agility);
 			$character->setAttribute('currentAgility', $characterRace->agility + $characterClass->agility);
 			$character->setAttribute('defense', $characterClass->defense);
+			$character->setAttribute('currentDefense', $characterClass->defense);
 			$character->setAttribute('accuracy', $characterClass->accuracy);
 			$character->setAttribute('baseAttackCost', $characterClass->baseAttackCost);
-			$character->setAttribute('avatar', $characterRace->avatar);
-			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
 			$character->setAttribute('attack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
 			$character->setAttribute('currentAttack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
+			$character->setAttribute('avatar', $characterRace->avatar);
+			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
 			$character->setAttribute('money', 0);
 			$user->character()->save($character);
 		}
@@ -196,6 +201,11 @@ class CharacterController extends Controller {
 		}		
 	}		
 	
+	//goes to trait to determine exchange results
+	public function meleeEnemy(Request $request) 
+	{
+		return $this->findBattleTurnOrder($request);
+	}
 	
 }
 ?>

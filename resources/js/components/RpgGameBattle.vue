@@ -52,7 +52,7 @@
 		<div class="row mt-5 mb-5 controlArea bg-secondary">
 			<div id="actionGrid" class="col">
 				<div v-on:click="toggleInspectMenu" class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Inspect</div>
-				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Fight</div>
+				<div v-on:click="meleeEnemy" class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Fight</div>
 				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Skill</div>
 				<div class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Flee</div>
 			</div>
@@ -132,7 +132,7 @@
 			}
 			else {
 				//refresh page fix
-				if(this.$route.params.enemy == null || this.$route.params.distance == null) {
+				if(this.$route.params.enemy == null || this.$route.params.distance == null || this.$route.params.player == null) {
 				
 					let test = User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
 					.then((response) => {
@@ -244,13 +244,18 @@
 								vm.generateActiveData('Health', vm.playerData.currentHealth + '/' + vm.playerData.health);
 								vm.generateActiveData('Stamina', vm.playerData.currentStamina + '/' + vm.playerData.stamina);
 								
-								vm.generateActiveDataEnemy(vm.enemyData.name);
-								vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack);
-								vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health);
-								vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina);
+								vm.generateActiveDataEnemy(vm.enemyData.name, 'Name');
+								vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack, 'Attack');
+								vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health, 'Health');
+								vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina, 'Stamina');
 								
 								vm.drawAvatars(vm);
 								
+								//enable controls
+								let all = document.getElementsByTagName("*");
+								for (let i = 0, count = all.length; i < count; i++) {
+									all[i].style.pointerEvents = 'auto';
+								}
 							}	
 							else {
 								next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
@@ -266,17 +271,20 @@
 							console.log(err);
 						});
 					}
-					
+					//enable controls
+					let all = document.getElementsByTagName("*");
+					for (let i = 0, count = all.length; i < count; i++) {
+						all[i].style.pointerEvents = 'auto';
+					}
 				
 				}
 				else {
 					console.log(this.$route.params);
 					
 					const vm = this;
-					vm.enemyData = this.$route.params.enemy;
-					vm.playerData = this.$route.params.player;
-					vm.engageDistance = this.$route.params.distance;
-					
+					vm.enemyData = vm.$route.params.enemy;
+					vm.playerData = vm.$route.params.player;
+					vm.engageDistance = vm.$route.params.distance;
 					
 					vm.drawDistanceGrid(vm);
 					vm.generateActiveData('Name', vm.playerData.characterName);
@@ -284,10 +292,10 @@
 					vm.generateActiveData('Health', vm.playerData.currentHealth + '/' + vm.playerData.health);
 					vm.generateActiveData('Stamina', vm.playerData.currentStamina + '/' + vm.playerData.stamina);
 					
-					vm.generateActiveDataEnemy(vm.enemyData.name);
-					vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack);
-					vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health);
-					vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina);
+					vm.generateActiveDataEnemy(vm.enemyData.name, 'Name');
+					vm.generateActiveDataEnemy(vm.enemyData.currentAttack + '/' + vm.enemyData.attack, 'Attack');
+					vm.generateActiveDataEnemy(vm.enemyData.currentHealth + '/' + vm.enemyData.health, 'Health');
+					vm.generateActiveDataEnemy(vm.enemyData.currentStamina + '/' + vm.enemyData.stamina, 'Stamina');
 					
 					vm.drawAvatars(vm);
 				}
@@ -316,6 +324,31 @@
 			
 		},
 		methods: {
+			meleeEnemy() {
+				this.formData = new FormData();
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/meleeEnemy',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					console.log(response);
+					if(response.data.message)
+						document.getElementById('messageContainer').textContent = response.data.message;
+					document.getElementById('playerStamina').textContent = response.data.playerNewStamina;
+					document.getElementById('enemyHealth').textContent = response.data.enemyNewHealth;
+					document.getElementById('playerHealth').textContent = response.data.playerNewHealth;
+				});
+			},
 			drawAvatars(vm) {
 				let playerAvatar = document.createElement('img');
 				//playerAvatar.classList.add();
@@ -474,7 +507,7 @@
 						controllerArray[i].classList.toggle('d-none');
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
-				})
+				});
 				
 				this.drawEnemyPositions();
 			},
@@ -606,18 +639,20 @@
 				dataRowFieldKey.textContent = key;
 				dataRowContainer.appendChild(dataRowFieldKey);
 				
-				let dataRowFieldData = document.createElement('div'); 
+				let dataRowFieldData = document.createElement('div');
+				dataRowFieldData.setAttribute('id', 'player' + key);
 				dataRowFieldData.classList.add('col-6', 'text-center');
 				dataRowFieldData.textContent = data;
 				dataRowContainer.appendChild(dataRowFieldData);
 				
 				document.getElementById('playerInfo').appendChild(dataRowContainer);
 			},
-			generateActiveDataEnemy(data) {
+			generateActiveDataEnemy(data, id) {
 				let dataRowContainer = document.createElement('div');   
 				dataRowContainer.classList.add('row', 'justify-content-center');
 				
 				let dataRowFieldData = document.createElement('div'); 
+				dataRowFieldData.setAttribute('id', 'enemy' + id);
 				dataRowFieldData.classList.add('col-6', 'text-center');
 				dataRowFieldData.textContent = data;
 				dataRowContainer.appendChild(dataRowFieldData);

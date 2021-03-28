@@ -317,7 +317,10 @@ const router = new VueRouter({
 							let battleStatusCheck = getBattleStatus(to, from, next);
 							battleStatusCheck.then(function(result) {
 								if(typeof(result) === 'object' && result != null) {
-									next({name:'rpgGameBattle', params:{player:result.player, enemy:result.enemy, distance:result.distance}, replace:true});
+									to.params.player = result.player;
+									to.params.enemy = result.enemy;
+									to.params.distance = result.distance;
+									next({name:'rpgGameBattle'}, to.params);	
 									return;
 								}
 								else {
@@ -351,18 +354,20 @@ const router = new VueRouter({
 						if(result === false) {
 							next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
 							return;
-						}	
-					});
-					
-					let battleStatusCheck = getBattleStatus(to, from, next);
-					battleStatusCheck.then(function(result) {
-						if(typeof(result) === 'object' && result != null) {
-							next({params:{player: result.player, enemy: result.enemy, distance: result.distance}});
-						}	
+						}
 						else {
-							next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
+							let battleStatusCheck = getBattleStatus(to, from, next);
+							battleStatusCheck.then(function(result) {
+								if(typeof(result) === 'object' && result != null) {
+									console.log(result);
+									next({params:{player: result.player, enemy: result.enemy, distance: result.distance}});
+								}	
+								else {
+									next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
+								}	
+							});
 						}	
-					});
+					});					
 				}
 				else {
 					next({name:'home', params:{message: 'You need to be logged in to access that resource'}, replace:true});

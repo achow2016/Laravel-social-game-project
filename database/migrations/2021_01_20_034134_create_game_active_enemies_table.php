@@ -15,6 +15,7 @@ class CreateGameActiveEnemiesTable extends Migration
     {
         Schema::create('game_active_enemies', function (Blueprint $table) {
             $table->increments('id');
+			$table->boolean('battleTurnMade')->default(false);
 			$table->string('name');
 			$table->binary('avatar')->nullable();
 			$table->binary('meleeAnimation')->nullable();
@@ -26,8 +27,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('currentHealth')->default('0');
 			$table->integer('stamina')->default('0');
 			$table->integer('currentStamina')->default('0');
-			$table->integer('accuracy')->default('1');
-			$table->integer('currentAccuracy')->default('1');
+			$table->integer('accuracy')->default('100');
+			$table->integer('currentAccuracy')->default('100');
 			$table->integer('defense')->default('0');
 			$table->integer('currentDefense')->default('0');
 			$table->integer('attack')->default('0');
@@ -47,8 +48,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('agility')->default('0');
 			$table->integer('currentAgility')->default('0');
 			$table->integer('money')->default('0');
-			$table->integer('attackMulitplier')->default('1');
-			$table->integer('defenseMulitplier')->default('1');
+			$table->integer('attackMultiplier')->default('1');
+			$table->integer('defenseMultiplier')->default('1');
             $table->timestamps();
 		
 			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
