@@ -18,6 +18,7 @@ class CreateWeaponsTable extends Migration
 			$table->string('name')->unique();
 			$table->binary('image')->nullable();
 			$table->integer('gameLevel')->default('1');
+			$table->integer('range')->default('1');
 			$table->longText('description')->nullable();
 			$table->integer('attack')->default('0');
 			$table->integer('armour')->default('0');

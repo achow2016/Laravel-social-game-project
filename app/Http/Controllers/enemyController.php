@@ -106,7 +106,7 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('defense', $enemyClass->defense);
 				$enemy->setAttribute('armour', $additionalArmour);
 				$enemy->setAttribute('accuracy', $enemyClass->accuracy);
-				$enemy->setAttribute('currentAccuracy', $enemyClass->currentAccuracy);
+				$enemy->setAttribute('currentAccuracy', $enemyClass->accuracy);
 				$enemy->setAttribute('baseAttackCost', $enemyClass->baseAttackCost);
 				$enemy->setAttribute('avatar', $enemyRace->avatar);
 				$enemy->setAttribute('meleeAnimation', $enemyRace->meleeAnimation);
@@ -209,7 +209,7 @@ class EnemyController extends Controller {
 			//	'currentHealth', 'stamina', 'currentStamina', 'mapPosition'
 			//]);
 			
-			Log::debug($enemy); 
+			//Log::debug($enemy); 
 			
 			return response(['enemy' => $enemy], 200);
 		}

@@ -12,12 +12,13 @@
 			"headEquipment":"Leather Cap",
 			"armsEquipment":"Leather Gloves",
 			"legsEquipment":"Leather Leggings",
+			"combatRange":"1",
 			"itemLootInventory":[
 				{
 					"name":"First Aid Kit", 
 					"quantity":"1"
 				}
-			], 
+			],
 			"avatar":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
 			"meleeAnimation'":"/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		}

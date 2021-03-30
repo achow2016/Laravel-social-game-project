@@ -8,7 +8,8 @@
 			"attack":"5", 
 			"armour":"0", 
 			"defense":"10", 
-			"cost":"1"
+			"cost":"1",
+			"range":"1"
 		}
 	]
 }	

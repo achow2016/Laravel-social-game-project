@@ -144,6 +144,7 @@ class DatabaseSeeder extends Seeder
 			$gameWeapon->setAttribute('name', $item['name']);
 			$gameWeapon->setAttribute('image', $item['image']);
 			$gameWeapon->setAttribute('gameLevel', $item['gameLevel']);
+			$gameWeapon->setAttribute('range', $item['range']);
 			$gameWeapon->setAttribute('description', $item['description']);
 			$gameWeapon->setAttribute('attack', $item['attack']);
 			$gameWeapon->setAttribute('armour', $item['armour']);
@@ -220,7 +221,7 @@ class DatabaseSeeder extends Seeder
 			$gameArmsEquipment->save();	
 		}
 	
-				//enemies
+		//enemies
 		
 		//$data = null;
 		$enemiesJsonPath = public_path() . '\json\Enemies.json';
@@ -239,6 +240,7 @@ class DatabaseSeeder extends Seeder
 			$enemy->setAttribute('avatar', $item['avatar']);
 			$enemy->setAttribute('weapon', $item['weapon']);
 			$enemy->setAttribute('offHand', $item['offHand']);
+			$enemy->setAttribute('combatRange', $item['combatRange']);
 			$enemy->setAttribute('bodyEquipment', $item['bodyEquipment']);
 			$enemy->setAttribute('headEquipment', $item['headEquipment']);
 			$enemy->setAttribute('armsEquipment', $item['armsEquipment']);

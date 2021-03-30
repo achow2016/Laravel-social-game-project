@@ -28,8 +28,9 @@ class CreateGameEnemiesTable extends Migration
 			$table->string('legsEquipment')->nullable();
 			$table->integer('gameLevel')->default('0');
 			$table->integer('money')->default('0');
+			$table->integer('combatRange')->default('1');
 			$table->json('itemLootInventory')->nullable();
-			$table->json('skills')->nullable();
+			$table->json('additionalSkills')->nullable(); //skills in addition to class skills at creation
             $table->timestamps();
 			
 			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 

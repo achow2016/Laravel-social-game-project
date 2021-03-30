@@ -29,7 +29,8 @@ class GameActiveEnemy extends Model
 		'money',
 		'battleTurnMade',
 		'defense', 'currentDefense','stance',
-		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId'
+		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
+		'combatRange'
 	];
 
     /**

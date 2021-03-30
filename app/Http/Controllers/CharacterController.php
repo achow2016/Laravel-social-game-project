@@ -51,7 +51,7 @@ class CharacterController extends Controller {
 			
 			$characterRace = CharacterRace::where('race', $request->gameRace)->first();
 			$characterClass = CharacterClass::where('name', $request->gameClass)->first();
-
+			
 			$character = new Character();
 			$character->setAttribute('raceId', $characterRace->id);
 			$character->setAttribute('classId', $characterClass->id);
@@ -70,6 +70,7 @@ class CharacterController extends Controller {
 			$character->setAttribute('defense', $characterClass->defense);
 			$character->setAttribute('currentDefense', $characterClass->defense);
 			$character->setAttribute('accuracy', $characterClass->accuracy);
+			$character->setAttribute('currentAccuracy', $characterClass->accuracy);
 			$character->setAttribute('baseAttackCost', $characterClass->baseAttackCost);
 			$character->setAttribute('attack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
 			$character->setAttribute('currentAttack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
