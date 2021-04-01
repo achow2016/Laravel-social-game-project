@@ -17,7 +17,9 @@ class CreateCharacterTable extends Migration
             $table->increments('id');
 			//battle state
             $table->boolean('battle')->default(false);
-            $table->boolean('battleTurnMade')->default(false);
+			$table->integer('gameTurns')->nullable();
+			$table->integer('currentTurn')->nullable(); 
+			$table->integer('turnPosition')->nullable();
             $table->integer('enemyId')->unsigned()->nullable();
 			$table->integer('engageDistance')->nullable();
 			$table->integer('combatRange')->default('1');

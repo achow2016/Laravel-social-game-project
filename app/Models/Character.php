@@ -19,10 +19,9 @@ class Character extends Model
      */
     protected $fillable = [
 		//battle state
-		'battle',//bool
-		'battleTurnMade',//bool
+		'battle',
 		'enemyId',
-		
+		'gameTurns', 'currentTurn', 'turnPosition', 'turnAction',
 		'gameLevel', 'mapId', 'mapPosition',
         'ownerUser', 'charactername', 'raceId', 'classId', 'avatar',
 		'page', 'chapter', 

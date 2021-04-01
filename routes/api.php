@@ -38,8 +38,10 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/inspectBattleEnemy', 'App\Http\Controllers\EnemyController@inspectBattleEnemy');
 	Route::post('/getMap', 'App\Http\Controllers\MapController@getMap');
 	Route::post('/moveCharacter', 'App\Http\Controllers\MapController@moveCharacter');
-	Route::post('/fightEnemy', 'App\Http\Controllers\CharacterController@fightEnemy');
-	Route::post('/meleeEnemy', 'App\Http\Controllers\CharacterController@meleeEnemy');
+	//Route::post('/fightEnemy', 'App\Http\Controllers\CharacterController@fightEnemy');
+	Route::post('/startFight', 'App\Http\Controllers\CharacterController@startFight');
+	Route::post('/meleeEnemy', 'App\Http\Controllers\CharacterController@meleeEnemy'); //within fight component
+	Route::post('/getTurnList', 'App\Http\Controllers\CharacterController@getTurnList'); //gets turn listing from character
 	//game account
 	Route::post('/getUserProfile', 'App\Http\Controllers\RegistrationController@getUserProfile');
 	Route::post('/updateProfileVideo', 'App\Http\Controllers\RegistrationController@updateProfileVideo');

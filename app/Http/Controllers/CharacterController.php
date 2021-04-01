@@ -145,7 +145,17 @@ class CharacterController extends Controller {
 		}
 	}
 
-	//gets enemy detail, distance to enemy and moves to battle component
+	public function startFight(Request $request) 
+	{
+		try {
+			return $this->findBattlePhaseOrder($request);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}
+	}
+	//gets enemy detail, distance to enemy and moves to battle component to fight targeted enemy
 	public function fightEnemy(Request $request) 
 	{
 		try {
@@ -191,9 +201,6 @@ class CharacterController extends Controller {
 			$charObj->engageDistance = $finalDistance;
 			$charObj->save();
 			
-
-			
-			
 			return response(['distance' => $finalDistance, 'enemy' => $enemy], 200);
 		}
 		catch(Throwable $e) {
@@ -207,6 +214,25 @@ class CharacterController extends Controller {
 	{
 		return $this->findBattleTurnOrder($request);
 	}
-	
+
+	//gets character turn list
+	public function getTurnList(Request $request) 
+	{
+		try {		
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$currentTurn = $charObj->currentTurn;
+			$playerTurnPosition = $charObj->turnPosition;
+			
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$enemiesTurnOrder = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			
+			return response(['playerTurnPosition' => $playerTurnPosition, 'enemiesTurnOrder' => $enemiesTurnOrder], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Turn list could not be made. Please report to admin.'], 422);
+		}			
+	}	
 }
 ?>

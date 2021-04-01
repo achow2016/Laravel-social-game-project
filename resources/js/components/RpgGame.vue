@@ -170,7 +170,7 @@
 			//}	
 		},
 		mounted() {
-			//console.log(this.$route.params);
+			console.log(this.$route.params);
 			
 			if(this.$route.params.message) {
 				document.getElementById('messageContainer').textContent = this.$route.params.message;
@@ -428,12 +428,12 @@
 						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 						}
 						
-						const fightEnemy = async () => {
+						const startFight = async () => {
 							try {
 								const req = await axios({
 									method : "POST",
 									baseURL: 'http://127.0.0.1:8000/api',
-									url    : 'http://127.0.0.1:8000/api/fightEnemy',
+									url    : 'http://127.0.0.1:8000/api/startFight',
 									params : '',
 									data   : this.formData,
 									headers: headers,
@@ -446,6 +446,18 @@
 										return;
 									}	
 									else {
+									
+										//processes queue of actors here
+										//console.log(response);
+										let actorArray = response.data.actorArray;
+										for(var key in actorArray) {
+											var value = actorArray[key];
+											console.log(key, value);
+											
+										}
+										
+										
+										/*
 										vm.$router.push({ 
 											name: 'rpgGameBattle', 
 											params: {distance: response.data.distance, enemy: response.data.enemy} 
@@ -457,6 +469,8 @@
 											document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
 											console.log(err);
 										});
+										*/
+										
 									}
 								}).catch(error => {
 									document.getElementById('messageContainer').textContent = error.response.data;
@@ -467,7 +481,7 @@
 								console.log(error);
 							}
 						};
-						fightEnemy();
+						startFight();
 					}	
 				};
 			},

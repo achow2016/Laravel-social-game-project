@@ -52,6 +52,20 @@ import Sitemap from './components/Sitemap'
 //user api for sanctum auth
 import User from './apis/User';
 
+//check saved turn status if any
+function getTurnList() {
+	User.getTurnList({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
+		.then((response) => {
+			return {'playerTurnPosition': response.data.playerTurnPosition, 'enemiesTurnOrder': response.data.enemiesTurnOrder};
+		})
+		.catch(error => {
+			if(error.response.status == 401)
+				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
+			else
+				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
+		});
+}	
+
 //login check that goes to next right away using params returned from user and character check in session controller
 function gameCharacterCheck(to, from, next) {
 	User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
@@ -286,27 +300,6 @@ const router = new VueRouter({
 				let userCharacterCheck = loginCheckBoolean(to,from,next);
 				console.log(userCharacterCheck);
 				if(userCharacterCheck) {
-					/*
-					let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
-					characterExistenceStatus.then(function(result) {
-						if(result == false) {
-							next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
-							return;
-						}
-					});
-					
-					let battleStatusCheck = getBattleStatus(to, from, next);
-					battleStatusCheck.then(function(result) {
-						if(result != null) {
-							next({name:'rpgGameBattle', params:{enemy:result.enemy, distance:result.distance}, replace:true});
-							return;
-						}
-					});
-					
-					console.log('hi');
-					to.params.battle = false;
-					next(to.params);
-					*/
 					let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
 					characterExistenceStatus.then(function(result) {
 						if(result == false) {
@@ -324,12 +317,17 @@ const router = new VueRouter({
 									return;
 								}
 								else {
-									//to.params.battle = false;
-									//next(to.params);
-									next();
-								}	
+									let getTurnList = getTurnList();
+									getTurnList.then(function(result) {
+										to.params.playerTurnPosition = result.playerTurnPosition;
+										to.params.enemiesTurnOrder = result.enemiesTurnOrder;
+										next({name:'rpgGame'}, to.params);
+									});
+								
+								}
 							});
-						}	
+						}
+						
 					});
 				}
 				else {

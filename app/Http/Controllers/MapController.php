@@ -413,8 +413,12 @@ class MapController extends Controller {
 						$enemy = $enemies->values()->get($matchingEnemy);
 						$this->moveMapEnemy($enemy, $request, $playerCoords);
 					}
-				}	
-				$responseArray['message'] = 'Moved ' . $movementChoice . '.';
+				}
+				if($movementChoice == 'wait')	
+					$responseArray['message'] = 'Player waits.';
+				else
+					$responseArray['message'] = 'Moved ' . $movementChoice . '.';
+				
 				$responseArray['move'] = $movementChoice;
 				$responseArray['playerPosition'] = $charObj->mapPosition;
 				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;

@@ -125,6 +125,20 @@ class EnemyController extends Controller {
 			//returns coordinates only for map generator
 			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
 			
+			//assign turn number based on agility
+			$charObj->gameTurns = $gameLevel + 1;
+			$actors = $existingMap->enemies()->get();
+			$actors->push($charObj);
+			$sortAgiDesc = $actors->sortBy([['currentAgility', 'desc']]);
+			$turnNumber = 1;
+			foreach ($sortAgiDesc as $actor) {
+				$actor->turnPosition = $turnNumber;
+				$turnNumber = $turnNumber + 1;
+				$actor->save();
+			}
+			
+			//$charObj->save();
+				
 			//return response(['enemies' => $existingMap->enemies()->get()], 200);
 			return response(['enemies' => $filteredEnemies], 200);
 		}

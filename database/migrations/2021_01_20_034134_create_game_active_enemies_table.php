@@ -19,6 +19,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->string('name');
 			$table->binary('avatar')->nullable();
 			$table->binary('meleeAnimation')->nullable();
+			$table->integer('turnPosition')->nullable();
+			$table->json('turnAction')->nullable();
 			$table->integer('mapId')->unsigned();
 			$table->integer('raceId')->unsigned();
 			$table->integer('classId')->unsigned();

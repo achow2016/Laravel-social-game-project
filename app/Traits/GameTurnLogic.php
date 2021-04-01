@@ -15,6 +15,26 @@ trait GameTurnLogic
 	private $playerTurnOrder;
 	
 	//returns array of key value pairs of index of enemy and player in current agility descending order
+	public function findBattlePhaseOrder(Request $request)     
+	{               
+		$user = User::where('name', $request->user()->name)->first();
+		$charObj = $user->character()->first();
+		$charObjSpeed = $charObj->currentAgility;
+		$existingMap = GameMap::where('id', $charObj->mapId)->first();
+		$enemyObjs = $existingMap->enemies()->get();
+		$enemyObjsSpeed = $enemyObjs->pluck('currentAgility');
+		
+		//$actorArray[] = array();
+		$actorArray['player'] = $charObjSpeed;
+		for($i = 0; $i < count($enemyObjsSpeed); $i++) {
+			$actorArray['enemy' . $i] = $enemyObjsSpeed[$i];
+		}	
+		arsort($actorArray);
+		//return $actorArray;
+		return response(['actorArray' => $actorArray], 200);
+	}
+	
+	//returns array of key value pairs of index of enemy and player in current agility descending order
 	public function findMoveTurnOrder(Request $request)     
 	{               
 		$user = User::where('name', $request->user()->name)->first();
