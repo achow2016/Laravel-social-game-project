@@ -233,6 +233,30 @@ class CharacterController extends Controller {
 			report($e);
 			return response(['status' => 'Turn list could not be made. Please report to admin.'], 422);
 		}			
+	}
+	
+	//gets game state
+	public function getGameState(Request $request) 
+	{
+		try {		
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			
+			return response([
+				'currentTurn' => $charObj->currentTurn,
+				'playerTurnPosition' => $charObj->turnPosition,
+				'playerGameTurns' => $charObj->gameTurns,
+				'playerBattleState' => $charObj->battle,
+				'playerBattleTarget' => $charObj->enemyId,
+				'enemyTurnPositions' => $enemiesTurnPositions
+			], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'game state data list could not be made. Please report to admin.'], 422);
+		}
 	}	
 }
 ?>

@@ -176,6 +176,51 @@
 				document.getElementById('messageContainer').textContent = this.$route.params.message;
 			}
 		
+			//update using game state data
+			let params = this.$route.params;
+			
+			let currentTurn = params[Object.keys(params)[0]];
+			let enemyTurnPositions = params[Object.keys(params)[1]];
+			let playerBattleState = params[Object.keys(params)[2]];
+			let playerBattleTarget = params[Object.keys(params)[3]];
+			let playerGameTurns = params[Object.keys(params)[4]];
+			let playerTurnPosition = params[Object.keys(params)[5]];
+			let currentEnemyActing = null;
+			let enemyAction = null;
+			
+			//if not player turn, calls controller function to process enemy turn
+			if(currentTurn != playerTurnPosition) {
+				for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
+					if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
+						currentEnemyActing = enemyTurnPositions[Object.keys(enemyTurnPositions)[0]];
+						break;
+					}	
+				}
+				
+				this.formData = new FormData();
+				this.formData.append('currentEnemyActing', currentEnemyActing);
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					console.log(response);
+					console.log(response.data.enemyAction);
+					enemyAction = response.data.enemyAction;
+				});
+			}
+		
+		
 			//dynamic style fix for small screen
 			//remove large margins around map
 			if(screen.height < 600) {

@@ -52,20 +52,6 @@ import Sitemap from './components/Sitemap'
 //user api for sanctum auth
 import User from './apis/User';
 
-//check saved turn status if any
-function getTurnList() {
-	User.getTurnList({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
-		.then((response) => {
-			return {'playerTurnPosition': response.data.playerTurnPosition, 'enemiesTurnOrder': response.data.enemiesTurnOrder};
-		})
-		.catch(error => {
-			if(error.response.status == 401)
-				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
-			else
-				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
-		});
-}	
-
 //login check that goes to next right away using params returned from user and character check in session controller
 function gameCharacterCheck(to, from, next) {
 	User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
@@ -79,25 +65,6 @@ function gameCharacterCheck(to, from, next) {
 			else
 				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
 		});
-}
-
-//login check that returns true and allows other processing
-function loginCheckBoolean(to, from, next) {
-	let test = User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
-		.then((response) => {
-			return true;
-		})
-		.catch(error => {
-			if(error.response.status == 401)
-				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
-			else
-				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
-		});
-		
-	if(test)
-		return true;
-	else
-		return false;
 }
 
 //check if logged in and has character
@@ -121,28 +88,6 @@ function getCharacterExistenceStatus(to, from, next) {
 	return status;	
 }
 
-//check if character is in battle
-function getBattleStatus(to, from, next) {			
-	let status = User.getBattleStatus({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
-		.then((response) => {
-			if(response.data.battleStatus == false) {
-				return null;
-			}
-			else {
-				return {'player': response.data.player, 'enemy': response.data.enemy, 'distance': response.data.distance};
-			}	
-		})
-		.catch(error => {
-			if(error.response.status == 401)
-				next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
-			else if(error.response.status == 422)
-				next({name:'welcome', params:{message: 'You must have a character to access that resource.'}, replace:true});		
-			else
-				next({name:'login', params:{navError: 'Could not get user state from database, please create an account or contact admin.'}, replace:true});
-		});
-	return status;	
-}
-
 function recordGuest(to, from, next) {
 	User.recordGuest({_method: 'GET'})
 		.then((response) => {
@@ -156,12 +101,8 @@ function recordGuest(to, from, next) {
 }
 
 function getSitemap(to, from, next, routes, pre) {
-	//return array;
-	//next({name:'sitemap', params:{routes: routes}});	
-	//next();	
 	to.params.sitemap = routes;
 	next(to.params);
-
 }
 
 const router = new VueRouter({
@@ -174,24 +115,6 @@ const router = new VueRouter({
 			name: 'home',
 			component: Home,
 			props: {}
-			/*
-			path: '/',
-			alias: '/home',
-			name: 'home',
-			beforeEnter (to, from, next) {
-				User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
-				.then((response) => {
-					to.params.response = response;
-					next({name:'welcome'},to.params);	
-				})
-				.catch(error => {
-					if(error.response.status == 401)
-						next({name:'login', params:{navError: 'Please login to use this application.'}, replace:true});			
-					else
-						next({name:'login', params:{navError: 'unknown error, contact administrator.'}, replace:true});
-				});
-			}
-			*/
 		},
 		{
 			path: '/guestbook',
@@ -228,22 +151,8 @@ const router = new VueRouter({
 			component: Welcome,
 			props: {},
 			meta: {},
-			//before entering route, checks if user is logged in
 			beforeEnter (to, from, next) {
 				gameCharacterCheck(to,from,next);
-				/*
-				User.getData({_method: 'POST', token: sessionStorage.getItem('token')}, sessionStorage.getItem('token'))
-				.then((response) => {
-					to.params.response = response;
-					next(to.params);	
-				})
-				.catch(error => {
-					if(error.response.status == 401)
-						next({name:'login', params:{navError: 'You must be logged in to access that resource.'}, replace:true});			
-					else
-						next({name:'login', params:{navError: 'unknown error, contact administrator.'}, replace:true});
-				});
-				*/
 			}
 		},
 		{
@@ -297,43 +206,31 @@ const router = new VueRouter({
 			component: RpgGame,
 			props: {},
 			beforeEnter (to, from, next) {
-				let userCharacterCheck = loginCheckBoolean(to,from,next);
-				console.log(userCharacterCheck);
-				if(userCharacterCheck) {
-					let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
-					characterExistenceStatus.then(function(result) {
-						if(result == false) {
-							next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
-							return;
-						}
-						else {
-							let battleStatusCheck = getBattleStatus(to, from, next);
-							battleStatusCheck.then(function(result) {
-								if(typeof(result) === 'object' && result != null) {
-									to.params.player = result.player;
-									to.params.enemy = result.enemy;
-									to.params.distance = result.distance;
-									next({name:'rpgGameBattle'}, to.params);	
-									return;
-								}
-								else {
-									let getTurnList = getTurnList();
-									getTurnList.then(function(result) {
-										to.params.playerTurnPosition = result.playerTurnPosition;
-										to.params.enemiesTurnOrder = result.enemiesTurnOrder;
-										next({name:'rpgGame'}, to.params);
-									});
-								
-								}
-							});
-						}
-						
-					});
-				}
-				else {
-					next({name:'home', params:{message: 'You need to have a character to access that resource'}, replace:true});
-				}	
-			}
+				
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+				
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/getGameState',
+					//params : '',
+					//data   : '',
+					headers: headers
+				}).then(response => {					
+					to.params.currentTurn = response.data.currentTurn;
+					to.params.enemyTurnPositions = response.data.enemyTurnPositions;
+					to.params.playerBattleState = response.data.playerBattleState;
+					to.params.playerBattleTarget = response.data.playerBattleTarget;
+					to.params.playerGameTurns = response.data.playerGameTurns;
+					to.params.playerTurnPosition = response.data.playerTurnPosition;
+					next(to.params);
+				});	
+				//next();
+			}	
 		},
 		{
 			path: '/rpgGameBattle',
@@ -341,37 +238,9 @@ const router = new VueRouter({
 			component: RpgGameBattle,
 			props: {},
 			
-			beforeEnter (to, from, next) {
-				//requires return to stop nav
-				//next(false);
-				//return;
-				let userCharacterCheck = loginCheckBoolean(to,from,next);
-				if(userCharacterCheck) {				
-					let characterExistenceStatus = getCharacterExistenceStatus(to, from, next);
-					characterExistenceStatus.then(function(result) {
-						if(result === false) {
-							next({name:'welcome', params:{errorMessage: 'You do not have an active character.'}, replace:true});	
-							return;
-						}
-						else {
-							let battleStatusCheck = getBattleStatus(to, from, next);
-							battleStatusCheck.then(function(result) {
-								if(typeof(result) === 'object' && result != null) {
-									console.log(result);
-									next({params:{player: result.player, enemy: result.enemy, distance: result.distance}});
-								}	
-								else {
-									next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
-								}	
-							});
-						}	
-					});					
-				}
-				else {
-					next({name:'home', params:{message: 'You need to be logged in to access that resource'}, replace:true});
-				}	
-				
-			}
+			//beforeEnter (to, from, next) {
+			//	
+			//}
 			
 		},
 		{

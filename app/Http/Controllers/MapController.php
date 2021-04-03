@@ -63,7 +63,7 @@ class MapController extends Controller {
 				$character->setAttribute('attack', $charObj->attack);
 				$character->setAttribute('currentAttack', $charObj->currentAttack);
 				
-				//delete old map
+				//delete old map, makes new one and character 
 				$existingMap->delete();
 				
 				$gameMap = new GameMap();				

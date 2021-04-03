@@ -125,8 +125,9 @@ class EnemyController extends Controller {
 			//returns coordinates only for map generator
 			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
 			
-			//assign turn number based on agility
+			//assign turn number based on agility, sets current turn to one
 			$charObj->gameTurns = $gameLevel + 1;
+			$charObj->currentTurn = 1;
 			$actors = $existingMap->enemies()->get();
 			$actors->push($charObj);
 			$sortAgiDesc = $actors->sortBy([['currentAgility', 'desc']]);
@@ -136,10 +137,7 @@ class EnemyController extends Controller {
 				$turnNumber = $turnNumber + 1;
 				$actor->save();
 			}
-			
-			//$charObj->save();
-				
-			//return response(['enemies' => $existingMap->enemies()->get()], 200);
+
 			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
@@ -213,7 +211,7 @@ class EnemyController extends Controller {
 		}		
 	}
 	
-		public function inspectBattleEnemy(Request $request) 
+	public function inspectBattleEnemy(Request $request) 
 	{
 		try {
 			$user = User::where('name', $request->user()->name)->first();
@@ -232,5 +230,42 @@ class EnemyController extends Controller {
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}		
 	}
+	
+	//enemy decides on a move action
+	public function gameEnemyTurnDecision(Request $request) 
+	{
+		try {		
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
+			
+			if($charObj->currentTurn == $charObj->gameTurns)
+				$charObj->currentTurn = 1;		
+			else
+				$charObj->currentTurn = $charObj->currentTurn + 1;
+		
+			//add code to decide what enemy does
+			$enemy->turnAction = ['action' => 'nothing'];
+		
+			$enemy->save();
+			$charObj->save();
+			
+			return response([
+				'currentTurn' => $charObj->currentTurn,
+				'playerTurnPosition' => $charObj->turnPosition,
+				'playerGameTurns' => $charObj->gameTurns,
+				'playerBattleState' => $charObj->battle,
+				'playerBattleTarget' => $charObj->enemyId,
+				'enemyTurnPositions' => $enemiesTurnPositions,
+				'enemyAction' => $enemy->turnAction
+			], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Turn list could not be made. Please report to admin.'], 422);
+		}			
+	}	
 }
 ?>
