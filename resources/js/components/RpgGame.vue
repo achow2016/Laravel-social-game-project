@@ -115,10 +115,13 @@
 				mapData: '',
 				playerPosition: '',
 				lastPlayerPosition: '',
+				lastEnemyPosition: '',
 				terrainLayerData: '',
+				enemyTerrainLayerData: '',
 				playerStatus: '',
 				enemyData: '',
-				enemyStatusData: ''
+				enemyStatusData: '',
+				enemyMapPositions: [],
 			}
 		},
 		beforeMount() {
@@ -270,23 +273,21 @@
 						sessionStorage.getItem('token')
 					)
 					.then((response) => {
+						this.enemyMapPositions = [];
 						this.enemyData = response.data.enemies;
 						for(let i = 0; i < this.enemyData.length; i++) {					
 							//get current coords
 							let row = this.enemyData[i][0];
-							//let row = this.enemyData[i].mapPosition[0];
 							let column = this.enemyData[i][1];
-							//let column = this.enemyData[i].mapPosition[1];
 							let enemySquare = document.getElementById(row + '-' + column);
+							
+							this.enemyMapPositions.push([row, column]);
 							
 							//outlines enemy square 
 							if(!enemySquare.classList.contains('border-danger')) {
 								enemySquare.classList.toggle('border-dark');
 								enemySquare.classList.toggle('border-danger');
 							}
-							
-							//remembers what was on the square so player icon can be drawn over it
-							//this.terrainLayerData = playerSquare.textContent;
 							
 							//draws enemy onto square
 							enemySquare.innerHTML = '';
@@ -326,6 +327,17 @@
 				//draws terrain data back onto square
 				playerSquare.innerHTML = '';
 				playerSquare.innerHTML = this.terrainLayerData;
+			},
+			clearEnemyPosition(row, column, terrain) {
+				let enemySquare = document.getElementById(row + '-' + column);
+				
+				//reverses outline of enemy square
+				enemySquare.classList.add('border-dark');
+				enemySquare.classList.remove('border-warning');
+				
+				//draws terrain data back onto square
+				enemySquare.innerHTML = '';
+				enemySquare.textContent = terrain;
 			},
 			moveCharacter(event) {
 			
@@ -380,6 +392,67 @@
 					for (let i = 0, count = all.length; i < count; i++) {
 						all[i].style.pointerEvents = 'auto';
 					}
+					
+					//process enemy move
+					
+					
+					const headers = { 
+						'Content-Type': 'multipart/form-data',
+						'enctype' : 'multipart/form-data',
+						'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+					};
+				
+					axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/getGameState',
+						//params : '',
+						//data   : '',
+						headers: headers
+					}).then(response => {					
+						let currentTurn = response.data.currentTurn;
+						let enemyTurnPositions = response.data.enemyTurnPositions;
+						let playerBattleState = response.data.playerBattleState;
+						let playerBattleTarget = response.data.playerBattleTarget;
+						let playerGameTurns = response.data.playerGameTurns;
+						let playerTurnPosition = response.data.playerTurnPosition;
+						let currentEnemyActing = null;
+						let enemyAction = null;
+						
+						//calls controller function to process enemy turn
+						for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
+							if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
+								currentEnemyActing = enemyTurnPositions[Object.keys(enemyTurnPositions)[0]];
+								break;
+							}	
+						}
+						
+						
+						this.formData = new FormData();
+						this.formData.append('currentEnemyActing', currentEnemyActing);
+						this.formData.append('_method', 'POST');
+			
+						const headers = { 
+						  'Content-Type': 'multipart/form-data',
+						  'enctype' : 'multipart/form-data',
+						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+						}
+						axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
+							params : '',
+							data   : this.formData,
+							headers: headers,
+						}).then(response => {
+							enemyAction = response.data.enemyAction;
+							
+							
+							
+							//this.drawEnemyPositions();
+						});
+					});	
+					
 				});
 				
 				//this.drawEnemyPositions();

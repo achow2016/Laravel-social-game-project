@@ -47,6 +47,12 @@ class EnemyController extends Controller {
 			
 			//Log::debug($mapGrid); player placed on matching 2d array
 			
+			//populate map tileset enemy data for later use in movement
+			$map = $existingMap->tileset()->first()->pluck('mapData');
+			$mapDecoded = json_decode($map[0], TRUE);
+			//Log::debug($mapDecoded[$enemyRow][$enemyColumn]);
+			
+			
 			for($i = 0; $i < $gameLevel; $i++) {
 				$enemyChoice = max((rand(0,$enemyChoicesCount - 1)), 0 );
 				$strengthAlloc = rand(0, 12);
@@ -74,6 +80,7 @@ class EnemyController extends Controller {
 					if(!$key) {
 						$freeSpaceFound = true;
 						$usedMapPositions[] = $randEnemyPosition;
+						
 						$enemy->setAttribute('mapPosition', $randEnemyPosition);
 					}	
 				}
@@ -120,10 +127,19 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('legsEquipment', $enemyChoices[$enemyChoice]->legsEquipment);
 				$enemy->setAttribute('money', $enemyChoices[$enemyChoice]->money);
 				$existingMap->enemies()->save($enemy);
+				
+				//save enemy id to tileset
+				$mapDecoded[$randEnemyPosition[0]][$randEnemyPosition[1]]['enemy'] = strval($enemy->id);
 			}
 			
 			//returns coordinates only for map generator
 			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			
+			//save updated tileset with enemies
+			Log::debug($mapDecoded);
+			$tileSet = $existingMap->tileset()->first();
+			$tileSet->mapData = $mapDecoded;
+			$existingMap->tileset()->save($tileSet);
 			
 			//assign turn number based on agility, sets current turn to one
 			$charObj->gameTurns = $gameLevel + 1;
@@ -247,8 +263,87 @@ class EnemyController extends Controller {
 				$charObj->currentTurn = $charObj->currentTurn + 1;
 		
 			//add code to decide what enemy does
-			$enemy->turnAction = ['action' => 'nothing'];
-		
+			
+			//$enemy->turnAction = ['action' => 'nothing']; returns nothing to mounted in component
+			
+			//first finds distance to player
+			$charRow = $charObj->mapPosition[0];
+			$charColumn = $charObj->mapPosition[1];
+			
+			$enemyRow = $enemy->mapPosition[0];
+			$enemyColumn = $enemy->mapPosition[1];
+			
+			$map = $existingMap->tileset()->first()->pluck('mapData');
+			$var = json_decode($map[0], TRUE);
+			Log::debug($var[$enemyRow][$enemyColumn]);
+			
+			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
+			$decimalDistance = floor($distance);
+			$fractionDistance = $distance - $decimalDistance;
+			$finalDistance = 0;
+			if($fractionDistance < .5)
+				$finalDistance = floor($distance);
+			else
+				$finalDistance = ceil($distance);
+			
+			//with distance found, compares to range to see if in range for attack if not moves, uses skill or item, etc
+			if($enemy->combatRange >= $finalDistance) {
+				$enemy->turnAction = ['action' => 'attack player'];
+			}
+			else if($finalDistance > $enemy->combatRange) {
+				
+				$coinFlip = rand(0, 1);
+				//move closer by column if tails
+				if($coinFlip == 0) {
+					switch($charColumn) {
+						//on left of enemy
+						case($charColumn < $enemyColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+							break;
+						//on right of enemy
+						case($charColumn > $enemyColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+							break;
+						//below enemy
+						case($charColumn == $enemyColumn && $charRow < $enemyRow):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
+							break;
+						//above enemy
+						case($charColumn == $enemyColumn && $charRow > $enemyRow):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
+							break;
+						default:
+							break;
+					}	
+				}	
+				//move closer by row if tails
+				else {
+					switch($charRow) {
+						//above of enemy
+						case($charRow < $enemyRow):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
+							break;
+						//below enemy
+						case($charRow > $enemyRow):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
+							break;
+						//to left of enemy
+						case($charRow == $enemyRow && $charColumn > $enemyColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+							break;
+						//to right of enemy
+						case($charRow == $enemyRow && $charRow < $enemyRow):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+							break;
+						default:
+							break;
+					}	
+				}	
+			}
+			else {
+				$enemy->turnAction = ['action' => 'nothing'];
+			}	
+			
 			$enemy->save();
 			$charObj->save();
 			
@@ -259,7 +354,10 @@ class EnemyController extends Controller {
 				'playerBattleState' => $charObj->battle,
 				'playerBattleTarget' => $charObj->enemyId,
 				'enemyTurnPositions' => $enemiesTurnPositions,
-				'enemyAction' => $enemy->turnAction
+				'enemyAction' => $enemy->turnAction,
+				'enemyOldPosition' => [$enemyRow, $enemyColumn],
+				'enemyNewPosition' => $enemy->mapPosition,
+				'enemyId' => $enemy->mapPosition,
 			], 200);
 		}
 		catch(Throwable $e) {

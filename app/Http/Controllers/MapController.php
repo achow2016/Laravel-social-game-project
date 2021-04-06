@@ -231,288 +231,92 @@ class MapController extends Controller {
 			$currentRow = $charObj->mapPosition[0];
 			$currentColumn = $charObj->mapPosition[1];
 			
-			if($existingMap) {
-				
+			if($existingMap) {				
 				$responseArray[] = array();
-				//process map moving in order speed descending
-				$moveQueue = $this->findMoveTurnOrder($request);
-				foreach($moveQueue as $actor=>$agility) {
-					if($actor === 'player') {
-						switch($request->direction) {
-							//NS or EW
-							case 'up':
-								if($currentRow == 0) {
-									$responseArray[] = ([
-										'message' => 'Path blocked.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									]);
-								}	
-								$movementChoice = 'north';
-								if($currentRow >= 1) {
-									$currentRow--;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray['message'] = 'Path blocked by enemy.';
-											$responseArray['move'] = $charObj->mapPosition;
-											$responseArray['playerPosition'] = 'Path blocked by enemy.';
-											$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
-										}	
-									}	
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'down':
-								if($currentRow == 7) {
-									$responseArray[] = ([
-										'message' => 'Path blocked.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									]);
-								}
-								$movementChoice = 'south';
-								if($currentRow <= 6) {
-									$currentRow++;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'left':
-								if($currentColumn == 0) {
-									$responseArray[] = ([
-										'message' => 'Path blocked.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									]);
-								}
-								$movementChoice = 'west';
-								if($currentColumn >= 1) {
-									$currentColumn--;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'right':
-								if($currentColumn == 7) {
-									$responseArray[] = ([
-										'message' => 'Path blocked.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									]);
-								}
-								$movementChoice = 'east';
-								if($currentColumn <= 6) {
-									$currentColumn++;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							//diagonals
-							case 'upLeft':
-								$movementChoice = 'northwest';
-								if($currentRow >= 1 && $currentColumn >= 1) {
-									$currentRow--;
-									$currentColumn--;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'upRight':
-								$movementChoice = 'northeast';
-								if($currentRow >= 1 && $currentColumn <= 6) {
-									$currentRow--;
-									$currentColumn++;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'downLeft':
-								$movementChoice = 'southwest';
-								if($currentRow <= 6 && $currentColumn >= 1) {
-									$currentRow++;
-									$currentColumn--;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;
-							case 'downRight':
-								$movementChoice = 'southeast';
-								if($currentRow <= 6 && $currentColumn <= 6) {
-									$currentRow++;
-									$currentColumn++;
-									foreach($enemies as $enemy) {
-										if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-											$responseArray[] = ([
-												'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-												'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-											]);
-										}	
-									}
-									$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-									$charObj->save();
-								}	
-								break;	
-							case 'wait':
-								$movementChoice = 'wait';
-									$responseArray[] = ([
-										'message' => 'Player is waiting.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									]);						
-								break;	
-							default:	
-								break;
-						}
-					}	
-					if(strpos($actor, 'enemy') !== false) {
-						$matchingEnemy = filter_var($actor, FILTER_SANITIZE_NUMBER_INT);
-						$enemy = $enemies->values()->get($matchingEnemy);
-						$this->moveMapEnemy($enemy, $request, $playerCoords);
-					}
-				}
-				if($movementChoice == 'wait')	
-					$responseArray['message'] = 'Player waits.';
-				else
-					$responseArray['message'] = 'Moved ' . $movementChoice . '.';
-				
-				$responseArray['move'] = $movementChoice;
-				$responseArray['playerPosition'] = $charObj->mapPosition;
-				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
-				return response($responseArray, 200);
-
-				/*
 				switch($request->direction) {
-				//NS or EW
+					//NS or EW
 					case 'up':
 						if($currentRow == 0) {
-							return response([
+							$responseArray[] = ([
 								'message' => 'Path blocked.', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							], 200);
+							]);
 						}	
 						$movementChoice = 'north';
 						if($currentRow >= 1) {
 							$currentRow--;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
-										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray['message'] = 'Path blocked by enemy.';
+									$responseArray['move'] = $charObj->mapPosition;
+									$responseArray['playerPosition'] = 'Path blocked by enemy.';
+									$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
 								}	
-							}	
+							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'down':
 						if($currentRow == 7) {
-							return response([
+							$responseArray[] = ([
 								'message' => 'Path blocked.', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							], 200);
+							]);
 						}
 						$movementChoice = 'south';
 						if($currentRow <= 6) {
 							$currentRow++;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'left':
 						if($currentColumn == 0) {
-							return response([
+							$responseArray[] = ([
 								'message' => 'Path blocked.', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							], 200);
+							]);
 						}
 						$movementChoice = 'west';
 						if($currentColumn >= 1) {
 							$currentColumn--;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'right':
 						if($currentColumn == 7) {
-							return response([
+							$responseArray[] = ([
 								'message' => 'Path blocked.', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							], 200);
+							]);
 						}
 						$movementChoice = 'east';
 						if($currentColumn <= 6) {
 							$currentColumn++;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					//diagonals
@@ -521,16 +325,15 @@ class MapController extends Controller {
 						if($currentRow >= 1 && $currentColumn >= 1) {
 							$currentRow--;
 							$currentColumn--;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'upRight':
@@ -538,16 +341,15 @@ class MapController extends Controller {
 						if($currentRow >= 1 && $currentColumn <= 6) {
 							$currentRow--;
 							$currentColumn++;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'downLeft':
@@ -555,16 +357,15 @@ class MapController extends Controller {
 						if($currentRow <= 6 && $currentColumn >= 1) {
 							$currentRow++;
 							$currentColumn--;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;
 					case 'downRight':
@@ -572,36 +373,52 @@ class MapController extends Controller {
 						if($currentRow <= 6 && $currentColumn <= 6) {
 							$currentRow++;
 							$currentColumn++;
-							foreach($enemyCoords as $enemyCoord) {
-								if([$currentRow, $currentColumn] === $enemyCoord) {
-									return response([
+							foreach($enemies as $enemy) {
+								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
+									$responseArray[] = ([
 										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-									], 200);
+									]);
 								}	
 							}
 							$charObj->setAttribute('mapPosition', [$currentRow, $currentColumn]);
-							$charObj->save();
 						}	
 						break;	
 					case 'wait':
 						$movementChoice = 'wait';
-							return response([
+							$responseArray[] = ([
 								'message' => 'Player is waiting.', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							], 200);						
+							]);						
 						break;	
 					default:	
 						break;
-				}		
-				*/
-				/*
-				return response([
-					'message' => 'Moved ' . $movementChoice . '.',  
-					'move' => $movementChoice, 'playerPosition' => $charObj->mapPosition,
-					'mapData' => $existingMap->tileset()->first()->mapData], 
-				200);
-				*/
+				}
+				//	if(strpos($actor, 'enemy') !== false) {
+				//		$matchingEnemy = filter_var($actor, FILTER_SANITIZE_NUMBER_INT);
+				//		$enemy = $enemies->values()->get($matchingEnemy);
+				//		$this->moveMapEnemy($enemy, $request, $playerCoords);
+				//	}
+				//}
+				if($movementChoice == 'wait')	
+					$responseArray['message'] = 'Player waits.';
+				else
+					$responseArray['message'] = 'Moved ' . $movementChoice . '.';
+				
+				$responseArray['move'] = $movementChoice;
+				$responseArray['playerPosition'] = $charObj->mapPosition;
+				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
+				
+				//increments turn number and save
+				if($charObj->currentTurn < $charObj->gameTurns)
+					$charObj->setAttribute('currentTurn', $charObj->currentTurn + 1);
+				else
+					$charObj->setAttribute('currentTurn', 1);
+				
+				$charObj->save();
+				
+				return response($responseArray, 200);
+
 			}
 			else
 				return response(['status' => 'No map, please start a new game.'], 422);

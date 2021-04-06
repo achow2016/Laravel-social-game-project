@@ -14,11 +14,11 @@ trait EnemyLogic
 {
 	//private $enemyTurnOrder;
 	
-	public function moveMapEnemy($enemy, Request $request, $playerCoords)     
-	{               
+	//public function moveMapEnemy($enemy, Request $request, $playerCoords)     
+	//{               
 		//move closer
-		Log::debug($enemy);
+		//Log::debug($enemy);
 		
 				
-	}
+	//}
 }   
