@@ -148,7 +148,8 @@ class CharacterController extends Controller {
 	public function startFight(Request $request) 
 	{
 		try {
-			return $this->findBattlePhaseOrder($request);
+			//return $this->findBattlePhaseOrder($request);
+			return $this->findBattleTurnOrder($request);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -246,6 +247,7 @@ class CharacterController extends Controller {
 			
 			return response([
 				'currentTurn' => $charObj->currentTurn,
+				'playerAvatar' => $charObj->avatar,
 				'playerTurnPosition' => $charObj->turnPosition,
 				'playerGameTurns' => $charObj->gameTurns,
 				'playerBattleState' => $charObj->battle,

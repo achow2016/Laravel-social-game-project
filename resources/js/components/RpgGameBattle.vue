@@ -258,7 +258,14 @@
 								}
 							}	
 							else {
-								next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
+								//next({name:'rpgGame', params:{message: 'You are not in a battle.'}, replace:true});
+								
+								vm.$router.push({ 
+									name: 'rpgGame', 
+									params: {message: 'You are not in a battle.'} 
+								}).catch((err) => {
+									console.log(err);
+								});
 							}	
 						});
 						

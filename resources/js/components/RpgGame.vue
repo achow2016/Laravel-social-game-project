@@ -113,6 +113,7 @@
 		data() {
 			return {
 				mapData: '',
+				playerAvatar: '',
 				playerPosition: '',
 				lastPlayerPosition: '',
 				lastEnemyPosition: '',
@@ -188,6 +189,7 @@
 			let playerBattleTarget = params[Object.keys(params)[3]];
 			let playerGameTurns = params[Object.keys(params)[4]];
 			let playerTurnPosition = params[Object.keys(params)[5]];
+			this.playerAvatar = params[Object.keys(params)[6]];
 			let currentEnemyActing = null;
 			let enemyAction = null;
 			
@@ -262,7 +264,7 @@
 				//draws player onto square
 				playerSquare.innerHTML = '';
 				let playerIcon = document.createElement('img');   
-				playerIcon.setAttribute('src', 'http://127.0.0.1:8000/img/pawn.svg');   
+				playerIcon.setAttribute('src', this.playerAvatar);   
 				playerIcon.classList.toggle('img-fluid');   
 				playerSquare.appendChild(playerIcon);
 			},
@@ -275,10 +277,10 @@
 					.then((response) => {
 						this.enemyMapPositions = [];
 						this.enemyData = response.data.enemies;
-						for(let i = 0; i < this.enemyData.length; i++) {					
+						for(let i = 0; i < this.enemyData.length; i++) {			
 							//get current coords
-							let row = this.enemyData[i][0];
-							let column = this.enemyData[i][1];
+							let row = this.enemyData[i].mapPosition[0];
+							let column = this.enemyData[i].mapPosition[1];
 							let enemySquare = document.getElementById(row + '-' + column);
 							
 							this.enemyMapPositions.push([row, column]);
@@ -292,7 +294,7 @@
 							//draws enemy onto square
 							enemySquare.innerHTML = '';
 							let enemyIcon = document.createElement('img');   
-							enemyIcon.setAttribute('src', 'http://127.0.0.1:8000/img/bishop.svg');   
+							enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
 							enemyIcon.classList.toggle('img-fluid');   
 							enemySquare.appendChild(enemyIcon);
 						}
@@ -313,6 +315,33 @@
 						console.log('Error', error.message);
 					}
 				});
+			},
+			updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, avatar) {
+				let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);							
+				let enemyNewSquare = document.getElementById(enemyNewPosition[0] + '-' + enemyNewPosition[1]);							
+				
+				this.enemyMapPositions = this.enemyMapPositions.filter(item => item === [enemyOldPosition[0],enemyOldPosition[1]]); 
+				this.enemyMapPositions.push([enemyNewPosition[0], enemyNewPosition[1]]);
+				
+				enemyOldSquare.classList.toggle('border-dark');
+				enemyOldSquare.classList.toggle('border-danger');
+		
+				enemyNewSquare.classList.toggle('border-dark');
+				enemyNewSquare.classList.toggle('border-danger');
+				
+				enemyOldSquare.innerHTML = '';
+				if(enemyLastTerrainTreeCover == true)
+					enemyOldSquare.innerHTML = 'T';
+				else
+					enemyOldSquare.innerHTML = '-';
+				
+				//draws enemy onto new square
+				enemyNewSquare.innerHTML = '';
+				let enemyIcon = document.createElement('img');   
+				enemyIcon.setAttribute('src', avatar);   
+				enemyIcon.classList.toggle('img-fluid');   
+				enemyNewSquare.appendChild(enemyIcon);		
+				
 			},
 			clearPlayerPosition() {
 				//get current coords
@@ -387,14 +416,8 @@
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
 					
-					//enable controls
-					let all = document.getElementsByTagName("*");
-					for (let i = 0, count = all.length; i < count; i++) {
-						all[i].style.pointerEvents = 'auto';
-					}
 					
-					//process enemy move
-					
+					//processes enemy turn next
 					
 					const headers = { 
 						'Content-Type': 'multipart/form-data',
@@ -446,16 +469,102 @@
 							headers: headers,
 						}).then(response => {
 							enemyAction = response.data.enemyAction;
+							console.log(enemyAction);
+							let enemyLastTerrain = response.data.enemyLastTerrain;
+				            let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
+							let enemyOldPosition = response.data.enemyOldPosition;
+				            let enemyNewPosition = response.data.enemyNewPosition;
+				            let enemyAvatar = response.data.enemyAvatar;
 							
 							
+							//if move
+							if(enemyAction.action == 'move') {	
+								this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
+
+								let all = document.getElementsByTagName("*");
+								for (let i = 0, count = all.length; i < count; i++) {
+									all[i].style.pointerEvents = 'auto';
+								}
+							}
 							
-							//this.drawEnemyPositions();
+							//if attack
+							let gameGridSquares = document.getElementsByClassName('gameGridSquare');
+				
+							const vm = this;
+						
+							let mapCoord = enemyNewPosition;
+							
+							this.formData = new FormData();
+							this.formData.append('mapPosition', mapCoord);
+							this.formData.append('_method', 'POST');
+				
+							const headers = { 
+							  'Content-Type': 'multipart/form-data',
+							  'enctype' : 'multipart/form-data',
+							  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+							}
+							
+							const startFight = async () => {
+								try {
+									const req = await axios({
+										method : "POST",
+										baseURL: 'http://127.0.0.1:8000/api',
+										url    : 'http://127.0.0.1:8000/api/startFight',
+										params : '',
+										data   : this.formData,
+										headers: headers,
+									}).then(response => {
+										if(response.data.error != null) {
+											for (let i = 0, count = all.length; i < count; i++) {
+												all[i].style.pointerEvents = 'auto';
+											}
+											document.getElementById('messageContainer').textContent = response.data.error;
+											return;
+										}	
+										else {			
+											//processes queue of actors here
+											//console.log(response);
+											let actorArray = response.data.actorArray;
+											for(var key in actorArray) {
+												var value = actorArray[key];
+												console.log(key, value);
+												
+											}
+											
+											
+											vm.$router.push({ 
+												name: 'rpgGameBattle', 
+												params: {distance: response.data.distance, enemy: response.data.enemy} 
+											}).catch((err) => {
+												for (let i = 0, count = all.length; i < count; i++) {
+													all[i].style.pointerEvents = 'auto';
+												}
+												
+												document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+												console.log(err);
+											});
+										}
+									}).catch(error => {
+										document.getElementById('messageContainer').textContent = error.response.data;
+										return;
+									});
+								}
+								catch(error) {
+									console.log(error);
+								}
+							}	
+							startFight();
+							
+							
+							//if item
+							
+							//if skill
+							
+							
 						});
 					});	
 					
 				});
-				
-				//this.drawEnemyPositions();
 			},
 			toggleInventory() {
 				//closes map controls area
@@ -575,7 +684,7 @@
 										}
 										
 										
-										/*
+										
 										vm.$router.push({ 
 											name: 'rpgGameBattle', 
 											params: {distance: response.data.distance, enemy: response.data.enemy} 
@@ -587,7 +696,7 @@
 											document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
 											console.log(err);
 										});
-										*/
+										
 										
 									}
 								}).catch(error => {

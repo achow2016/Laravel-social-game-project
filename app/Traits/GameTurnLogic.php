@@ -14,11 +14,15 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
+	/*
 	//returns array of key value pairs of index of enemy and player in current agility descending order
 	public function findBattlePhaseOrder(Request $request)     
 	{               
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
+		$charObj->battle = true;
+		$charObj->save();
+		
 		$charObjSpeed = $charObj->currentAgility;
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
 		$enemyObjs = $existingMap->enemies()->get();
@@ -33,6 +37,7 @@ trait GameTurnLogic
 		//return $actorArray;
 		return response(['actorArray' => $actorArray], 200);
 	}
+	*/
 	
 	//returns array of key value pairs of index of enemy and player in current agility descending order
 	public function findMoveTurnOrder(Request $request)     
@@ -56,7 +61,17 @@ trait GameTurnLogic
 	{               
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
-		$enemyObj = GameActiveEnemy::where('id', $charObj->enemyId)->first();
+		
+		$mapCoordArray = explode(",", $request->mapPosition);
+		$existingMap = GameMap::where('id', $charObj->mapId)->first();
+		$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+		if($enemyObj) {
+			$charObj->enemyId = $enemyObj->id;
+			$charObj->save();
+		}
+		else
+			$enemyObj = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+		
 		if($charObj->currentAgility < $enemyObj->currentAgility) {
 			$this->playerTurnOrder = 'second';
 			

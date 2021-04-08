@@ -63,6 +63,15 @@ class MapController extends Controller {
 				$character->setAttribute('attack', $charObj->attack);
 				$character->setAttribute('currentAttack', $charObj->currentAttack);
 				
+				$character->setAttribute('defense', $charObj->defense);
+				$character->setAttribute('currentDefense', $charObj->defense);
+				$character->setAttribute('accuracy', $charObj->accuracy);
+				$character->setAttribute('currentAccuracy', $charObj->accuracy);
+				$character->setAttribute('baseAttackCost', $charObj->baseAttackCost);
+				$character->setAttribute('avatar', $charObj->avatar);
+				$character->setAttribute('meleeAnimation', $charObj->meleeAnimation);
+				$character->setAttribute('money', $charObj->money);
+				
 				//delete old map, makes new one and character 
 				$existingMap->delete();
 				
@@ -126,6 +135,8 @@ class MapController extends Controller {
 				//places character onto map starting position
 				$character->mapPosition = $gameMap->startPoint;
 				$character->mapId = $gameMap->id;
+				
+				//saves character under user
 				$user->character()->save($character);
 				
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);

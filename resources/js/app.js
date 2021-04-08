@@ -227,6 +227,7 @@ const router = new VueRouter({
 					to.params.playerBattleTarget = response.data.playerBattleTarget;
 					to.params.playerGameTurns = response.data.playerGameTurns;
 					to.params.playerTurnPosition = response.data.playerTurnPosition;
+					to.params.playerAvatar = response.data.playerAvatar;
 					next(to.params);
 				});	
 				//next();

@@ -42,16 +42,11 @@ class EnemyController extends Controller {
 			$usedMapPositions[] = $charObj->mapPosition;
 			$freeSpaceFound = false;
 			
-			//$mapGrid = array_fill(0, 8, array_fill(0, 8, 0));
-			//$mapGrid[$charObj->mapPosition[0]][$charObj->mapPosition[1]] = 1;
-			
 			//Log::debug($mapGrid); player placed on matching 2d array
 			
-			//populate map tileset enemy data for later use in movement
+			//gets map tileset as array for placing enemy data
 			$map = $existingMap->tileset()->first()->pluck('mapData');
 			$mapDecoded = json_decode($map[0], TRUE);
-			//Log::debug($mapDecoded[$enemyRow][$enemyColumn]);
-			
 			
 			for($i = 0; $i < $gameLevel; $i++) {
 				$enemyChoice = max((rand(0,$enemyChoicesCount - 1)), 0 );
@@ -80,7 +75,6 @@ class EnemyController extends Controller {
 					if(!$key) {
 						$freeSpaceFound = true;
 						$usedMapPositions[] = $randEnemyPosition;
-						
 						$enemy->setAttribute('mapPosition', $randEnemyPosition);
 					}	
 				}
@@ -136,7 +130,7 @@ class EnemyController extends Controller {
 			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
 			
 			//save updated tileset with enemies
-			Log::debug($mapDecoded);
+			//Log::debug($mapDecoded);
 			$tileSet = $existingMap->tileset()->first();
 			$tileSet->mapData = $mapDecoded;
 			$existingMap->tileset()->save($tileSet);
@@ -169,7 +163,7 @@ class EnemyController extends Controller {
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//returns coordinates only for map generator
-			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar');
 			//return response(['enemies' => $existingMap->enemies()->get()], 200);
 			return response(['enemies' => $filteredEnemies], 200);
 		}
@@ -250,13 +244,49 @@ class EnemyController extends Controller {
 	//enemy decides on a move action
 	public function gameEnemyTurnDecision(Request $request) 
 	{
-		try {		
+		try {
+			//gets data for user
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
+			//gets map tileset as array for placing enemy data
+			$map = $existingMap->tileset()->first()->pluck('mapData');
+			$mapDecoded = json_decode($map[0], TRUE);
+			
+			//enemy turn positions for component response
 			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			
+			//current enemy acting in this function, using request data
 			$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
 			
+			//validates that this enemy should be acting
+			if($enemy->turnPosition != $charObj->currentTurn) {
+				$enemy = $existingMap->enemies()->get()->where('turnPosition', $charObj->currentTurn)->first();
+				//if no enemy found matching turn, turn is incremented and returns to component 
+				if(!$enemy) {
+					//updates turn numbers stored in character table
+					if($charObj->currentTurn == $charObj->gameTurns)
+						$charObj->currentTurn = 1;		
+					else
+						$charObj->currentTurn = $charObj->currentTurn + 1;
+					$charObj->save();			
+					return response([
+						'currentTurn' => $charObj->currentTurn,
+						'playerTurnPosition' => $charObj->turnPosition,
+						'playerGameTurns' => $charObj->gameTurns,
+						'playerBattleState' => $charObj->battle,
+						'playerBattleTarget' => $charObj->enemyId,
+						'enemyTurnPositions' => $enemiesTurnPositions,
+						//'enemyAction' => $enemy->turnAction,
+						//'enemyOldPosition' => [$enemyRow, $enemyColumn],
+						//'enemyNewPosition' => $enemy->mapPosition,
+						//'enemyId' => $enemy->id,
+					], 200);
+				}
+			}	
+			
+			//updates turn numbers stored in character table
 			if($charObj->currentTurn == $charObj->gameTurns)
 				$charObj->currentTurn = 1;		
 			else
@@ -273,10 +303,6 @@ class EnemyController extends Controller {
 			$enemyRow = $enemy->mapPosition[0];
 			$enemyColumn = $enemy->mapPosition[1];
 			
-			$map = $existingMap->tileset()->first()->pluck('mapData');
-			$var = json_decode($map[0], TRUE);
-			Log::debug($var[$enemyRow][$enemyColumn]);
-			
 			$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
 			$decimalDistance = floor($distance);
 			$fractionDistance = $distance - $decimalDistance;
@@ -290,60 +316,110 @@ class EnemyController extends Controller {
 			if($enemy->combatRange >= $finalDistance) {
 				$enemy->turnAction = ['action' => 'attack player'];
 			}
-			else if($finalDistance > $enemy->combatRange) {
+			else if($enemy->combatRange < $finalDistance) {
+				$enemy->turnAction = ['action' => 'move'];
 				
-				$coinFlip = rand(0, 1);
-				//move closer by column if tails
-				if($coinFlip == 0) {
-					switch($charColumn) {
+				//depending on which random number used, enemy will prefer a row, column or diagonal move
+				$movementType = rand(0, 2);
+				//move closer by column
+				if($movementType == 0) {
+					switch($enemyColumn) {
 						//on left of enemy
-						case($charColumn < $enemyColumn):
+						case($enemyColumn > $charColumn):
 							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
 							break;
 						//on right of enemy
-						case($charColumn > $enemyColumn):
+						case($enemyColumn < $charColumn):
 							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
 							break;
 						//below enemy
-						case($charColumn == $enemyColumn && $charRow < $enemyRow):
+						case($enemyColumn == $charColumn && $charRow < $enemyRow):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
 							break;
 						//above enemy
-						case($charColumn == $enemyColumn && $charRow > $enemyRow):
+						case($enemyColumn == $charColumn && $charRow > $enemyRow):
 							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
 							break;
 						default:
 							break;
 					}	
 				}	
-				//move closer by row if tails
-				else {
-					switch($charRow) {
+				//move closer by row
+				else if($movementType == 1){
+					switch($enemyRow) {
 						//above of enemy
-						case($charRow < $enemyRow):
+						case($enemyRow > $charRow):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
 							break;
 						//below enemy
-						case($charRow > $enemyRow):
+						case($enemyRow < $charRow):
 							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
 							break;
 						//to left of enemy
-						case($charRow == $enemyRow && $charColumn > $enemyColumn):
-							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+						case($enemyRow == $charRow && $enemyColumn > $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
 							break;
 						//to right of enemy
-						case($charRow == $enemyRow && $charRow < $enemyRow):
-							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+						case($enemyRow == $charRow && $enemyColumn < $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
 							break;
 						default:
 							break;
 					}	
-				}	
+				}
+				//move diagonally
+				else {
+					switch([$enemyRow, $enemyColumn]) {
+						//NW of enemy
+						case($enemyRow > $charRow && $enemyColumn > $charColumn):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn - 1];
+							break;
+						//NE of enemy
+						case($enemyRow > $charRow && $enemyColumn < $charColumn):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn + 1];
+							break;
+						//SW of enemy
+						case($enemyRow < $charRow && $enemyColumn > $charColumn):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn - 1];
+							break;
+						//SE of enemy
+						case($enemyRow < $charRow && $enemyColumn < $charColumn):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn + 1];
+							break;
+						//to left of enemy
+						case($enemyRow == $charRow && $enemyColumn > $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+							break;
+						//to right of enemy
+						case($enemyRow == $charRow && $enemyColumn < $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+							break;	
+						default:
+							break;
+					}
+				}
 			}
 			else {
 				$enemy->turnAction = ['action' => 'nothing'];
-			}	
+			}
 			
+			//gets terrain data of square enemy was standing on and sends back to controller
+			$map = $existingMap->tileset()->first()->pluck('mapData');
+			$mapDecoded = json_decode($map[0], TRUE);
+			//Log::debug($mapDecoded[$enemyRow][$enemyColumn]);
+			$enemyLastTerrain = $mapDecoded[$enemyRow][$enemyColumn]['terrain'];
+			$enemyLastTerrainTreeCover = $mapDecoded[$enemyRow][$enemyColumn]['treeCover'];
+			
+			//removes enemy id from last square it was on in tileset
+			$mapDecoded[$enemyRow][$enemyColumn]['enemy'] = "";
+			
+			//saves enemy id to new square
+			$mapDecoded[$enemy->mapPosition[0]][ $enemy->mapPosition[1]]['enemy'] = strval($enemy->id);
+
+			//saves updated tileset, character and enemy
+			$tileSet = $existingMap->tileset()->first();
+			$tileSet->mapData = $mapDecoded;
+			$existingMap->tileset()->save($tileSet);
 			$enemy->save();
 			$charObj->save();
 			
@@ -357,7 +433,10 @@ class EnemyController extends Controller {
 				'enemyAction' => $enemy->turnAction,
 				'enemyOldPosition' => [$enemyRow, $enemyColumn],
 				'enemyNewPosition' => $enemy->mapPosition,
-				'enemyId' => $enemy->mapPosition,
+				'enemyId' => $enemy->id,
+				'enemyLastTerrain' => $enemyLastTerrain,
+				'enemyLastTerrainTreeCover' => $enemyLastTerrainTreeCover,
+				'enemyAvatar' => $enemy->avatar,
 			], 200);
 		}
 		catch(Throwable $e) {
