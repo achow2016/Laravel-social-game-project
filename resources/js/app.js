@@ -228,8 +228,14 @@ const router = new VueRouter({
 					to.params.playerGameTurns = response.data.playerGameTurns;
 					to.params.playerTurnPosition = response.data.playerTurnPosition;
 					to.params.playerAvatar = response.data.playerAvatar;
+					
+					if(response.data.currentEnemyMapCoord)
+						to.params.currentEnemyMapCoord = response.data.currentEnemyMapCoord;
+					
 					next(to.params);
-				});	
+				}).catch(error => {
+					next({name:'login', params:{navError: 'Please login to use this application.'}, replace:true});	
+				});
 				//next();
 			}	
 		},

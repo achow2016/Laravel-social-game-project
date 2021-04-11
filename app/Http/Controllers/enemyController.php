@@ -314,7 +314,7 @@ class EnemyController extends Controller {
 			
 			//with distance found, compares to range to see if in range for attack if not moves, uses skill or item, etc
 			if($enemy->combatRange >= $finalDistance) {
-				$enemy->turnAction = ['action' => 'attack player'];
+				$enemy->turnAction = ['action' => 'attack'];
 			}
 			else if($enemy->combatRange < $finalDistance) {
 				$enemy->turnAction = ['action' => 'move'];

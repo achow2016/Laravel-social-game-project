@@ -67,11 +67,14 @@ trait GameTurnLogic
 		$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
 		if($enemyObj) {
 			$charObj->enemyId = $enemyObj->id;
-			$charObj->save();
-		}
+		}	
 		else
 			$enemyObj = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
-		
+	
+		$charObj->battle = true;
+		$charObj->save();
+	
+	
 		if($charObj->currentAgility < $enemyObj->currentAgility) {
 			$this->playerTurnOrder = 'second';
 			
@@ -160,6 +163,11 @@ trait GameTurnLogic
 			$charObj->currentStamina = $charObj->currentStamina - $charObj->baseAttackCost;
 			
 			if($enemyObj->currentHealth <= 0) {
+				$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 				$enemyObj->save();
 				$charObj->save();
 				return response(['message' => 'Killed enemy with ' . $playerDamage . ' damage!',
@@ -172,6 +180,11 @@ trait GameTurnLogic
 					$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
 				$enemyObj->currentStamina = $enemyObj->currentStamina - $enemyObj->baseAttackCost;
 				$enemyObj->save();
+				$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 				$charObj->save();
 				
 				if($charObj->currentHealth <= 0 && $playerAttackSuccess && $enemyAttackSuccess)
@@ -211,6 +224,11 @@ trait GameTurnLogic
 			
 			if($charObj->currentHealth <= 0) {	
 				$enemyObj->save();
+				$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 				$charObj->save();
 				return response(['message' => 'Enemy attacks first and killed you with ' . $enemyDamage . ' damage!',
 				'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
@@ -222,6 +240,11 @@ trait GameTurnLogic
 					$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
 				$charObj->currentStamina = $charObj->currentStamina - $charObj->baseAttackCost;
 				$enemyObj->save();
+				$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 				$charObj->save();
 				
 				/*
@@ -269,6 +292,11 @@ trait GameTurnLogic
 			$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
 			$enemyObj->currentStamina = $enemyObj->currentStamina - $enemyObj->baseAttackCost;
 			$enemyObj->save();
+			$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 			$charObj->save();
 			
 			if($charObj->currentHealth <= 0)	
@@ -283,6 +311,11 @@ trait GameTurnLogic
 			$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
 			$charObj->currentStamina = $charObj->currentStamina - $charObj->baseAttackCost;
 			$enemyObj->save();
+			$charObj->battle = false;
+				if($charObj->currentTurn == $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				else
+					$charObj->currentTurn = $charObj->currentTurn + 1;
 			$charObj->save();
 			
 			if($enemyObj->currentHealth <= 0) {

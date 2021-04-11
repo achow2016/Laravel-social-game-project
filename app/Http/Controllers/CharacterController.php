@@ -145,6 +145,27 @@ class CharacterController extends Controller {
 		}
 	}
 
+	//on switcvhing to fight mode
+	public function switchFight(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();			
+			$mapCoordArray = explode(",", $request->mapPosition);
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+			$charObj->enemyId = $enemyObj->id;
+			$charObj->battle = true;
+			$charObj->save();
+			return response(['status' => 'Combat target and state saved.'], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}
+	}
+
+	//melee selected in battle component
 	public function startFight(Request $request) 
 	{
 		try {
@@ -245,15 +266,30 @@ class CharacterController extends Controller {
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
 			
-			return response([
-				'currentTurn' => $charObj->currentTurn,
-				'playerAvatar' => $charObj->avatar,
-				'playerTurnPosition' => $charObj->turnPosition,
-				'playerGameTurns' => $charObj->gameTurns,
-				'playerBattleState' => $charObj->battle,
-				'playerBattleTarget' => $charObj->enemyId,
-				'enemyTurnPositions' => $enemiesTurnPositions
-			], 200);
+			if($charObj->battle == true) {
+				$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+				return response([
+					'currentTurn' => $charObj->currentTurn,
+					'playerAvatar' => $charObj->avatar,
+					'playerTurnPosition' => $charObj->turnPosition,
+					'playerGameTurns' => $charObj->gameTurns,
+					'playerBattleState' => $charObj->battle,
+					'playerBattleTarget' => $charObj->enemyId,
+					'enemyTurnPositions' => $enemiesTurnPositions,
+					'currentEnemyMapCoord' => $enemy->mapPosition
+				], 200);
+			}	
+			else {
+				return response([
+					'currentTurn' => $charObj->currentTurn,
+					'playerAvatar' => $charObj->avatar,
+					'playerTurnPosition' => $charObj->turnPosition,
+					'playerGameTurns' => $charObj->gameTurns,
+					'playerBattleState' => $charObj->battle,
+					'playerBattleTarget' => $charObj->enemyId,
+					'enemyTurnPositions' => $enemiesTurnPositions
+				], 200);
+			}	
 		}
 		catch(Throwable $e) {
 			report($e);

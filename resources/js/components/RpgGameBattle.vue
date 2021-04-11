@@ -49,7 +49,7 @@
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5 controlArea bg-secondary">
+		<div class="playerControls row mt-5 mb-5 controlArea bg-secondary">
 			<div id="actionGrid" class="col">
 				<div v-on:click="toggleInspectMenu" class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Inspect</div>
 				<div v-on:click="meleeEnemy" class="row-6 mt-3 mb-3 actionRow d-flex justify-content-center">Fight</div>
@@ -64,7 +64,7 @@
 			</div>
 		</div>
 		
-		<div class="row fixed-bottom">
+		<div class="playerControls row fixed-bottom">
 		
 			<div id="bottomMenuBar" class="col text-center d-flex">		
 				<div class="flex-fill w-33">
@@ -94,7 +94,14 @@
 			</div>
 			
 		</div>
-				
+		
+		<div id="mapReturn" class="row fixed-bottom d-none">
+			<div id="bottomMenuBar" class="col text-center d-flex">			
+				<div class="flex-fill w-33 h-75">
+					<button style="pointer-events:none" id="mapReturnButton" v-on:click="returnToMap" type="button" class="btn btn-dark flex-fill w-100">Return To Map</button>
+				</div>
+			</div>
+		</div>
 		
     </div>
 </template>
@@ -233,6 +240,9 @@
 								});
 						});
 						battleStatusCheck.then(function(result) {
+						
+							//getting null result
+						
 							if(typeof(result) === 'object' && result != null) {
 								vm.enemyData = result.enemy;
 								vm.playerData = result.player;
@@ -354,7 +364,24 @@
 					document.getElementById('playerStamina').textContent = response.data.playerNewStamina;
 					document.getElementById('enemyHealth').textContent = response.data.enemyNewHealth;
 					document.getElementById('playerHealth').textContent = response.data.playerNewHealth;
+					let controls = document.querySelectorAll('.playerControls');
+					controls.forEach(function(item) {
+						item.classList.add('d-none');	
+					});
+					let all = document.getElementsByTagName("*");
+					for (let i = 0, count = all.length; i < count; i++) {
+						all[i].style.pointerEvents = 'none';
+					}
+					document.getElementById('mapReturn').classList.toggle('d-none');
+					document.getElementById('mapReturnButton').style.pointerEvents = 'auto';
 				});
+			},
+			returnToMap() {
+				this.$router.push({ 
+						name: 'rpgGame'
+					}).catch((err) => {
+						console.log(err);
+					});
 			},
 			drawAvatars(vm) {
 				let playerAvatar = document.createElement('img');
