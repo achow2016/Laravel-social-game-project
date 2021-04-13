@@ -421,11 +421,10 @@ class MapController extends Controller {
 				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
 				
 				//increments turn number and save
-				if($charObj->currentTurn < $charObj->gameTurns)
-					$charObj->setAttribute('currentTurn', $charObj->currentTurn + 1);
-				else
-					$charObj->setAttribute('currentTurn', 1);
-				
+				$charObj->currentTurn = $charObj->currentTurn + 1;
+				if($charObj->currentTurn > $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+					
 				$charObj->save();
 				
 				return response($responseArray, 200);

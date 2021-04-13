@@ -145,7 +145,7 @@ class CharacterController extends Controller {
 		}
 	}
 
-	//on switcvhing to fight mode
+	//on switching to fight mode
 	public function switchFight(Request $request) 
 	{
 		try {
@@ -170,7 +170,8 @@ class CharacterController extends Controller {
 	{
 		try {
 			//return $this->findBattlePhaseOrder($request);
-			return $this->findBattleTurnOrder($request);
+			$results = $this->findBattleTurnOrder($request);
+			return response(['results' => $results], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -234,7 +235,9 @@ class CharacterController extends Controller {
 	//goes to trait to determine exchange results
 	public function meleeEnemy(Request $request) 
 	{
-		return $this->findBattleTurnOrder($request);
+		//return $this->findBattleTurnOrder($request);
+		$results = $this->findBattleTurnOrder($request);
+		return response(['results' => $results], 200);
 	}
 
 	//gets character turn list

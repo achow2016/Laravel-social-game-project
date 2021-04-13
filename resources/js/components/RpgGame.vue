@@ -176,22 +176,25 @@
 			}	
 		},
 		mounted() {
-			//console.log(this.$route.params);
+			let all = document.getElementsByTagName("*");
+			for (let i = 0, count = all.length; i < count; i++) {
+				all[i].style.pointerEvents = 'auto';
+			}
+						
+			console.log(this.$route.params.currentTurn);
 			
 			if(this.$route.params.message) {
 				document.getElementById('messageContainer').textContent = this.$route.params.message;
 			}
-		
-			//update using game state data
-			let params = this.$route.params;
+			let currentTurn = this.$route.params.currentTurn;
+			this.playerAvatar = this.$route.params.playerAvatar;
+			let playerTurnPosition = this.$route.params.playerTurnPosition;
+			let playerGameTurns = this.$route.params.playerGameTurns;
+			let playerBattleState = this.$route.params.playerBattleState;
+			let playerBattleTarget = this.$route.params.playerBattleTarget;
+			let enemyTurnPositions = this.$route.params.enemyTurnPositions;
 			
-			let currentTurn = params[Object.keys(params)[0]];
-			let enemyTurnPositions = params[Object.keys(params)[1]];
-			let playerBattleState = params[Object.keys(params)[2]];
-			let playerBattleTarget = params[Object.keys(params)[3]];
-			let playerGameTurns = params[Object.keys(params)[4]];
-			let playerTurnPosition = params[Object.keys(params)[5]];
-			this.playerAvatar = params[Object.keys(params)[6]];
+			
 			let currentEnemyActing = null;
 			let enemyAction = null;
 			
@@ -200,7 +203,7 @@
 
 			const vm = this;
 		
-			if(Object.keys(params).length == 8) {
+			if(Object.keys(this.$route.params).length == 8 && Object.keys(this.$route.params)[0] != 'message') {
 				console.log(Object.keys(params));
 				let mapCoord = params[Object.keys(params)[7]];
 				
@@ -267,10 +270,9 @@
 				return;
 			}
 			
-			
-			
 			//if not player turn, calls controller function to process enemy turn
 			if(currentTurn != playerTurnPosition) {
+
 				for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
 					if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
 						currentEnemyActing = enemyTurnPositions[Object.keys(enemyTurnPositions)[0]];
@@ -607,8 +609,11 @@
 						//params : '',
 						//data   : '',
 						headers: headers
-					}).then(response => {					
+					}).then(response => {
+						console.log(response);
+					
 						let currentTurn = response.data.currentTurn;
+						
 						let enemyTurnPositions = response.data.enemyTurnPositions;
 						let playerBattleState = response.data.playerBattleState;
 						let playerBattleTarget = response.data.playerBattleTarget;
@@ -620,10 +625,15 @@
 						//calls controller function to process enemy turn
 						for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
 							if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
-								currentEnemyActing = enemyTurnPositions[Object.keys(enemyTurnPositions)[0]];
+								currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
 								break;
 							}	
 						}
+						
+						console.log(currentTurn);
+						console.log(response.data.enemyTurnPositions);[Object.keys(enemyTurnPositions)[0]];
+						console.log([Object.keys(response.data.enemyTurnPositions)[0]]);
+						console.log(currentEnemyActing);
 						
 						
 						this.formData = new FormData();
@@ -843,7 +853,8 @@
 								const req = await axios({
 									method : "POST",
 									baseURL: 'http://127.0.0.1:8000/api',
-									url    : 'http://127.0.0.1:8000/api/startFight',
+									//url    : 'http://127.0.0.1:8000/api/startFight',
+									url    : 'http://127.0.0.1:8000/api/switchFight',
 									params : '',
 									data   : this.formData,
 									headers: headers,

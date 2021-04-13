@@ -350,6 +350,8 @@
 				  'enctype' : 'multipart/form-data',
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				}
+				
+				/*
 				axios({
 					method : "POST",
 					baseURL: 'http://127.0.0.1:8000/api',
@@ -359,11 +361,13 @@
 					headers: headers,
 				}).then(response => {
 					console.log(response);
-					if(response.data.message)
-						document.getElementById('messageContainer').textContent = response.data.message;
-					document.getElementById('playerStamina').textContent = response.data.playerNewStamina;
-					document.getElementById('enemyHealth').textContent = response.data.enemyNewHealth;
-					document.getElementById('playerHealth').textContent = response.data.playerNewHealth;
+				
+					
+					if(response.data.results.message != null)
+						document.getElementById('messageContainer').textContent = response.data.results.message;
+					document.getElementById('playerStamina').textContent = response.data.results.playerNewStamina;
+					document.getElementById('enemyHealth').textContent = response.data.results.enemyNewHealth;
+					document.getElementById('playerHealth').textContent = response.data.results.playerNewHealth;
 					let controls = document.querySelectorAll('.playerControls');
 					controls.forEach(function(item) {
 						item.classList.add('d-none');	
@@ -375,6 +379,44 @@
 					document.getElementById('mapReturn').classList.toggle('d-none');
 					document.getElementById('mapReturnButton').style.pointerEvents = 'auto';
 				});
+				*/
+				const meleeEnemy = async () => {
+					try {
+						const req = await axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/meleeEnemy',
+							params : '',
+							data   : this.formData,
+							headers: headers,
+						}).then(response => {
+							console.log(response);
+							
+							if(response.data.results.message != null)
+								document.getElementById('messageContainer').textContent = response.data.results.message;
+							document.getElementById('playerStamina').textContent = response.data.results.playerNewStamina;
+							document.getElementById('enemyHealth').textContent = response.data.results.enemyNewHealth;
+							document.getElementById('playerHealth').textContent = response.data.results.playerNewHealth;
+							let controls = document.querySelectorAll('.playerControls');
+							controls.forEach(function(item) {
+								item.classList.add('d-none');	
+							});
+							let all = document.getElementsByTagName("*");
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'none';
+							}
+							document.getElementById('mapReturn').classList.toggle('d-none');
+							document.getElementById('mapReturnButton').style.pointerEvents = 'auto';
+						}).catch(error => {
+							document.getElementById('messageContainer').textContent = error.response.data;
+							return;
+						});
+					}
+					catch(error) {
+						console.log(error);
+					}
+				}	
+				meleeEnemy();
 			},
 			returnToMap() {
 				this.$router.push({ 

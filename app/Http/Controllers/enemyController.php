@@ -287,10 +287,10 @@ class EnemyController extends Controller {
 			}	
 			
 			//updates turn numbers stored in character table
-			if($charObj->currentTurn == $charObj->gameTurns)
-				$charObj->currentTurn = 1;		
-			else
-				$charObj->currentTurn = $charObj->currentTurn + 1;
+			//if($charObj->currentTurn == $charObj->gameTurns)
+			//	$charObj->currentTurn = 1;		
+			//else
+			//	$charObj->currentTurn = $charObj->currentTurn + 1;
 		
 			//add code to decide what enemy does
 			
@@ -346,26 +346,19 @@ class EnemyController extends Controller {
 				}	
 				//move closer by row
 				else if($movementType == 1){
-					switch($enemyRow) {
-						//above of enemy
-						case($enemyRow > $charRow):
-							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
-							break;
-						//below enemy
-						case($enemyRow < $charRow):
-							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
-							break;
-						//to left of enemy
-						case($enemyRow == $charRow && $enemyColumn > $charColumn):
-							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
-							break;
-						//to right of enemy
-						case($enemyRow == $charRow && $enemyColumn < $charColumn):
-							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
-							break;
-						default:
-							break;
-					}	
+					if($enemyRow > $charRow)
+						$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
+					else if($enemyRow < $charRow)
+						$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
+					else if($enemyRow === $charRow && $enemyColumn > $charColumn) {
+						$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+					}
+					else if($enemyRow === $charRow && $enemyColumn < $charColumn) {
+						$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+					}		
+					else {
+						$enemy->mapPosition = [$enemyRow, $enemyColumn];
+					}
 				}
 				//move diagonally
 				else {
@@ -421,6 +414,9 @@ class EnemyController extends Controller {
 			$tileSet->mapData = $mapDecoded;
 			$existingMap->tileset()->save($tileSet);
 			$enemy->save();
+			//$charObj->currentTurn = $charObj->currentTurn + 1;
+			//if($charObj->currentTurn > $charObj->gameTurns)
+			//	$charObj->currentTurn = 1;
 			$charObj->save();
 			
 			return response([

@@ -220,7 +220,10 @@ const router = new VueRouter({
 					//params : '',
 					//data   : '',
 					headers: headers
-				}).then(response => {					
+				}).then(response => {		
+					
+					console.log(response);
+				
 					to.params.currentTurn = response.data.currentTurn;
 					to.params.enemyTurnPositions = response.data.enemyTurnPositions;
 					to.params.playerBattleState = response.data.playerBattleState;
