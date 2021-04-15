@@ -127,8 +127,8 @@
 		},
 		beforeMount() {
 		//8th element if enemy map coords if player was in a fight. skips drawing functions
-			let params = this.$route.params;
-			if(Object.keys(params).length != 8) {
+			//let params = this.$route.params;
+			//if(Object.keys(params).length != 8) {
 				User.getMap({
 						_method: 'POST', token: sessionStorage.getItem('token')
 					}, 
@@ -173,7 +173,7 @@
 						this.drawPlayerPosition();
 						this.drawEnemyPositions();
 					});
-			}	
+			//}	
 		},
 		mounted() {
 			let all = document.getElementsByTagName("*");
@@ -400,6 +400,8 @@
 					
 					//if skill
 				});
+				
+				
 			}
 		
 		
@@ -545,6 +547,165 @@
 				enemySquare.innerHTML = '';
 				enemySquare.textContent = terrain;
 			},
+			enemyTurn() {
+				const headers = { 
+					'Content-Type': 'multipart/form-data',
+					'enctype' : 'multipart/form-data',
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				
+				const getGameState = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/getGameState',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+				};
+				
+				getGameState(this.formData)
+				.then(response => {
+				
+					let currentTurn = response.data.currentTurn;
+					
+					let enemyTurnPositions = response.data.enemyTurnPositions;
+					let playerBattleState = response.data.playerBattleState;
+					let playerBattleTarget = response.data.playerBattleTarget;
+					let playerGameTurns = response.data.playerGameTurns;
+					let playerTurnPosition = response.data.playerTurnPosition;
+					let currentEnemyActing = null;
+					let enemyAction = null;
+					
+					console.log(enemyTurnPositions);
+					//calls controller function to process enemy turn
+					for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
+						if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
+							currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
+							console.log(currentEnemyActing);
+							break;
+						}	
+					}
+					
+					this.formData = new FormData();
+					this.formData.append('currentEnemyActing', currentEnemyActing);
+					this.formData.append('_method', 'POST');
+		
+					const headers = { 
+					  'Content-Type': 'multipart/form-data',
+					  'enctype' : 'multipart/form-data',
+					  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+					}
+
+					const enemyReturnDecision = async function(formData) {
+					
+						let response = await axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
+							params : '',
+							data   : formData,
+							headers: headers,
+						})
+						return response;
+					};
+					
+					enemyReturnDecision(this.formData)
+					.then(response => {
+						console.log(response);
+						let enemyActionObj = response.data.enemyAction;
+						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
+
+						let enemyLastTerrain = response.data.enemyLastTerrain;
+						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
+						let enemyOldPosition = response.data.enemyOldPosition;
+						let enemyNewPosition = response.data.enemyNewPosition;
+						let enemyAvatar = response.data.enemyAvatar;
+						
+						//if move
+						if(enemyAction == 'move') {	
+							this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
+
+							let all = document.getElementsByTagName("*");
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'auto';
+							}
+						}
+						
+						//if attack
+						if(enemyAction == 'attack') {	
+							
+							let gameGridSquares = document.getElementsByClassName('gameGridSquare');
+				
+							const vm = this;
+						
+							let mapCoord = enemyNewPosition;
+							
+							this.formData = new FormData();
+							this.formData.append('mapPosition', mapCoord);
+							this.formData.append('_method', 'POST');
+				
+							const headers = { 
+							  'Content-Type': 'multipart/form-data',
+							  'enctype' : 'multipart/form-data',
+							  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+							}
+							
+							const startFight = function(formData) {
+								return axios({
+									method : "POST",
+									baseURL: 'http://127.0.0.1:8000/api',
+									url    : 'http://127.0.0.1:8000/api/switchFight',
+									params : '',
+									data   : formData,
+									headers: headers,
+								})
+								.then(response => response.data)
+								.catch(err => console.error(err))
+							};
+					
+							startFight(this.formData)
+							.then(response => {
+								if(response.error != null) {
+									for (let i = 0, count = all.length; i < count; i++) {
+										all[i].style.pointerEvents = 'auto';
+									}
+									document.getElementById('messageContainer').textContent = response.error;
+									return;
+								}	
+								else {			
+									//processes queue of actors here
+									console.log(response);
+									let actorArray = response.actorArray;
+									for(var key in actorArray) {
+										var value = actorArray[key];
+										console.log(key, value);
+										
+									}
+									vm.$router.push({ 
+										name: 'rpgGameBattle', 
+										params: {distance: response.distance, enemy: response.enemy} 
+									}).catch((err) => {
+										for (let i = 0, count = all.length; i < count; i++) {
+											all[i].style.pointerEvents = 'auto';
+										}
+										
+										document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+										console.log(err);
+									});
+								}
+							});
+							
+						}
+						//if item
+						
+						//if skill
+						
+					});
+				});	
+			},
 			moveCharacter(event) {
 			
 				//disable controls
@@ -568,14 +729,21 @@
 				  'enctype' : 'multipart/form-data',
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				}
-				axios({
-					method : "POST",
-					baseURL: 'http://127.0.0.1:8000/api',
-					url    : 'http://127.0.0.1:8000/api/moveCharacter',
-					params : '',
-					data   : this.formData,
-					headers: headers,
-				}).then(response => {
+				
+				const moveCharacter = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/moveCharacter',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+				
+				moveCharacter(this.formData)
+				.then(response => {
 					console.log(response);
 					if(response.data.message)
 						document.getElementById('messageContainer').textContent = response.data.message;
@@ -592,171 +760,7 @@
 						controllerArray[i].classList.toggle('d-none');
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
-					
-					
-					//processes next turn
-					
-					const headers = { 
-						'Content-Type': 'multipart/form-data',
-						'enctype' : 'multipart/form-data',
-						'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
-					};
-				
-					axios({
-						method : "POST",
-						baseURL: 'http://127.0.0.1:8000/api',
-						url    : 'http://127.0.0.1:8000/api/getGameState',
-						//params : '',
-						//data   : '',
-						headers: headers
-					}).then(response => {
-						console.log(response);
-					
-						let currentTurn = response.data.currentTurn;
-						
-						let enemyTurnPositions = response.data.enemyTurnPositions;
-						let playerBattleState = response.data.playerBattleState;
-						let playerBattleTarget = response.data.playerBattleTarget;
-						let playerGameTurns = response.data.playerGameTurns;
-						let playerTurnPosition = response.data.playerTurnPosition;
-						let currentEnemyActing = null;
-						let enemyAction = null;
-						
-						//calls controller function to process enemy turn
-						for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
-							if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
-								currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
-								break;
-							}	
-						}
-						
-						console.log(currentTurn);
-						console.log(response.data.enemyTurnPositions);[Object.keys(enemyTurnPositions)[0]];
-						console.log([Object.keys(response.data.enemyTurnPositions)[0]]);
-						console.log(currentEnemyActing);
-						
-						
-						this.formData = new FormData();
-						this.formData.append('currentEnemyActing', currentEnemyActing);
-						this.formData.append('_method', 'POST');
-			
-						const headers = { 
-						  'Content-Type': 'multipart/form-data',
-						  'enctype' : 'multipart/form-data',
-						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
-						}
-						axios({
-							method : "POST",
-							baseURL: 'http://127.0.0.1:8000/api',
-							url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
-							params : '',
-							data   : this.formData,
-							headers: headers,
-						}).then(response => {
-							let enemyActionObj = response.data.enemyAction;
-					
-							enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
-
-							let enemyLastTerrain = response.data.enemyLastTerrain;
-				            let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
-							let enemyOldPosition = response.data.enemyOldPosition;
-				            let enemyNewPosition = response.data.enemyNewPosition;
-				            let enemyAvatar = response.data.enemyAvatar;
-							
-							
-							//if move
-							if(enemyAction == 'move') {	
-								this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
-
-								let all = document.getElementsByTagName("*");
-								for (let i = 0, count = all.length; i < count; i++) {
-									all[i].style.pointerEvents = 'auto';
-								}
-							}
-							
-							
-							
-							//if attack
-							if(enemyAction == 'attack') {	
-								
-								let gameGridSquares = document.getElementsByClassName('gameGridSquare');
-					
-								const vm = this;
-							
-								let mapCoord = enemyNewPosition;
-								
-								this.formData = new FormData();
-								this.formData.append('mapPosition', mapCoord);
-								this.formData.append('_method', 'POST');
-					
-								const headers = { 
-								  'Content-Type': 'multipart/form-data',
-								  'enctype' : 'multipart/form-data',
-								  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
-								}
-								
-								const startFight = async () => {
-									try {
-										const req = await axios({
-											method : "POST",
-											baseURL: 'http://127.0.0.1:8000/api',
-											url    : 'http://127.0.0.1:8000/api/switchFight',
-											params : '',
-											data   : this.formData,
-											headers: headers,
-										}).then(response => {
-											if(response.data.error != null) {
-												for (let i = 0, count = all.length; i < count; i++) {
-													all[i].style.pointerEvents = 'auto';
-												}
-												document.getElementById('messageContainer').textContent = response.data.error;
-												return;
-											}	
-											else {			
-												//processes queue of actors here
-												
-												console.log(response);
-												
-												let actorArray = response.data.actorArray;
-												for(var key in actorArray) {
-													var value = actorArray[key];
-													console.log(key, value);
-													
-												}
-												
-												
-												vm.$router.push({ 
-													name: 'rpgGameBattle', 
-													params: {distance: response.data.distance, enemy: response.data.enemy} 
-												}).catch((err) => {
-													for (let i = 0, count = all.length; i < count; i++) {
-														all[i].style.pointerEvents = 'auto';
-													}
-													
-													document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
-													console.log(err);
-												});
-											}
-										}).catch(error => {
-											document.getElementById('messageContainer').textContent = error.response.data;
-											return;
-										});
-									}
-									catch(error) {
-										console.log(error);
-									}
-								}	
-								startFight();
-							}
-							
-							//if item
-							
-							//if skill
-							
-							
-						});
-					});	
-					
+					this.enemyTurn();
 				});
 			},
 			toggleInventory() {

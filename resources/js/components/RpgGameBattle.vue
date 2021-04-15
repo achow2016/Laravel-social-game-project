@@ -380,6 +380,8 @@
 					document.getElementById('mapReturnButton').style.pointerEvents = 'auto';
 				});
 				*/
+				
+				/*
 				const meleeEnemy = async () => {
 					try {
 						const req = await axios({
@@ -417,6 +419,47 @@
 					}
 				}	
 				meleeEnemy();
+				*/
+				
+				const meleeEnemy = async function(formData) {
+					try {
+						let response = await axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/meleeEnemy',
+							params : '',
+							data   : formData,
+							headers: headers,
+						});
+						return response;
+					}
+					catch(err) {
+						console.error(err);
+					}
+				};
+				
+				meleeEnemy(this.formData)
+				.then(response => {
+					console.log(response);					
+					if(response.data.results.message != null)
+						document.getElementById('messageContainer').textContent = response.data.results.message;
+					document.getElementById('playerStamina').textContent = response.data.results.playerNewStamina;
+					document.getElementById('enemyHealth').textContent = response.data.results.enemyNewHealth;
+					document.getElementById('playerHealth').textContent = response.data.results.playerNewHealth;
+					let controls = document.querySelectorAll('.playerControls');
+					controls.forEach(function(item) {
+						item.classList.add('d-none');	
+					});
+					let all = document.getElementsByTagName("*");
+					for (let i = 0, count = all.length; i < count; i++) {
+						all[i].style.pointerEvents = 'none';
+					}
+					document.getElementById('mapReturn').classList.toggle('d-none');
+					document.getElementById('mapReturnButton').style.pointerEvents = 'auto';
+				});
+				
+				
+				
 			},
 			returnToMap() {
 				this.$router.push({ 

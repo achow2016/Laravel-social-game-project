@@ -391,6 +391,11 @@ class EnemyController extends Controller {
 							break;
 					}
 				}
+				
+				//increments turn number and save
+				$charObj->currentTurn = $charObj->currentTurn + 1;
+				if($charObj->currentTurn > $charObj->gameTurns)
+					$charObj->currentTurn = 1;
 			}
 			else {
 				$enemy->turnAction = ['action' => 'nothing'];
