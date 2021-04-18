@@ -97,7 +97,10 @@
 				</div>				
 				<div id="closeGameMenuContainer" class="flex-fill w-100 d-none">
 					<button v-on:click="toggleGameMenu" type="button" class="btn btn-dark flex-fill w-100">Close Menu</button>
-				</div>	
+				</div>
+				<div id="closeSelectFightContainer" class="flex-fill w-100 d-none">
+					<button id="closeSelectFightButton" v-on:click="toggleSelectFightMenu" type="button" class="btn btn-dark flex-fill w-100">Cancel Fight Select</button>
+				</div>					
 			</div>
 			
 		</div>
@@ -180,9 +183,6 @@
 			for (let i = 0, count = all.length; i < count; i++) {
 				all[i].style.pointerEvents = 'auto';
 			}
-						
-			console.log(this.$route.params.currentTurn);
-			
 			if(this.$route.params.message) {
 				document.getElementById('messageContainer').textContent = this.$route.params.message;
 			}
@@ -193,6 +193,7 @@
 			let playerBattleState = this.$route.params.playerBattleState;
 			let playerBattleTarget = this.$route.params.playerBattleTarget;
 			let enemyTurnPositions = this.$route.params.enemyTurnPositions;
+			let currentEnemyMapCoord = this.$route.params.currentEnemyMapCoord;
 			
 			
 			let currentEnemyActing = null;
@@ -203,9 +204,8 @@
 
 			const vm = this;
 		
-			if(Object.keys(this.$route.params).length == 8 && Object.keys(this.$route.params)[0] != 'message') {
-				console.log(Object.keys(params));
-				let mapCoord = params[Object.keys(params)[7]];
+			if(playerBattleState == true) {
+				let mapCoord = currentEnemyMapCoord;
 				
 				this.formData = new FormData();
 				this.formData.append('mapPosition', mapCoord);
@@ -217,57 +217,50 @@
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				}
 				
-				const startFight = async () => {
-					try {
-						const req = await axios({
-							method : "POST",
-							baseURL: 'http://127.0.0.1:8000/api',
-							url    : 'http://127.0.0.1:8000/api/switchFight',
-							params : '',
-							data   : this.formData,
-							headers: headers,
-						}).then(response => {
-							if(response.data.error != null) {
-								for (let i = 0, count = all.length; i < count; i++) {
-									all[i].style.pointerEvents = 'auto';
-								}
-								document.getElementById('messageContainer').textContent = response.data.error;
-								return;
-							}	
-							else {			
-								//processes queue of actors here
-								//console.log(response);
-								let actorArray = response.data.actorArray;
-								for(var key in actorArray) {
-									var value = actorArray[key];
-									console.log(key, value);
-									
-								}
-								
-								
-								vm.$router.push({ 
-									name: 'rpgGameBattle', 
-									params: {distance: response.data.distance, enemy: response.data.enemy} 
-								}).catch((err) => {
-									for (let i = 0, count = all.length; i < count; i++) {
-										all[i].style.pointerEvents = 'auto';
-									}
-									
-									document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
-									console.log(err);
-								});
+				const startFight = async function(formData) {					
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/switchFight',
+						params : '',
+						data   : formData,
+						headers: headers,
+					})
+					return response;
+				};
+				
+				startFight(this.formData)
+				.then(response => {
+					if(response.data.error != null) {
+						for (let i = 0, count = all.length; i < count; i++) {
+							all[i].style.pointerEvents = 'auto';
+						}
+						document.getElementById('messageContainer').textContent = response.data.error;
+						return;
+					}	
+					else {			
+						//processes queue of actors here
+						//console.log(response);
+						let actorArray = response.data.actorArray;
+						for(var key in actorArray) {
+							var value = actorArray[key];
+							console.log(key, value);
+							
+						}
+						
+						vm.$router.push({ 
+							name: 'rpgGameBattle', 
+							params: {distance: response.data.distance, enemy: response.data.enemy} 
+						}).catch((err) => {
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'auto';
 							}
-						}).catch(error => {
-							document.getElementById('messageContainer').textContent = error.response.data;
-							return;
+							
+							document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+							console.log(err);
 						});
 					}
-					catch(error) {
-						console.log(error);
-					}
-				}	
-				startFight();
-				return;
+				});
 			}
 			
 			//if not player turn, calls controller function to process enemy turn
@@ -280,8 +273,6 @@
 					}	
 				}
 				
-				console.log(currentEnemyActing);
-				
 				this.formData = new FormData();
 				this.formData.append('currentEnemyActing', currentEnemyActing);
 				this.formData.append('_method', 'POST');
@@ -291,16 +282,21 @@
 				  'enctype' : 'multipart/form-data',
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				}
-				axios({
-					method : "POST",
-					baseURL: 'http://127.0.0.1:8000/api',
-					url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
-					params : '',
-					data   : this.formData,
-					headers: headers,
-				}).then(response => {
-					console.log(response);
 				
+				const enemyReturnDecision = async function(formData) {					
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
+						params : '',
+						data   : formData,
+						headers: headers,
+					})
+					return response;
+				};
+				
+				enemyReturnDecision(this.formData)
+				.then(response => {
 					let enemyActionObj = response.data.enemyAction;
 					
 					enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
@@ -311,9 +307,8 @@
 					let enemyNewPosition = response.data.enemyNewPosition;
 					let enemyAvatar = response.data.enemyAvatar;
 					
-					
 					//if move
-					if(enemyAction == 'move') {	
+					if(enemyAction == 'move') {
 						this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
 
 						let all = document.getElementsByTagName("*");
@@ -321,8 +316,6 @@
 							all[i].style.pointerEvents = 'auto';
 						}
 					}
-					
-					
 					
 					//if attack
 					if(enemyAction == 'attack') {
@@ -400,8 +393,6 @@
 					
 					//if skill
 				});
-				
-				
 			}
 		
 		
@@ -502,9 +493,9 @@
 				this.enemyMapPositions = this.enemyMapPositions.filter(item => item === [enemyOldPosition[0],enemyOldPosition[1]]); 
 				this.enemyMapPositions.push([enemyNewPosition[0], enemyNewPosition[1]]);
 				
-				enemyOldSquare.classList.toggle('border-dark');
-				enemyOldSquare.classList.toggle('border-danger');
-		
+				enemyOldSquare.classList.add('border-dark');
+				enemyOldSquare.classList.remove('border-danger');
+				
 				enemyNewSquare.classList.toggle('border-dark');
 				enemyNewSquare.classList.toggle('border-danger');
 				
@@ -564,6 +555,7 @@
 						data   : formData,
 						headers: headers,
 					});
+					return response;
 				};
 				
 				getGameState(this.formData)
@@ -579,12 +571,10 @@
 					let currentEnemyActing = null;
 					let enemyAction = null;
 					
-					console.log(enemyTurnPositions);
 					//calls controller function to process enemy turn
 					for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
 						if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
 							currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
-							console.log(currentEnemyActing);
 							break;
 						}	
 					}
@@ -614,10 +604,8 @@
 					
 					enemyReturnDecision(this.formData)
 					.then(response => {
-						console.log(response);
 						let enemyActionObj = response.data.enemyAction;
 						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
-
 						let enemyLastTerrain = response.data.enemyLastTerrain;
 						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
 						let enemyOldPosition = response.data.enemyOldPosition;
@@ -792,6 +780,32 @@
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
 				document.getElementById('closeStatusContainer').classList.toggle('d-none');
 			},
+			toggleSelectFightMenu() {
+				//enable controls
+				let all = document.getElementsByTagName("*");
+				for (let i = 0, count = all.length; i < count; i++) {
+					all[i].style.pointerEvents = 'auto';
+				}
+				
+				//removes map onclick
+				let gameGridSquares = document.getElementsByClassName('gameGridSquare');
+				for(let i = 0; i < gameGridSquares.length; i++) {
+					gameGridSquares[i].style.pointerEvents = 'none';
+					gameGridSquares[i].onclick = null;
+				}
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+		
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
+				document.getElementById('closeSelectFightContainer').classList.toggle('d-none');
+				document.getElementById('closeSelectFightContainer').style.pointerEvents = 'auto';
+				document.getElementById('closeSelectFightButton').style.pointerEvents = 'auto';
+				document.getElementById('menuDataArea').textContent = 'loading data...';
+			},
 			toggleGameMenu() {
 				document.getElementById('controlArea').classList.toggle('d-none');
 				
@@ -822,7 +836,29 @@
 				document.getElementById('closeInspectContainer').classList.toggle('d-none');
 				
 			},
-			selectFight() {	
+			selectFight() {
+				document.getElementById('menuDataArea').textContent = 'Select an enemy to fight.';
+
+				//disable controls
+				let all = document.getElementsByTagName("*");
+				for (let i = 0, count = all.length; i < count; i++) {
+					all[i].style.pointerEvents = 'none';
+				}
+				
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+		
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
+				document.getElementById('closeSelectFightContainer').classList.toggle('d-none');
+				document.getElementById('closeSelectFightContainer').style.pointerEvents = 'auto';
+				document.getElementById('closeSelectFightButton').style.pointerEvents = 'auto';
+				document.getElementById('closeSelectFightContainer').style.pointerEvents = 'auto';
+				document.getElementById('closeSelectFightButton').style.pointerEvents = 'auto';
+				
 				document.getElementById('messageContainer').textContent = 'Select enemy.';
 				
 				let gameGridSquares = document.getElementsByClassName('gameGridSquare');
@@ -830,17 +866,16 @@
 				const vm = this;
 				
 				for(let i = 0; i < gameGridSquares.length; i++) {
-				
+					gameGridSquares[i].style.pointerEvents = 'auto';
 					gameGridSquares[i].onclick = function() {
 						let all = document.getElementsByTagName("*");
 
 						for (let i = 0, count = all.length; i < count; i++) {
 							//all[i].classList.add('d-none');
 							all[i].style.pointerEvents = 'none';
-						}	
+						}
 							
 						let mapCoord = gameGridSquares[i].id.split('-').map(Number);
-						console.log(mapCoord);	
 						
 						this.formData = new FormData();
 						this.formData.append('mapPosition', mapCoord);
@@ -852,74 +887,92 @@
 						  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 						}
 						
-						const startFight = async () => {
-							try {
-								const req = await axios({
-									method : "POST",
-									baseURL: 'http://127.0.0.1:8000/api',
-									//url    : 'http://127.0.0.1:8000/api/startFight',
-									url    : 'http://127.0.0.1:8000/api/switchFight',
-									params : '',
-									data   : this.formData,
-									headers: headers,
-								}).then(response => {
-									if(response.data.error != null) {
-										for (let i = 0, count = all.length; i < count; i++) {
-											all[i].style.pointerEvents = 'auto';
-										}
-										document.getElementById('messageContainer').textContent = response.data.error;
-										return;
-									}	
-									else {
+						const startFight = async function(formData) {
+							let response = await axios({
+								method : "POST",
+								baseURL: 'http://127.0.0.1:8000/api',
+								url    : 'http://127.0.0.1:8000/api/switchFight',
+								params : '',
+								data   : formData,
+								headers: headers,
+							});
+							return response;
+						};
+						
+						startFight(this.formData)
+						.then(response => {
+							if(response.data.error != null) {
+								for (let i = 0, count = all.length; i < count; i++) {
+									all[i].style.pointerEvents = 'auto';
+								}
+								document.getElementById('messageContainer').textContent = response.data.error;
+								return;
+							}	
+							else {
+								//processes queue of actors here
+								let actorArray = response.data.actorArray;
+								for(var key in actorArray) {
+									var value = actorArray[key];
+									console.log(key, value);
 									
-										//processes queue of actors here
-										//console.log(response);
-										let actorArray = response.data.actorArray;
-										for(var key in actorArray) {
-											var value = actorArray[key];
-											console.log(key, value);
-											
-										}
-										
-										
-										
-										vm.$router.push({ 
-											name: 'rpgGameBattle', 
-											params: {distance: response.data.distance, enemy: response.data.enemy} 
-										}).catch((err) => {
-											for (let i = 0, count = all.length; i < count; i++) {
-												all[i].style.pointerEvents = 'auto';
-											}
-											
-											document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
-											console.log(err);
-										});
-										
-										
+								}
+								vm.$router.push({ 
+									name: 'rpgGameBattle', 
+									params: {distance: response.data.distance, enemy: response.data.enemy} 
+								}).catch((err) => {
+									for (let i = 0, count = all.length; i < count; i++) {
+										all[i].style.pointerEvents = 'auto';
 									}
-								}).catch(error => {
-									document.getElementById('messageContainer').textContent = error.response.data;
-									return;
+									
+									document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+									console.log(err);
 								});
 							}
-							catch(error) {
-								console.log(error);
+						})
+						.catch(error => {
+							//server response errors
+							if (error.response) {
+								console.log(error.response.data.message);
+								document.getElementById('messageContainer').textContent = error.response.data.message;
+							} 
+							//for no response	
+							else if(error.request) {
+								// The request was made but no response was received
+								console.log(error.request);
+							} 
+							//catch outside above cases
+							else {
+								console.log('Error', error.message);
 							}
-						};
-						startFight();
+						});
 					}	
 				};
 			},
 			populateInspect() {
-				User.inspectEnemies({
-					_method: 'POST', token: sessionStorage.getItem('token')
-				}, 
-					sessionStorage.getItem('token')
-				)
-				.then((response) => {
+				const headers = { 
+					//'Content-Type': 'multipart/form-data',
+					//'enctype' : 'multipart/form-data',
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				const inspectEnemies = async function() {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/inspectEnemies',
+						params : '',
+						data   : '',
+						headers: headers,
+					});
+					return response;
+				};
+				
+				inspectEnemies()
+				.then(response => {
 					console.log(response.data.enemies);
 					this.enemyStatusData = response.data.enemies;
 					document.getElementById('menuDataArea').textContent = '';
+					document.getElementById('menuDataArea').textContent = response.data.message;
 					
 					for(let i = 0; i < this.enemyStatusData.length; i++) {
 						this.generateDataRow('Name', this.enemyStatusData[i].name);
@@ -949,7 +1002,7 @@
 					else {
 						console.log('Error', error.message);
 					}
-				});	
+				});
 			},
 			saveAndQuit() {
 

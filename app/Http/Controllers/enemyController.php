@@ -213,7 +213,10 @@ class EnemyController extends Controller {
 					}
 				}
 			}
-			return response(['squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
+			if(empty($inspectableTargets))
+				return response(['message' => 'No enemies nearby.', 'squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
+			else
+				return response(['message' => 'Inspection complete.', 'squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
 		}
 		catch(Throwable $e) {
 			report($e);

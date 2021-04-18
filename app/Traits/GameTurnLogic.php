@@ -329,6 +329,12 @@ trait GameTurnLogic
 					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
 		}
 		else {
+			$enemyObj->save();
+			$charObj->battle = false;
+			$charObj->currentTurn = $charObj->currentTurn + 1;
+			if($charObj->currentTurn > $charObj->gameTurns)
+				$charObj->currentTurn = 1;
+			$charObj->save();
 			return (['message' => 'Both combatants are not in range to fight!',
 				'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 				'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,

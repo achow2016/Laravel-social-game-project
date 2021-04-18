@@ -111,8 +111,22 @@ class CharacterController extends Controller {
 			if($character) {
 				//return response(['character' => $character], 200);
 				if($character->battle == true) {
+					$charRow = $character->mapPosition[0];
+					$charColumn = $character->mapPosition[1];					
 					$enemy = $character->currentEnemy()->first();
-					return response(['battleStatus' => true, 'player' => $character,  'enemy' => $enemy, 'distance' => $character->engageDistance], 200);
+					$enemyMapCoord = $enemy->mapPosition;
+					$enemyRow = $enemyMapCoord[0];
+					$enemyColumn = $enemyMapCoord[1];
+					$distance = sqrt((($enemyRow - $charRow) ** 2) + (($enemyColumn - $charColumn) ** 2));
+					$decimalDistance = floor($distance);
+					$fractionDistance = $distance - $decimalDistance;
+					$finalDistance = 0;
+					if($fractionDistance < .5)
+						$finalDistance = floor($distance);
+					else
+						$finalDistance = ceil($distance);
+					
+					return response(['battleStatus' => true, 'player' => $character,  'enemy' => $enemy, 'distance' => $finalDistance], 200);
 				}
 				else
 					return response(['battleStatus' => false], 200);
