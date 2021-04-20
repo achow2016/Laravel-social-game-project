@@ -371,7 +371,7 @@
 				meleeEnemy(this.formData)
 				.then(response => {
 					console.log(response);					
-					if(response.data.results.message != null)
+					if(response.data.results.message)
 						document.getElementById('messageContainer').textContent = response.data.results.message;
 					document.getElementById('playerStamina').textContent = response.data.results.playerNewStamina;
 					document.getElementById('enemyHealth').textContent = response.data.results.enemyNewHealth;

@@ -27,7 +27,7 @@ class Character extends Model
 		'page', 'chapter', 
 		'accuracy', 'agility', 'attack',
 		'currentAccuracy', 'currentAgility', 'currentAttack',
-		'scoreTotal', 'damageDone', 'damageReceived', 'chaptersCleared', 'money', 'earningsTotal',
+		'damageDealt', 'damageReceived', 'itemsUsed', 'money', 'totalEarnings',
 		'currentHealth', 'currentStamina',
 		'health', 'stamina',
 		'staminaRegen', 'healthRegen',

@@ -168,6 +168,8 @@ class CharacterController extends Controller {
 			$mapCoordArray = explode(",", $request->mapPosition);
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+			if(!$enemyObj)
+				return response(['message' => 'Invalid combat target.'], 200);
 			$charObj->enemyId = $enemyObj->id;
 			$charObj->battle = true;
 			$charObj->save();

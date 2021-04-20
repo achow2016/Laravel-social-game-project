@@ -349,18 +349,25 @@ class EnemyController extends Controller {
 				}	
 				//move closer by row
 				else if($movementType == 1){
-					if($enemyRow > $charRow)
-						$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
-					else if($enemyRow < $charRow)
-						$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
-					else if($enemyRow === $charRow && $enemyColumn > $charColumn) {
-						$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
-					}
-					else if($enemyRow === $charRow && $enemyColumn < $charColumn) {
-						$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
-					}		
-					else {
-						$enemy->mapPosition = [$enemyRow, $enemyColumn];
+					switch($enemyRow) {
+						//above enemy
+						case($enemyRow > $charRow):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
+							break;
+						//below enemy
+						case($enemyRow < $charRow):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
+							break;
+						//same row to right
+						case($enemyRow == $charRow && $enemyColumn < $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
+							break;
+						//same row to left
+						case($enemyRow == $charRow && $enemyColumn > $charColumn):
+							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
+							break;
+						default:
+							break;
 					}
 				}
 				//move diagonally
@@ -394,6 +401,9 @@ class EnemyController extends Controller {
 							break;
 					}
 				}
+				
+				if($enemy->mapPosition == [$charRow, $charColumn])
+					$enemy->mapPosition = [$enemyRow, $enemyColumn];
 				
 				//increments turn number and save
 				$charObj->currentTurn = $charObj->currentTurn + 1;

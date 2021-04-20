@@ -249,7 +249,7 @@ class MapController extends Controller {
 					case 'up':
 						if($currentRow == 0) {
 							$responseArray[] = ([
-								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'message' => 'Path blocked', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 							]);
 						}	
@@ -258,9 +258,9 @@ class MapController extends Controller {
 							$currentRow--;
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
-									$responseArray['message'] = 'Path blocked by enemy.';
+									$responseArray['message'] = 'Path blocked by enemy';
 									$responseArray['move'] = $charObj->mapPosition;
-									$responseArray['playerPosition'] = 'Path blocked by enemy.';
+									$responseArray['playerPosition'] = 'Path blocked by enemy';
 									$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
 								}	
 							}
@@ -270,7 +270,7 @@ class MapController extends Controller {
 					case 'down':
 						if($currentRow == 7) {
 							$responseArray[] = ([
-								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'message' => 'Path blocked', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 							]);
 						}
@@ -280,7 +280,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -291,7 +291,7 @@ class MapController extends Controller {
 					case 'left':
 						if($currentColumn == 0) {
 							$responseArray[] = ([
-								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'message' => 'Path blocked', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 							]);
 						}
@@ -301,7 +301,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -312,7 +312,7 @@ class MapController extends Controller {
 					case 'right':
 						if($currentColumn == 7) {
 							$responseArray[] = ([
-								'message' => 'Path blocked.', 'move' => $movementChoice, 
+								'message' => 'Path blocked', 'move' => $movementChoice, 
 								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 							]);
 						}
@@ -322,7 +322,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -339,7 +339,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -355,7 +355,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -371,7 +371,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -387,7 +387,7 @@ class MapController extends Controller {
 							foreach($enemies as $enemy) {
 								if([$currentRow, $currentColumn] === $enemy->mapPostion) {
 									$responseArray[] = ([
-										'message' => 'Path blocked by enemy.', 'move' => $movementChoice, 
+										'message' => 'Path blocked by enemy', 'move' => $movementChoice, 
 										'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
 									]);
 								}	
@@ -397,38 +397,31 @@ class MapController extends Controller {
 						break;	
 					case 'wait':
 						$movementChoice = 'wait';
-							$responseArray[] = ([
-								'message' => 'Player is waiting.', 'move' => $movementChoice, 
-								'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
-							]);						
+						//	$responseArray[] = ([
+						//		'message' => 'Player is waiting.', 'move' => $movementChoice, 
+						//		'playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData
+						//	]);						
 						break;	
 					default:	
 						break;
 				}
-				//	if(strpos($actor, 'enemy') !== false) {
-				//		$matchingEnemy = filter_var($actor, FILTER_SANITIZE_NUMBER_INT);
-				//		$enemy = $enemies->values()->get($matchingEnemy);
-				//		$this->moveMapEnemy($enemy, $request, $playerCoords);
-				//	}
-				//}
+				
 				if($movementChoice == 'wait')	
-					$responseArray['message'] = 'Player waits.';
+					$responseArray['message'] = 'Player waits';
 				else
-					$responseArray['message'] = 'Moved ' . $movementChoice . '.';
+					$responseArray['message'] = 'Moved ' . $movementChoice;
 				
 				$responseArray['move'] = $movementChoice;
 				$responseArray['playerPosition'] = $charObj->mapPosition;
 				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
 				
-				//increments turn number and save
+				//increments turn number, movement count and saves
 				$charObj->currentTurn = $charObj->currentTurn + 1;
 				if($charObj->currentTurn > $charObj->gameTurns)
 					$charObj->currentTurn = 1;
-					
+				$charObj->squaresMoved = $charObj->squaresMoved + 1;	
 				$charObj->save();
-				
 				return response($responseArray, 200);
-
 			}
 			else
 				return response(['status' => 'No map, please start a new game.'], 422);
@@ -439,5 +432,4 @@ class MapController extends Controller {
 		}
 	}
 }
-?>	
-
+?>

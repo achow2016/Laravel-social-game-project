@@ -164,7 +164,8 @@ trait GameTurnLogic
 				$charObj->currentTurn = 1;
 			
 			$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-					
+			$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+			
 			if($enemyObj->currentHealth <= 0) {
 				$enemyObj->save();
 				$charObj->save();
@@ -176,6 +177,8 @@ trait GameTurnLogic
 			}
 			else {
 				$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
+				$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
+			
 				$enemyObj->save();
 				$charObj->save();
 				if($charObj->currentHealth >= 0 && $playerAttackSuccess && $enemyAttackSuccess)
@@ -216,6 +219,7 @@ trait GameTurnLogic
 		}
 		else if($this->playerTurnOrder == 'second' && $playerValidRange && $enemyValidRange){
 			$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
+			$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
 			$charObj->save();
 			
 			$charObj->battle = false;
@@ -238,11 +242,7 @@ trait GameTurnLogic
 			}
 			else {
 				$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-				$enemyObj->save();
-				
-				if($playerDamage > 0)
-					$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-				$charObj->currentStamina = $charObj->currentStamina - $charObj->baseAttackCost;
+				$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
 				$enemyObj->save();
 				$charObj->save();
 				
@@ -284,13 +284,14 @@ trait GameTurnLogic
 			}
 		}
 		else if(!$playerValidRange && $enemyValidRange){
-			$enemyObj->save();
 			$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
+			$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
 			$charObj->battle = false;
 			$charObj->currentTurn = $charObj->currentTurn + 1;
 			if($charObj->currentTurn > $charObj->gameTurns)
 				$charObj->currentTurn = 1;
 			$charObj->save();
+			$enemyObj->save();
 			
 			if($charObj->currentHealth <= 0)	
 				return (['message' => 'Enemy killed you outside your range with ' . $playerDamage . ' damage!',
@@ -307,12 +308,13 @@ trait GameTurnLogic
 		}
 		else if($playerValidRange && !$enemyValidRange){
 			$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-			$enemyObj->save();
+			$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
 			$charObj->battle = false;
 			$charObj->currentTurn = $charObj->currentTurn + 1;
 			if($charObj->currentTurn > $charObj->gameTurns)
 				$charObj->currentTurn = 1;
 			$charObj->save();
+			$enemyObj->save();
 			
 			if($enemyObj->currentHealth <= 0) {
 				return (['message' => 'Killed enemy from a safe distance with ' . $playerDamage . ' damage!',
@@ -329,12 +331,13 @@ trait GameTurnLogic
 					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
 		}
 		else {
-			$enemyObj->save();
 			$charObj->battle = false;
 			$charObj->currentTurn = $charObj->currentTurn + 1;
 			if($charObj->currentTurn > $charObj->gameTurns)
 				$charObj->currentTurn = 1;
 			$charObj->save();
+			$enemyObj->save();
+			
 			return (['message' => 'Both combatants are not in range to fight!',
 				'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 				'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
