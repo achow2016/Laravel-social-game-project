@@ -722,30 +722,6 @@
 				document.getElementById('menuDataArea').appendChild(dataRowContainer);
 			},
 			populateStatus() {
-			/*
-				User.getCharacterStatus({
-					_method: 'POST', token: sessionStorage.getItem('token')
-				}, 
-					sessionStorage.getItem('token')
-				)
-				.then((response) => {
-					console.log(response);
-					this.playerStatus = response.data.character;
-					document.getElementById('menuDataArea').textContent = '';
-					
-					this.generateDataRow('Game Level', response.data.character.gameLevel);
-					this.generateDataRow('Name', response.data.character.characterName);
-					this.generateDataRow('Attack', response.data.character.currentAttack + '/' + response.data.character.attack);
-					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
-					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
-					this.generateDataRow('Recovery', 'H: ' + response.data.character.currentHealthRegen + '/' + response.data.character.healthRegen
-						+ ' | ' + 'S: ' + response.data.character.currentstaminaRegen + '/' + response.data.character.staminaRegen);
-					this.generateDataRow('Agility', response.data.character.currentAgility + '/' + response.data.character.agility);
-					this.generateDataRow('Accuracy', response.data.character.currentAccuracy + '/' + response.data.character.accuracy);
-					this.generateDataRow('Armour', response.data.character.armour);
-					this.generateDataRow('Money', response.data.character.money);
-				});
-			*/	
 				this.formData = new FormData();
 				this.formData.append('token', sessionStorage.getItem('token'));
 				this.formData.append('_method', 'POST');
@@ -765,7 +741,7 @@
 				}).then(response => {
 					this.playerStatus = response.data.character;
 					document.getElementById('menuDataArea').textContent = '';
-					
+					this.generateDataRow('Current Avatar', 'Avatar');
 					this.generateDataRow('Name', response.data.character.characterName);
 					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
 					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);

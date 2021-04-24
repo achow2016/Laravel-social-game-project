@@ -60,6 +60,7 @@ class CreateCharacterTable extends Migration
 			$table->integer('squaresMoved')->default('0');
 			$table->integer('money')->default('0');
 			$table->integer('totalEarnings')->default('0');
+			$table->integer('score')->default('0');
 			$table->string('weapon')->nullable();
 			$table->string('offHand')->nullable();
 			$table->string('bodyEquipment')->nullable();

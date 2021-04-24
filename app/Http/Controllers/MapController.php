@@ -420,6 +420,7 @@ class MapController extends Controller {
 				if($charObj->currentTurn > $charObj->gameTurns)
 					$charObj->currentTurn = 1;
 				$charObj->squaresMoved = $charObj->squaresMoved + 1;	
+				$charObj->score = $charObj->score + 1;	
 				$charObj->save();
 				return response($responseArray, 200);
 			}

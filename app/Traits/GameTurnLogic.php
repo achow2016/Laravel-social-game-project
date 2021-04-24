@@ -164,8 +164,10 @@ trait GameTurnLogic
 				$charObj->currentTurn = 1;
 			
 			$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-			$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
-			
+			if($playerDamage > 0) {
+				$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+				$charObj->score = $charObj->score + $charObj->damageDealt;	
+			}
 			if($enemyObj->currentHealth <= 0) {
 				$enemyObj->save();
 				$charObj->save();
@@ -177,8 +179,10 @@ trait GameTurnLogic
 			}
 			else {
 				$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
-				$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
-			
+				if($enemyDamage > 0) {
+					$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);			
+					$charObj->score = $charObj->score + $charObj->damageReceived;	
+				}
 				$enemyObj->save();
 				$charObj->save();
 				if($charObj->currentHealth >= 0 && $playerAttackSuccess && $enemyAttackSuccess)
@@ -219,7 +223,10 @@ trait GameTurnLogic
 		}
 		else if($this->playerTurnOrder == 'second' && $playerValidRange && $enemyValidRange){
 			$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
-			$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
+			if($enemyDamage > 0) {
+				$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);			
+				$charObj->score = $charObj->score + $charObj->damageReceived;			
+			}
 			$charObj->save();
 			
 			$charObj->battle = false;
@@ -242,7 +249,11 @@ trait GameTurnLogic
 			}
 			else {
 				$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-				$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+				if($playerDamage > 0) {
+					$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+					$charObj->score = $charObj->score + $charObj->damageDealt;	
+				}
+				
 				$enemyObj->save();
 				$charObj->save();
 				
@@ -285,7 +296,10 @@ trait GameTurnLogic
 		}
 		else if(!$playerValidRange && $enemyValidRange){
 			$charObj->currentHealth = $charObj->currentHealth - ($enemyDamage - $charObj->armour);
-			$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);
+			if($enemyDamage > 0) {
+				$charObj->damageReceived = $charObj->damageReceived + ($enemyDamage - $charObj->armour);			
+				$charObj->score = $charObj->score + $charObj->damageReceived;
+			}
 			$charObj->battle = false;
 			$charObj->currentTurn = $charObj->currentTurn + 1;
 			if($charObj->currentTurn > $charObj->gameTurns)
@@ -308,7 +322,10 @@ trait GameTurnLogic
 		}
 		else if($playerValidRange && !$enemyValidRange){
 			$enemyObj->currentHealth = $enemyObj->currentHealth - ($playerDamage - $enemyObj->armour);
-			$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+			if($playerDamage > 0) {
+				$charObj->damageDealt = $charObj->damageDealt + ($playerDamage - $enemyObj->armour);
+				$charObj->score = $charObj->score + $charObj->damageDealt;
+			}	
 			$charObj->battle = false;
 			$charObj->currentTurn = $charObj->currentTurn + 1;
 			if($charObj->currentTurn > $charObj->gameTurns)

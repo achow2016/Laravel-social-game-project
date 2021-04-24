@@ -129,7 +129,8 @@
 				enemyData: '',
 				enemyStatusData: '',
 				enemyMapPositions: [],
-				tempEnemyLastSquareMarker: ''
+				tempEnemyLastSquareMarker: '',
+				previousMessage: ''
 			}
 		},
 		beforeMount() {
@@ -714,6 +715,20 @@
 				});
 			},
 			toggleInventory() {
+				let messageBox = document.getElementById('messageContainer');
+				if(messageBox.textContent != 'Player Inventory') {
+					this.previousMessage = messageBox.textContent;
+					messageBox.textContent = 'Player Inventory';
+				}
+				else {
+					messageBox.textContent = this.previousMessage;
+				}
+				//gets status data only when toggle to make status container visible
+				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
+					this.populateInventory();
+				else
+					document.getElementById('menuDataArea').textContent = 'loading data...';
+				
 				document.getElementById('gridArea').classList.toggle('d-none');
 				//closes map controls area
 				document.getElementById('controlArea').classList.toggle('d-none');
@@ -728,6 +743,14 @@
 				document.getElementById('closeInventoryContainer').classList.toggle('d-none');
 			},
 			toggleStatus() {
+				let messageBox = document.getElementById('messageContainer');
+				if(messageBox.textContent != 'Player Status') {
+					this.previousMessage = messageBox.textContent;
+					messageBox.textContent = 'Player Status';
+				}
+				else {
+					messageBox.textContent = this.previousMessage;
+				}
 				document.getElementById('gridArea').classList.toggle('d-none');
 				//gets status data only when toggle to make status container visible
 				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
@@ -927,6 +950,29 @@
 					}	
 				};
 			},
+			populateInventory() {
+				this.formData = new FormData();
+				this.formData.append('token', sessionStorage.getItem('token'));
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'application/json',
+				  'enctype' : 'application/x-www-form-urlencoded',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/getCharacterInventory',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					console.log(response);
+				}).catch(error => {
+					console.log(error)
+				});
+			},
 			populateInspect() {
 				const headers = { 
 					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
@@ -984,21 +1030,69 @@
 			saveAndQuit() {
 
 			},
-			generateDataRow(key, data) {
-				let dataRowContainer = document.createElement('div');   
-				dataRowContainer.classList.add('row');
+			generateDataRow(key, data = null, type = 'text') {
+				if(type == 'avatar') {
+					const headers = { 
+						'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+					};
+			
+					const getAvatar = async function() {
+						let response = await axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/getAvatar',
+							params : '',
+							data   : '',
+							headers: headers,
+						});
+						return response;
+					};
 				
-				let dataRowFieldKey = document.createElement('div');   
-				dataRowFieldKey.classList.add('col-6', 'text-center');
-				dataRowFieldKey.textContent = key;
-				dataRowContainer.appendChild(dataRowFieldKey);
-				
-				let dataRowFieldData = document.createElement('div'); 
-				dataRowFieldData.classList.add('col-6', 'text-center');
-				dataRowFieldData.textContent = data;
-				dataRowContainer.appendChild(dataRowFieldData);
-				
-				document.getElementById('menuDataArea').appendChild(dataRowContainer);
+					getAvatar()
+					.then(response => {
+						console.log(response);
+						let dataRowContainer = document.createElement('div');   
+						dataRowContainer.classList.add('row', 'bg-secondary', 'mb-1');
+						
+						let dataRowAvatar = document.createElement('img');   
+						dataRowAvatar.classList.add('col', 'img-fluid');
+						dataRowAvatar.src = response.data.playerAvatar; 
+						dataRowContainer.append(dataRowAvatar);
+						
+						document.getElementById('menuDataArea').prepend(dataRowContainer);
+					})
+					.catch(error => {
+						console.log(error);
+						document.getElementById('messageContainer').textContent = error.response.message;
+					});
+				}
+				else if(type == 'scoreHeader') {
+					let dataRowContainer = document.createElement('div');   
+					dataRowContainer.classList.add('row');
+					
+					let headerTextContainer = document.createElement('div'); 
+					headerTextContainer.classList.add('col-12', 'text-center');
+					headerTextContainer.textContent = key;
+					dataRowContainer.appendChild(headerTextContainer);
+					
+					document.getElementById('menuDataArea').appendChild(dataRowContainer);
+				}
+				else {
+					let dataRowContainer = document.createElement('div');   
+					dataRowContainer.classList.add('row');
+					
+					let dataRowFieldKey = document.createElement('div');   
+					dataRowFieldKey.classList.add('col-6', 'text-center');
+					dataRowFieldKey.textContent = key;
+					dataRowContainer.appendChild(dataRowFieldKey);
+					
+					let dataRowFieldData = document.createElement('div'); 
+					dataRowFieldData.classList.add('col-6', 'text-center');
+					dataRowFieldData.textContent = data;
+					dataRowContainer.appendChild(dataRowFieldData);
+					
+					document.getElementById('menuDataArea').appendChild(dataRowContainer);
+				}
 			},
 			populateStatus() {
 				this.formData = new FormData();
@@ -1020,7 +1114,7 @@
 				}).then(response => {
 					this.playerStatus = response.data.character;
 					document.getElementById('menuDataArea').textContent = '';
-					
+					this.generateDataRow('Current Avatar', null, 'avatar');
 					this.generateDataRow('Name', response.data.character.characterName);
 					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
 					this.generateDataRow('Stamina', response.data.character.currentStamina + '/' + response.data.character.stamina);
@@ -1028,10 +1122,18 @@
 					this.generateDataRow('Agility', response.data.character.agility);
 					this.generateDataRow('Accuracy', response.data.character.accuracy);
 					this.generateDataRow('Armour', response.data.character.armour);					
-					this.generateDataRow('Money', response.data.character.money);					
+					this.generateDataRow('Money', response.data.character.money);
+					this.generateDataRow('Score', null, 'scoreHeader');
+					this.generateDataRow('Damage Dealt', response.data.character.damageDealt);
+					this.generateDataRow('Damage Received', response.data.character.damageReceived);
+					this.generateDataRow('Kill Count', response.data.character.enemiesKilled);
+					this.generateDataRow('Item Usage Count', response.data.character.itemsUsed);
+					this.generateDataRow('All Time Earnings', response.data.character.totalEarnings);
+					this.generateDataRow('Squares Travelled', response.data.character.squaresMoved);
+					this.generateDataRow('Total Score', response.data.character.score);
 				}).catch(error => {
 					console.log(error)
-				})
+				});
 			},
 			logout() {
 				User.logout({

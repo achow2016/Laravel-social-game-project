@@ -102,6 +102,26 @@ class CharacterController extends Controller {
 			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
 		}
 	}
+
+	public function getCharacterInventory(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$character = $user->character()->first();
+			$characterInventory = $character->items();
+			
+			if($character) {
+				return response(['characterInventory' => $characterInventory], 200);
+			}
+			else {
+				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
+			}	
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
+		}
+	}
 	
 	public function getCharacterBattleStatus(Request $request) 
 	{
@@ -276,6 +296,24 @@ class CharacterController extends Controller {
 		}			
 	}
 	
+	//gets game character avatar
+	public function getAvatar(Request $request) 
+	{
+		try {		
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			
+			return response([
+				'playerAvatar' => $charObj->avatar
+			], 200);
+			
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['message' => 'game state data list could not be made. Please report to admin.'], 422);
+		}
+	}	
+	
 	//gets game state
 	public function getGameState(Request $request) 
 	{
@@ -315,5 +353,6 @@ class CharacterController extends Controller {
 			return response(['status' => 'game state data list could not be made. Please report to admin.'], 422);
 		}
 	}	
+	
 }
 ?>

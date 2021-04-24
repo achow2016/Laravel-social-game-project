@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	//game
 	Route::post('/createCharacter', 'App\Http\Controllers\CharacterController@createCharacter');
 	Route::post('/getCharacterStatus', 'App\Http\Controllers\CharacterController@getCharacterStatus');
+	Route::post('/getCharacterInventory', 'App\Http\Controllers\CharacterController@getCharacterInventory');
 	Route::post('/getCharacterExistenceStatus', 'App\Http\Controllers\CharacterController@getCharacterStatus');
 	Route::post('/getCharacterBattleStatus', 'App\Http\Controllers\CharacterController@getCharacterBattleStatus');
 	Route::post('/generateMap', 'App\Http\Controllers\MapController@generateMap');
@@ -37,6 +38,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/inspectEnemies', 'App\Http\Controllers\EnemyController@inspectEnemies');
 	Route::post('/inspectBattleEnemy', 'App\Http\Controllers\EnemyController@inspectBattleEnemy');
 	Route::post('/getMap', 'App\Http\Controllers\MapController@getMap');
+	Route::post('/getAvatar', 'App\Http\Controllers\CharacterController@getAvatar');
 	Route::post('/moveCharacter', 'App\Http\Controllers\MapController@moveCharacter');
 	//Route::post('/fightEnemy', 'App\Http\Controllers\CharacterController@fightEnemy');
 	Route::post('/switchFight', 'App\Http\Controllers\CharacterController@switchFight');
