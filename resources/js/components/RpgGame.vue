@@ -968,7 +968,11 @@
 					data   : this.formData,
 					headers: headers,
 				}).then(response => {
-					console.log(response);
+					document.getElementById('menuDataArea').textContent = '';
+					let characterInventory = response.data.characterInventory;
+					for(let i = 0; i < characterInventory.length; i++) {
+						this.generateClickableInventoryRow(characterInventory[i].name, characterInventory[i].quantity);
+					}
 				}).catch(error => {
 					console.log(error)
 				});
@@ -1029,6 +1033,61 @@
 			},
 			saveAndQuit() {
 
+			},
+			generateClickableInventoryRow(name, quantity) {				
+				var vm = this;
+				let inventoryRowContainer = document.createElement('div');   
+				inventoryRowContainer.classList.add('row');
+				let itemName = document.createElement('div');   
+				itemName.classList.add('col-6', 'mb-2', 'text-center');
+				itemName.setAttribute('id', name);
+				itemName.textContent = name;
+				itemName.addEventListener('click', function(event) {
+					vm.useItem(event.target.id);
+				});
+				
+				inventoryRowContainer.appendChild(itemName);
+
+				let itemQuantity = document.createElement('div'); 
+				itemQuantity.classList.add('col-6', 'text-center');
+				itemQuantity.textContent = quantity;
+				
+				inventoryRowContainer.appendChild(itemQuantity);
+				
+				document.getElementById('menuDataArea').appendChild(inventoryRowContainer);
+			
+			},
+			useItem(name) {
+				console.log(name);
+				const headers = { 
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+				this.formData = new FormData();
+				this.formData.append('token', sessionStorage.getItem('token'));
+				this.formData.append('_method', 'POST');
+				this.formData.append('itemName', name);
+				
+				
+				const useItem = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/useItem',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+			
+				useItem(this.formData)
+				.then(response => {
+					console.log(response);
+				})
+				.catch(error => {
+					console.log(error);
+					document.getElementById('messageContainer').textContent = error.response.message;
+				});
 			},
 			generateDataRow(key, data = null, type = 'text') {
 				if(type == 'avatar') {
@@ -1098,7 +1157,7 @@
 				this.formData = new FormData();
 				this.formData.append('token', sessionStorage.getItem('token'));
 				this.formData.append('_method', 'POST');
-	
+				
 				const headers = { 
 				  'Content-Type': 'application/json',
 				  'enctype' : 'application/x-www-form-urlencoded',

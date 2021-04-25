@@ -35,7 +35,8 @@ class Character extends Model
 		'defense', 'currentDefense',
 		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
 		'stance', 'baseAttackCost',
-		'combatRange'
+		'combatRange',
+		'effects'
 	];
 
     /**
@@ -55,6 +56,7 @@ class Character extends Model
         //'email_verified_at' => 'datetime',
 		'mapPosition' => 'array',
 		'stance' => 'array',
+		'effects' => 'array'
     ];
 	
 	public function user() {

@@ -20,14 +20,8 @@ class ActiveGameCharacterItem extends Model
     protected $fillable = [
         'itemId',
         'ownerId',
-        'name',
-		'effect',
-		'effectStackAmount',
-		'effectStackLimit',
-		'effectPercent',
-		'effectDuration',
-		'shopValue'
-	];
+		'quantity'
+	];	
 
     /**
      * The attributes that should be hidden for arrays.
@@ -48,10 +42,10 @@ class ActiveGameCharacterItem extends Model
     ];
 	
 	public function originalItem() {
-		return $this->hasOne('App\Models\GameSkill', 'id', 'itemId');
+		return $this->hasOne('App\Models\GameItem', 'id', 'itemId');
 	}
 	
-	public function ownerInventory() {
-		return $this->belongTo('App\Models\GameCharacterInventory', 'id', 'inventoryId');
+	public function owner() {
+		return $this->belongTo('App\Models\Character', 'id', 'ownerId');
 	}
 }

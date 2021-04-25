@@ -20,14 +20,7 @@ class GameActiveEbemyItem extends Model
     protected $fillable = [
         'itemId',
         'ownerId',
-        'name',
-		'effect',
-		'effectStackAmount',
-		'effectStackLimit',
-		'effectPercent',
-		'effectDuration',
-		'shopValue'
-	];
+        'quantity'
 
     /**
      * The attributes that should be hidden for arrays.
@@ -48,7 +41,7 @@ class GameActiveEbemyItem extends Model
     ];
 	
 	public function originalItem() {
-		return $this->hasOne('App\Models\GameSkill', 'id', 'itemId');
+		return $this->hasOne('App\Models\GameItem', 'id', 'itemId');
 	}
 	
 	public function ownerInventory() {

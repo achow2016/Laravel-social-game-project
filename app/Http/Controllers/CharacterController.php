@@ -13,6 +13,9 @@ use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameMapTileset;
 use App\Models\GameActiveEnemy;
+use App\Models\ActiveGameCharacterItem;
+use App\Models\GameItem;
+
 //use DateTime;
 
 use App\Traits\GameTurnLogic;
@@ -78,6 +81,14 @@ class CharacterController extends Controller {
 			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
 			$character->setAttribute('money', 0);
 			$user->character()->save($character);
+		
+			//grants starter healing item
+			$aidKit = GameItem::where('name', 'Aid Kit')->first();
+			$starterHealingItem = new ActiveGameCharacterItem();
+			$starterHealingItem->setAttribute('itemId', $aidKit->id);
+			$starterHealingItem->setAttribute('ownerId', $character->id);
+			$starterHealingItem->setAttribute('quantity', 1);
+			$character->items()->save($starterHealingItem);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -108,10 +119,15 @@ class CharacterController extends Controller {
 		try {
 			$user = User::where('name', $request->user()->name)->first();
 			$character = $user->character()->first();
-			$characterInventory = $character->items();
-			
-			if($character) {
-				return response(['characterInventory' => $characterInventory], 200);
+			if($character) {			
+				$characterInventory = $character->items()->get();
+				$characterActualItems = [];
+				foreach($characterInventory as $item) {
+					$originalItemToAdd = GameItem::where('id', $item->itemId)->first();
+					$originalItemToAdd->quantity = $item->quantity;
+					$characterActualItems[] = $originalItemToAdd;
+				}
+				return response(['characterInventory' => $characterActualItems], 200);
 			}
 			else {
 				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
@@ -205,7 +221,6 @@ class CharacterController extends Controller {
 	public function startFight(Request $request) 
 	{
 		try {
-			//return $this->findBattlePhaseOrder($request);
 			$results = $this->findBattleTurnOrder($request);
 			return response(['results' => $results], 200);
 		}
@@ -214,6 +229,21 @@ class CharacterController extends Controller {
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}
 	}
+	
+	//use item, game code in game turn logic
+	public function useItem(Request $request) 
+	{
+		try {
+			//$results = $this->useItem($request);
+			$this->usePlayerItem($request);
+			return response(['results' => 'hi'], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}
+	}
+	
 	//gets enemy detail, distance to enemy and moves to battle component to fight targeted enemy
 	public function fightEnemy(Request $request) 
 	{

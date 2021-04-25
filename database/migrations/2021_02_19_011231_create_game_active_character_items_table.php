@@ -17,13 +17,7 @@ class CreateGameActiveCharacterItemsTable extends Migration
 			$table->increments('id');
 			$table->integer('itemId')->unsigned();
 			$table->integer('ownerId')->unsigned();
-			$table->string('name');
-			$table->string('effect');
-			$table->integer('effectStackAmount');
-			$table->integer('effectStackLimit');
-			$table->integer('effectPercent');
-			$table->integer('effectDuration');
-			$table->integer('shopValue');
+			$table->integer('quantity');
 			$table->timestamps();
 			$table->foreign('itemId')->references('id')->on('game_items')->onDelete('cascade');			
 			$table->foreign('ownerId')->references('id')->on('character')->onDelete('cascade');			

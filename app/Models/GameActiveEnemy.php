@@ -29,7 +29,8 @@ class GameActiveEnemy extends Model
 		'money',
 		'defense', 'currentDefense','stance',
 		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
-		'combatRange', 'turnPosition', 'turnAction'
+		'combatRange', 'turnPosition', 'turnAction',
+		'effects'
 		
 			
 	];
@@ -51,6 +52,7 @@ class GameActiveEnemy extends Model
         //'email_verified_at' => 'datetime',
 		'mapPosition' => 'array',
 		'stance' => 'array',
+		'effects' => 'array'
 		
     ];
 	

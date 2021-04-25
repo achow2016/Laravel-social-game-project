@@ -5,6 +5,8 @@ use App\Models\Character;
 use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameActiveEnemy;
+use App\Models\ActiveGameCharacterItem;
+use App\Models\GameItem;
 
 use Illuminate\Support\Facades\Log;
 
@@ -97,6 +99,51 @@ trait GameTurnLogic
 			}	
 		}	
 	}
+	
+	
+	public function usePlayerItem(Request $request)
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$character = $user->character()->first();
+			$itemName = $request->itemName;
+			if($character) {			
+				$ItemUsedData = GameItem::where('name', $itemName)->first();
+				$characterItemUsed = $character->items()->get()->where('itemId', $ItemUsedData->id)->first();
+				$characterItemUsed->quantity = $characterItemUsed->quantity - 1;
+				
+				if($characterItemUsed->quantity == 0)
+					$character->items()->forget($characterItemUsed);
+				else
+					$character->items()->save($characterItemUsed);
+				
+				$effects = [];
+				
+				if($character->effects != null)
+					$effects[] = $character->effects;
+				
+				$effects[] = array(
+					'name' => $ItemUsedData->effect, 
+					'effectStackAmount' => $ItemUsedData->effectStackAmount, 
+					'effectStackLimit' => $ItemUsedData->effectStackLimit, 
+					'effectPercent' => $ItemUsedData->effectPercent, 
+					'effectDuration' => $ItemUsedData->effectDuration, 
+				);
+				
+				$character->effects = $effects;
+				$character->save();
+				
+				//return (['message' => 'Killed enemy with ']);
+			}
+			else {
+				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
+			}	
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
+		}
+	}	
 	
 	public function exchangeMelee(Request $request)
 	{
