@@ -235,8 +235,8 @@ class CharacterController extends Controller {
 	{
 		try {
 			//$results = $this->useItem($request);
-			$this->usePlayerItem($request);
-			return response(['results' => 'hi'], 200);
+			$results = $this->usePlayerItem($request);
+			return response(['results' => $results], 200);
 		}
 		catch(Throwable $e) {
 			report($e);

@@ -107,31 +107,132 @@ trait GameTurnLogic
 			$user = User::where('name', $request->user()->name)->first();
 			$character = $user->character()->first();
 			$itemName = $request->itemName;
-			if($character) {			
+			if($character) {
+				
+				//item matching, updates item quantity
 				$ItemUsedData = GameItem::where('name', $itemName)->first();
 				$characterItemUsed = $character->items()->get()->where('itemId', $ItemUsedData->id)->first();
 				$characterItemUsed->quantity = $characterItemUsed->quantity - 1;
-				
 				if($characterItemUsed->quantity == 0)
-					$character->items()->forget($characterItemUsed);
+					$character->items()->delete($characterItemUsed);
 				else
 					$character->items()->save($characterItemUsed);
 				
-				$effects = [];
+				$matchFound = false;
 				
-				if($character->effects != null)
-					$effects[] = $character->effects;
-				
-				$effects[] = array(
-					'name' => $ItemUsedData->effect, 
-					'effectStackAmount' => $ItemUsedData->effectStackAmount, 
-					'effectStackLimit' => $ItemUsedData->effectStackLimit, 
-					'effectPercent' => $ItemUsedData->effectPercent, 
-					'effectDuration' => $ItemUsedData->effectDuration, 
-				);
-				
-				$character->effects = $effects;
-				$character->save();
+				//if no effects starts a new array
+				if($character->effects == null) {		
+					$effects = [];
+					$effect = (object) [
+						'name' => $ItemUsedData->effect, 
+						'effectStackAmount' => $ItemUsedData->effectStackAmount, 
+						'effectStackLimit' => $ItemUsedData->effectStackLimit, 
+						'effectPercent' => $ItemUsedData->effectPercent, 
+						'effectDuration' => $ItemUsedData->effectDuration, 
+						'effectDurationRemaining' => $ItemUsedData->effectDuration
+					];
+					$effects[] = $effect;
+					$character->effects = $effects;
+					$character->currentTurn = $character->currentTurn + 1;
+					if($character->currentTurn > $character->gameTurns)
+						$character->currentTurn = 1;
+					$character->itemsUsed = $character->itemsUsed + 1;	
+					$character->score = $character->score + 1;						
+					$character->save();
+					return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect]);
+				}
+				//if there are effects in play, updates with conditions
+				else {
+					$effects = $character->effects;
+					//checks for matches of same effects first
+					foreach($effects as $effectIndex => $effect) {
+						if($effect['name'] == $ItemUsedData->effect) {
+							
+							//replaces if new effect greater
+							if($effect['effectPercent'] < $ItemUsedData->effectPercent) {
+								$matchFound = true;
+								unset($effects[$effectIndex]);
+								$newEffect = (object) [
+									'name' => $ItemUsedData->effect, 
+									'effectStackAmount' => $ItemUsedData->effectStackAmount, 
+									'effectStackLimit' => $ItemUsedData->effectStackLimit, 
+									'effectPercent' => $ItemUsedData->effectPercent, 
+									'effectDuration' => $ItemUsedData->effectDuration,
+									'effectDurationRemaining' => $ItemUsedData->effectDuration
+								];
+								$effects[] = $newEffect;
+								$character->effects = $effects;
+								$character->currentTurn = $character->currentTurn + 1;
+								if($character->currentTurn > $character->gameTurns)
+									$character->currentTurn = 1;
+								$character->itemsUsed = $character->itemsUsed + 1;	
+								$character->score = $character->score + 1;	
+								$character->save();
+								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased a similar effect.']);
+							}
+							
+							//increases stack count if duration remaining is max, effect percentage is the same, and is below stack limit
+							if($effect['effectPercent'] == $ItemUsedData->effectPercent
+							&& $effect['effectDuration'] <= $ItemUsedData->effectDuration
+							&& $effect['effectStackAmount'] < $effect['effectStackLimit']) {
+								$matchFound = true;
+								$newStackCount = $effect['effectStackAmount'] + 1;
+								unset($effects[$effectIndex]);
+								$effect['effectStackAmount'] = $effect['effectStackAmount'] + 1;
+								$newEffect = (object) [
+									'name' => $ItemUsedData->effect, 
+									'effectStackAmount' => $newStackCount,
+									'effectStackLimit' => $ItemUsedData->effectStackLimit, 
+									'effectPercent' => $ItemUsedData->effectPercent, 
+									'effectDuration' => $ItemUsedData->effectDuration,
+									'effectDurationRemaining' => $ItemUsedData->effectDuration
+								];
+								$effects[] = $newEffect;
+								$character->effects = $effects;
+								$character->currentTurn = $character->currentTurn + 1;
+								if($character->currentTurn > $character->gameTurns)
+									$character->currentTurn = 1;
+								$character->itemsUsed = $character->itemsUsed + 1;	
+								$character->score = $character->score + 1;	
+								$character->save();
+								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased its effects.']);
+							}
+							
+							//if same effect but stack limit hit, item is consumed but error returned
+							if($effect['effectPercent'] == $ItemUsedData->effectPercent
+							&& $effect['effectDuration'] <= $ItemUsedData->effectDuration
+							&& $effect['effectStackAmount'] >= $effect['effectStackLimit']) {
+								$matchFound = true;
+								$character->currentTurn = $character->currentTurn + 1;
+								if($character->currentTurn > $character->gameTurns)
+									$character->currentTurn = 1;
+								$character->itemsUsed = $character->itemsUsed + 1;	
+								$character->score = $character->score + 1;	
+								return (['message' => 'Used ' . $ItemUsedData->name . ', but it had no effect.']);
+							}
+						}
+					}
+					
+					//adds new effect to array if others present but no matching
+					if($matchFound == false && $character->effects != null) {
+						$newEffect = (object) [
+							'name' => $ItemUsedData->effect, 
+							'effectStackAmount' => $ItemUsedData->effectStackAmount, 
+							'effectStackLimit' => $ItemUsedData->effectStackLimit, 
+							'effectPercent' => $ItemUsedData->effectPercent, 
+							'effectDuration' => $ItemUsedData->effectDuration,
+							'effectDurationRemaining' => $ItemUsedData->effectDuration
+						];
+						$effects[] = $newEffect;
+						$charObj->currentTurn = $charObj->currentTurn + 1;
+						if($charObj->currentTurn > $charObj->gameTurns)
+							$charObj->currentTurn = 1;
+						$character->itemsUsed = $character->itemsUsed + 1;	
+						$character->score = $character->score + 1;	
+						$character->save();
+						return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect]);
+					}	
+				}	
 				
 				//return (['message' => 'Killed enemy with ']);
 			}

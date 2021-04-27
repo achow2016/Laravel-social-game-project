@@ -1082,12 +1082,24 @@
 			
 				useItem(this.formData)
 				.then(response => {
-					console.log(response);
+					console.log(response.data.results.message);
+					this.toggleInventory();
+					document.getElementById('messageContainer').textContent = response.data.results.message;
 				})
 				.catch(error => {
 					console.log(error);
 					document.getElementById('messageContainer').textContent = error.response.message;
+					
 				});
+				
+				const sleep = function sleep(ms) {
+					return new Promise(resolve => setTimeout(resolve, ms));
+				}
+				
+				sleep(1500).then(() => {
+					this.enemyTurn();
+				});	
+		
 			},
 			generateDataRow(key, data = null, type = 'text') {
 				if(type == 'avatar') {
