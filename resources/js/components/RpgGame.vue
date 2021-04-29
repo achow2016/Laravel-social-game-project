@@ -15,13 +15,12 @@
 			</div>
 		</header>
 	
-		<div class="row text-center mt-5 mb-2">
-			<div id="messageContainer" class="col text-center">
-				Messages
+		<div class="row mt-5 mb-2">
+			<div id="messageContainer" class="col overflow-auto" style="white-space:pre;height:40px">
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5" id="gridArea">
+		<div class="row mt-1 mb-5" id="gridArea">
 			<div class="col">		
 				<div>
 					<div id="mapGrid" class="col text-center">
@@ -193,7 +192,11 @@
 					this.drawEnemyPositions();
 				})
 				.catch(error => {
-					document.getElementById('messageContainer').textContent = error.response.data;
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', error.response.data + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					return;
 				});
 			}	
@@ -204,7 +207,11 @@
 				all[i].style.pointerEvents = 'auto';
 			}
 			if(this.$route.params.message) {
-				document.getElementById('messageContainer').textContent = this.$route.params.message;
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', this.$route.params.message + '\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + this.$route.params.message + '\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 			}
 			let currentTurn = this.$route.params.currentTurn;
 			this.playerAvatar = this.$route.params.playerAvatar;
@@ -252,7 +259,11 @@
 						for (let i = 0, count = all.length; i < count; i++) {
 							all[i].style.pointerEvents = 'auto';
 						}
-						document.getElementById('messageContainer').textContent = response.data.error;
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', response.data.error + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.error + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 						return;
 					}	
 					else {			
@@ -263,14 +274,21 @@
 							for (let i = 0, count = all.length; i < count; i++) {
 								all[i].style.pointerEvents = 'auto';
 							}
-							
-							document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'There was an error starting a battle.\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 							console.log(err);
 						});
 					}
 				})
 				.catch(error => {
-					document.getElementById('messageContainer').textContent = error.response.data;
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', error.response.data + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					return;
 				});
 			}
@@ -283,7 +301,7 @@
 			//remove large margins around map
 			if(screen.height < 600) {
 				document.getElementById('gridArea').classList.toggle('mb-5');
-				document.getElementById('gridArea').classList.toggle('mt-5');
+				document.getElementById('gridArea').classList.toggle('mt-1');
 				
 				let gridItems = document.getElementsByClassName('gameGridSquare');
 				for(let i = 0; i < gridItems.length; i++) {
@@ -368,7 +386,11 @@
 					//server response errors
 					if (error.response) {
 						console.log(error.response.data.message);
-						document.getElementById('messageContainer').textContent = error.response.data.message;
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					} 
 					//for no response	
 					else if(error.request) {
@@ -380,54 +402,6 @@
 						console.log('Error', error.message);
 					}
 				});
-				/*
-				User.getEnemies({
-					_method: 'POST', token: sessionStorage.getItem('token')
-					}, 
-						sessionStorage.getItem('token')
-					)
-					.then((response) => {
-						this.enemyMapPositions = [];
-						this.enemyData = response.data.enemies;
-						for(let i = 0; i < this.enemyData.length; i++) {			
-							//get current coords
-							let row = this.enemyData[i].mapPosition[0];
-							let column = this.enemyData[i].mapPosition[1];
-							let enemySquare = document.getElementById(row + '-' + column);
-							
-							this.enemyMapPositions.push([row, column]);
-							
-							//outlines enemy square 
-							if(!enemySquare.classList.contains('border-danger')) {
-								enemySquare.classList.toggle('border-dark');
-								enemySquare.classList.toggle('border-danger');
-							}
-							
-							//draws enemy onto square
-							enemySquare.innerHTML = '';
-							let enemyIcon = document.createElement('img');   
-							enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
-							enemyIcon.classList.toggle('img-fluid');   
-							enemySquare.appendChild(enemyIcon);
-						}
-					})
-					.catch(error => {
-					//server response errors
-					if (error.response) {
-						console.log(error.response.data.message);
-						document.getElementById('messageContainer').textContent = error.response.data.message;
-					} 
-					//for no response	
-					else if(error.request) {
-						// The request was made but no response was received
-						console.log(error.request);
-					} 
-					//catch outside above cases
-					else {
-						console.log('Error', error.message);
-					}
-				});
-				*/
 			},
 			updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, avatar) {
 				let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);							
@@ -503,7 +477,12 @@
 				
 				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + ', enemy deciding...';
 				
-				document.getElementById('messageContainer').textContent = 'Enemy Turn.';
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Enemy Turn.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy Turn.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				
 				
 				const headers = { 
 					'Content-Type': 'multipart/form-data',
@@ -588,7 +567,14 @@
 							for (let i = 0, count = all.length; i < count; i++) {
 								all[i].style.pointerEvents = 'auto';
 							}
-							document.getElementById('menuDataArea').textContent = 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + enemyNewPosition;
+							document.getElementById('menuDataArea').textContent = 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + 	enemyNewPosition;
+							
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + 	enemyNewPosition + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + enemyNewPosition + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
 						}
@@ -602,6 +588,12 @@
 							}
 							
 							document.getElementById('menuDataArea').textContent = 'Enemy at ' + mapCoord + ' attacks player!';
+							
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Enemy at ' + mapCoord + ' attacks player!' + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy at ' + mapCoord + ' attacks player!' + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 							
 							sleep(1500).then(() => {
 								this.formData = new FormData();
@@ -633,7 +625,11 @@
 										for (let i = 0, count = all.length; i < count; i++) {
 											all[i].style.pointerEvents = 'auto';
 										}
-										document.getElementById('messageContainer').textContent = response.error;
+										if(!localStorage.hasOwnProperty('gameLog'))
+											localStorage.setItem('gameLog', response.error + '\r\n');
+										else
+											localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.error + '\r\n');
+										document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 										return;
 									}	
 									else {
@@ -644,8 +640,11 @@
 											for (let i = 0, count = all.length; i < count; i++) {
 												all[i].style.pointerEvents = 'auto';
 											}
-											
-											document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+											if(!localStorage.hasOwnProperty('gameLog'))
+												localStorage.setItem('gameLog', 'There was an error starting a battle.\r\n');
+											else
+												localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
+											document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 											console.log(err);
 										});
 									}
@@ -696,8 +695,13 @@
 				moveCharacter(this.formData)
 				.then(response => {
 					
-					if(response.data.message)
-						document.getElementById('menuDataArea').textContent = response.data.message;
+					if(response.data.message) {
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					}	
 					
 					this.playerPosition = response.data.playerPosition;
 					
@@ -715,14 +719,12 @@
 				});
 			},
 			toggleInventory() {
-				let messageBox = document.getElementById('messageContainer');
-				if(messageBox.textContent != 'Player Inventory') {
-					this.previousMessage = messageBox.textContent;
-					messageBox.textContent = 'Player Inventory';
-				}
-				else {
-					messageBox.textContent = this.previousMessage;
-				}
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Toggled inventory.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled inventory.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+			
 				//gets status data only when toggle to make status container visible
 				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
 					this.populateInventory();
@@ -743,16 +745,12 @@
 				document.getElementById('closeInventoryContainer').classList.toggle('d-none');
 			},
 			toggleStatus() {
-				let messageBox = document.getElementById('messageContainer');
-				if(messageBox.textContent != 'Player Status') {
-					this.previousMessage = messageBox.textContent;
-					messageBox.textContent = 'Player Status';
-				}
-				else {
-					messageBox.textContent = this.previousMessage;
-				}
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Toggled status page.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled status page.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				document.getElementById('gridArea').classList.toggle('d-none');
-				//gets status data only when toggle to make status container visible
 				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
 					this.populateStatus();
 				else
@@ -871,7 +869,11 @@
 				document.getElementById('closeSelectFightContainer').style.pointerEvents = 'auto';
 				document.getElementById('closeSelectFightButton').style.pointerEvents = 'auto';
 				
-				document.getElementById('messageContainer').textContent = 'Select enemy.';
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Selecting enemy to fight.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Selecting enemy to fight.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				
 				let gameGridSquares = document.getElementsByClassName('gameGridSquare');
 				
@@ -914,7 +916,11 @@
 						startFight(this.formData)
 						.then(response => {
 							if(response.data.message != null) {
-								document.getElementById('messageContainer').textContent = response.data.message;
+								if(!localStorage.hasOwnProperty('gameLog'))
+									localStorage.setItem('gameLog', response.data.message + '\r\n');
+								else
+									localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.message + '\r\n');
+								document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 								vm.toggleSelectFightMenu();
 							}	
 							else {
@@ -925,8 +931,11 @@
 									for (let i = 0, count = all.length; i < count; i++) {
 										all[i].style.pointerEvents = 'auto';
 									}
-									
-									document.getElementById('messageContainer').textContent = 'There was an error starting a battle.';
+									if(!localStorage.hasOwnProperty('gameLog'))
+										localStorage.setItem('gameLog', 'There was an error starting a battle.\r\n');
+									else
+										localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
+									document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 									console.log(err);
 								});
 							}
@@ -935,7 +944,11 @@
 							//server response errors
 							if (error.response) {
 								console.log(error.response.data.message);
-								document.getElementById('messageContainer').textContent = error.response.data.message;
+								if(!localStorage.hasOwnProperty('gameLog'))
+									localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+								else
+									localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+								document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 							} 
 							//for no response	
 							else if(error.request) {
@@ -999,8 +1012,12 @@
 					console.log(response.data.enemies);
 					this.enemyStatusData = response.data.enemies;
 					document.getElementById('menuDataArea').textContent = '';
-					document.getElementById('menuDataArea').textContent = response.data.message;
-					
+					document.getElementById('menuDataArea').textContent += response.data.message + '\r\n';
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', 'Inspected enemies.\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Inspected enemies.\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					for(let i = 0; i < this.enemyStatusData.length; i++) {
 						this.generateDataRow('Name', this.enemyStatusData[i].name);
 						this.generateDataRow('Direction', this.enemyStatusData[i].mapOrientation);
@@ -1018,7 +1035,11 @@
 					//server response errors
 					if (error.response) {
 						console.log(error.response.data.message);
-						document.getElementById('messageContainer').textContent = error.response.data.message;
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					} 
 					//for no response	
 					else if(error.request) {
@@ -1082,13 +1103,21 @@
 			
 				useItem(this.formData)
 				.then(response => {
-					console.log(response.data.results.message);
+					console.log(response.data.results);
 					this.toggleInventory();
-					document.getElementById('messageContainer').textContent = response.data.results.message;
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', response.data.results + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.results + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				})
 				.catch(error => {
 					console.log(error);
-					document.getElementById('messageContainer').textContent = error.response.message;
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', error.response.message + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					
 				});
 				
@@ -1134,7 +1163,11 @@
 					})
 					.catch(error => {
 						console.log(error);
-						document.getElementById('messageContainer').textContent = error.response.message;
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					});
 				}
 				else if(type == 'scoreHeader') {

@@ -236,6 +236,10 @@ class CharacterController extends Controller {
 		try {
 			//$results = $this->useItem($request);
 			$results = $this->usePlayerItem($request);
+			$effectsUpdates = $this->updateEffects($request);
+			foreach($effectsUpdates as $update) {
+				$results = $results['message'] . $update;
+			}
 			return response(['results' => $results], 200);
 		}
 		catch(Throwable $e) {

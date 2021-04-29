@@ -16,32 +16,6 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
-	/*
-	//returns array of key value pairs of index of enemy and player in current agility descending order
-	public function findBattlePhaseOrder(Request $request)     
-	{               
-		$user = User::where('name', $request->user()->name)->first();
-		$charObj = $user->character()->first();
-		$charObj->battle = true;
-		$charObj->save();
-		
-		$charObjSpeed = $charObj->currentAgility;
-		$existingMap = GameMap::where('id', $charObj->mapId)->first();
-		$enemyObjs = $existingMap->enemies()->get();
-		$enemyObjsSpeed = $enemyObjs->pluck('currentAgility');
-		
-		//$actorArray[] = array();
-		$actorArray['player'] = $charObjSpeed;
-		for($i = 0; $i < count($enemyObjsSpeed); $i++) {
-			$actorArray['enemy' . $i] = $enemyObjsSpeed[$i];
-		}	
-		arsort($actorArray);
-		//return $actorArray;
-		return response(['actorArray' => $actorArray], 200);
-	}
-	*/
-	
-	//returns array of key value pairs of index of enemy and player in current agility descending order
 	public function findMoveTurnOrder(Request $request)     
 	{               
 		$user = User::where('name', $request->user()->name)->first();
@@ -99,8 +73,8 @@ trait GameTurnLogic
 			}	
 		}	
 	}
-	
-	
+
+	//uses a player item and applies its effect
 	public function usePlayerItem(Request $request)
 	{
 		try {
@@ -139,7 +113,7 @@ trait GameTurnLogic
 					$character->itemsUsed = $character->itemsUsed + 1;	
 					$character->score = $character->score + 1;						
 					$character->save();
-					return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect]);
+					return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '. ']);
 				}
 				//if there are effects in play, updates with conditions
 				else {
@@ -161,7 +135,8 @@ trait GameTurnLogic
 									'effectDurationRemaining' => $ItemUsedData->effectDuration
 								];
 								$effects[] = $newEffect;
-								$character->effects = $effects;
+								$orderedEffects = array_values($effects);
+								$character->effects = $orderedEffects;
 								$character->currentTurn = $character->currentTurn + 1;
 								if($character->currentTurn > $character->gameTurns)
 									$character->currentTurn = 1;
@@ -171,9 +146,8 @@ trait GameTurnLogic
 								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased a similar effect.']);
 							}
 							
-							//increases stack count if duration remaining is max, effect percentage is the same, and is below stack limit
+							//increases stack count effect percentage is the same, and is below stack limit
 							if($effect['effectPercent'] == $ItemUsedData->effectPercent
-							&& $effect['effectDuration'] <= $ItemUsedData->effectDuration
 							&& $effect['effectStackAmount'] < $effect['effectStackLimit']) {
 								$matchFound = true;
 								$newStackCount = $effect['effectStackAmount'] + 1;
@@ -183,19 +157,20 @@ trait GameTurnLogic
 									'name' => $ItemUsedData->effect, 
 									'effectStackAmount' => $newStackCount,
 									'effectStackLimit' => $ItemUsedData->effectStackLimit, 
-									'effectPercent' => $ItemUsedData->effectPercent, 
+									'effectPercent' => $ItemUsedData->effectPercent,
 									'effectDuration' => $ItemUsedData->effectDuration,
 									'effectDurationRemaining' => $ItemUsedData->effectDuration
 								];
 								$effects[] = $newEffect;
-								$character->effects = $effects;
+								$orderedEffects = array_values($effects);
+								$character->effects = $orderedEffects;
 								$character->currentTurn = $character->currentTurn + 1;
 								if($character->currentTurn > $character->gameTurns)
 									$character->currentTurn = 1;
 								$character->itemsUsed = $character->itemsUsed + 1;	
 								$character->score = $character->score + 1;	
 								$character->save();
-								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased its effects.']);
+								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased its effects. ']);
 							}
 							
 							//if same effect but stack limit hit, item is consumed but error returned
@@ -208,7 +183,7 @@ trait GameTurnLogic
 									$character->currentTurn = 1;
 								$character->itemsUsed = $character->itemsUsed + 1;	
 								$character->score = $character->score + 1;	
-								return (['message' => 'Used ' . $ItemUsedData->name . ', but it had no effect.']);
+								return (['message' => 'Used ' . $ItemUsedData->name . ', but it had no effect. ']);
 							}
 						}
 					}
@@ -224,17 +199,17 @@ trait GameTurnLogic
 							'effectDurationRemaining' => $ItemUsedData->effectDuration
 						];
 						$effects[] = $newEffect;
+						$orderedEffects = array_values($effects);
+						$character->effects = $orderedEffects;
 						$charObj->currentTurn = $charObj->currentTurn + 1;
 						if($charObj->currentTurn > $charObj->gameTurns)
 							$charObj->currentTurn = 1;
 						$character->itemsUsed = $character->itemsUsed + 1;	
 						$character->score = $character->score + 1;	
 						$character->save();
-						return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect]);
+						return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '. ']);
 					}	
 				}	
-				
-				//return (['message' => 'Killed enemy with ']);
 			}
 			else {
 				return response(['status' => 'Error, your character could not be found. Please report to admin.'], 422);
@@ -244,7 +219,37 @@ trait GameTurnLogic
 			report($e);
 			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
 		}
-	}	
+	}
+	
+	public function updateEffects(Request $request)
+	{
+		$user = User::where('name', $request->user()->name)->first();
+		$charObj = $user->character()->first();
+		$updates = [];
+		$updatedEffects = [];
+		$effects = $charObj->effects;
+		foreach($effects as $effectIndex => $effect) {
+			//other effects here as they are added to game
+			if($effect['name'] == 'Regen') {
+				$regenRecovery = ($charObj->health * ($effect['effectPercent'] / 100)) * $effect['effectStackAmount'];
+				$charObj->currentHealth = $charObj->currentHealth + $regenRecovery;
+				$updates[] = 'Regenerated ' . $regenRecovery . ' health.';
+				$updatedEffect = (object) [
+					'name' => $effect['name'], 
+					'effectStackAmount' => $effect['effectStackAmount'], 
+					'effectStackLimit' => $effect['effectStackLimit'], 
+					'effectPercent' => $effect['effectPercent'], 
+					'effectDuration' => $effect['effectDuration'],
+					'effectDurationRemaining' => $effect['effectDuration'] - 1
+				];
+				$updatedEffects[] = $updatedEffect;			
+			}
+		}
+		$charObj->effects = $updatedEffects;
+		$charObj->save();
+		return $updates;
+		
+	}
 	
 	public function exchangeMelee(Request $request)
 	{
