@@ -272,6 +272,7 @@
 						)
 						.then(response => {
 							console.log(response);
+							localStorage.setItem('gameLog', 'Welcome to rpgGame.\n\r');
 							this.$router.push('mapBuilder');
 						})
 						.catch(error => {

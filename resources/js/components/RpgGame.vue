@@ -64,11 +64,9 @@
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-5">
-			<div class="col overflow-auto text-center" id="menuDataArea">
-				loading data...
-			</div>
-		</div>
+		<!--div class="row mt-5 mb-5"-->
+			<div class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
+		<!--/div-->
 		
 		<div class="row fixed-bottom">
 		
@@ -197,11 +195,19 @@
 					else
 						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data + '\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					return;
 				});
 			}	
 		},
 		mounted() {
+			if(!localStorage.hasOwnProperty('gameLog'))
+				localStorage.setItem('gameLog', 'Welcome to rpgGame.');
+			else
+				localStorage.setItem('gameLog', localStorage.getItem('gameLog'));
+			document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+			document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+		
 			let all = document.getElementsByTagName("*");
 			for (let i = 0, count = all.length; i < count; i++) {
 				all[i].style.pointerEvents = 'auto';
@@ -212,6 +218,7 @@
 				else
 					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + this.$route.params.message + '\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 			}
 			let currentTurn = this.$route.params.currentTurn;
 			this.playerAvatar = this.$route.params.playerAvatar;
@@ -264,6 +271,7 @@
 						else
 							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.error + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 						return;
 					}	
 					else {			
@@ -279,6 +287,7 @@
 							else
 								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
 							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							console.log(err);
 						});
 					}
@@ -289,6 +298,7 @@
 					else
 						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data + '\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					return;
 				});
 			}
@@ -391,6 +401,7 @@
 						else
 							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					} 
 					//for no response	
 					else if(error.request) {
@@ -478,10 +489,11 @@
 				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + ', enemy deciding...';
 				
 				if(!localStorage.hasOwnProperty('gameLog'))
-					localStorage.setItem('gameLog', 'Enemy Turn.\r\n');
+					localStorage.setItem('gameLog', 'Enemy turn\r\n');
 				else
-					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy Turn.\r\n');
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy turn\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				
 				
 				const headers = { 
@@ -574,6 +586,7 @@
 							else
 								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + enemyNewPosition + '\r\n');
 							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
@@ -594,6 +607,7 @@
 							else
 								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy at ' + mapCoord + ' attacks player!' + '\r\n');
 							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							
 							sleep(1500).then(() => {
 								this.formData = new FormData();
@@ -630,6 +644,7 @@
 										else
 											localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.error + '\r\n');
 										document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+										document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 										return;
 									}	
 									else {
@@ -645,6 +660,7 @@
 											else
 												localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
 											document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+											document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 											console.log(err);
 										});
 									}
@@ -701,6 +717,7 @@
 						else
 							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.message + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					}	
 					
 					this.playerPosition = response.data.playerPosition;
@@ -724,16 +741,21 @@
 				else
 					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled inventory.\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 			
 				//gets status data only when toggle to make status container visible
-				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
+				console.log(document.getElementById('menuDataArea').innerHTML);
+				if(document.getElementById('menuDataArea').innerHTML == 'loading data...')
 					this.populateInventory();
-				else
+				else {
+					document.getElementById('menuDataArea').innerHTML = '';
 					document.getElementById('menuDataArea').textContent = 'loading data...';
-				
+				}
+				document.getElementById('messageContainer').classList.toggle('d-none');
 				document.getElementById('gridArea').classList.toggle('d-none');
 				//closes map controls area
 				document.getElementById('controlArea').classList.toggle('d-none');
+				document.getElementById('menuDataArea').classList.toggle('d-none');
 				
 				//closes bottom game menu bar
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
@@ -750,6 +772,7 @@
 				else
 					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled status page.\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				document.getElementById('gridArea').classList.toggle('d-none');
 				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
 					this.populateStatus();
@@ -757,6 +780,9 @@
 					document.getElementById('menuDataArea').textContent = 'loading data...';
 					
 				document.getElementById('controlArea').classList.toggle('d-none');
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				document.getElementById('menuDataArea').classList.toggle('mb-2');
+				document.getElementById('messageContainer').classList.toggle('d-none');
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
@@ -874,6 +900,7 @@
 				else
 					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Selecting enemy to fight.\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				
 				let gameGridSquares = document.getElementsByClassName('gameGridSquare');
 				
@@ -921,6 +948,7 @@
 								else
 									localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.message + '\r\n');
 								document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+								document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 								vm.toggleSelectFightMenu();
 							}	
 							else {
@@ -936,6 +964,7 @@
 									else
 										localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
 									document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+									document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 									console.log(err);
 								});
 							}
@@ -949,6 +978,7 @@
 								else
 									localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
 								document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+								document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							} 
 							//for no response	
 							else if(error.request) {
@@ -982,6 +1012,10 @@
 					headers: headers,
 				}).then(response => {
 					document.getElementById('menuDataArea').textContent = '';
+					let headSpacer = document.createElement('div'); 
+					headSpacer.classList.add('text-center');
+					headSpacer.textContent = 'Inventory';
+					document.getElementById('menuDataArea').appendChild(headSpacer);
 					let characterInventory = response.data.characterInventory;
 					for(let i = 0; i < characterInventory.length; i++) {
 						this.generateClickableInventoryRow(characterInventory[i].name, characterInventory[i].quantity);
@@ -1018,6 +1052,7 @@
 					else
 						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Inspected enemies.\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					for(let i = 0; i < this.enemyStatusData.length; i++) {
 						this.generateDataRow('Name', this.enemyStatusData[i].name);
 						this.generateDataRow('Direction', this.enemyStatusData[i].mapOrientation);
@@ -1040,6 +1075,7 @@
 						else
 							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					} 
 					//for no response	
 					else if(error.request) {
@@ -1105,11 +1141,16 @@
 				.then(response => {
 					console.log(response.data.results);
 					this.toggleInventory();
+					let itemResults = response.data.results;
+					let newLinePosition = itemResults.indexOf('.') + 1;
+					let processedItemResults = itemResults.slice(0,newLinePosition) + '\r\n' + itemResults.slice(newLinePosition);
+					
 					if(!localStorage.hasOwnProperty('gameLog'))
-						localStorage.setItem('gameLog', response.data.results + '\r\n');
+						localStorage.setItem('gameLog', processedItemResults + '\r\n');
 					else
-						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.results + '\r\n');
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedItemResults + '\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				})
 				.catch(error => {
 					console.log(error);
@@ -1118,6 +1159,7 @@
 					else
 						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					
 				});
 				
@@ -1150,15 +1192,14 @@
 				
 					getAvatar()
 					.then(response => {
-						console.log(response);
 						let dataRowContainer = document.createElement('div');   
 						dataRowContainer.classList.add('row', 'bg-secondary', 'mb-1');
-						
 						let dataRowAvatar = document.createElement('img');   
 						dataRowAvatar.classList.add('col', 'img-fluid');
-						dataRowAvatar.src = response.data.playerAvatar; 
+						dataRowAvatar.src = response.data.playerAvatar;
+						dataRowAvatar.id = 'playerAvatar';
+						document.getElementById('menuDataArea').classList.toggle('d-none');
 						dataRowContainer.append(dataRowAvatar);
-						
 						document.getElementById('menuDataArea').prepend(dataRowContainer);
 					})
 					.catch(error => {
@@ -1168,6 +1209,7 @@
 						else
 							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					});
 				}
 				else if(type == 'scoreHeader') {
@@ -1208,16 +1250,25 @@
 				  'enctype' : 'application/x-www-form-urlencoded',
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				}
-				axios({
-					method : "POST",
-					baseURL: 'http://127.0.0.1:8000/api',
-					url    : 'http://127.0.0.1:8000/api/getCharacterStatus',
-					params : '',
-					data   : this.formData,
-					headers: headers,
-				}).then(response => {
+				
+				
+				const getCharacterStatus = async function(formData) {
+					let response = await axios({
+						method : 'POST',
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/getCharacterStatus',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+			
+				getCharacterStatus(this.formData)
+				.then(response => {
 					this.playerStatus = response.data.character;
 					document.getElementById('menuDataArea').textContent = '';
+					document.getElementById('menuDataArea').classList.toggle('d-none');
 					this.generateDataRow('Current Avatar', null, 'avatar');
 					this.generateDataRow('Name', response.data.character.characterName);
 					this.generateDataRow('Health', response.data.character.currentHealth + '/' + response.data.character.health);
@@ -1235,8 +1286,15 @@
 					this.generateDataRow('All Time Earnings', response.data.character.totalEarnings);
 					this.generateDataRow('Squares Travelled', response.data.character.squaresMoved);
 					this.generateDataRow('Total Score', response.data.character.score);
-				}).catch(error => {
-					console.log(error)
+				})
+				.catch(error => {
+					console.log(error);
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', error.response.message + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				});
 			},
 			logout() {

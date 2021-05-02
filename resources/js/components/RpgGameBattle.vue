@@ -37,8 +37,7 @@
 		</div>
 		
 		<div class="row text-center mt-5 mb-2">
-			<div id="messageContainer" class="col text-center bg-secondary">
-				Messages
+			<div id="messageContainer" class="col text-center bg-secondary overflow-auto" style="white-space:pre;height:40px">
 			</div>
 		</div>
 		
@@ -557,15 +556,29 @@
 				
 				this.drawEnemyPositions();
 			},
+			
+			//updated
+			
 			toggleInventory() {
-				document.getElementById('menuDataArea').classList.toggle('d-none');
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Toggled inventory.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled inventory.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+			
+				//gets status data only when toggle to make status container visible
+				if(document.getElementById('closeStatusContainer').classList.contains('d-none'))
+					this.populateInventory();
+				else
+					document.getElementById('menuDataArea').textContent = 'loading data...';
 				
-				//closes map controls area
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				document.getElementById('battleSceneArea').classList.toggle('d-none');
+				document.getElementById('distanceGridArea').classList.toggle('d-none');
 				let controlAreas = document.getElementsByClassName('controlArea');
 				for(let i = 0; i < controlAreas.length; i++) {
 					controlAreas[i].classList.toggle('d-none');
 				}
-				
 				//closes bottom game menu bar
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
@@ -721,6 +734,116 @@
 				
 				document.getElementById('menuDataArea').appendChild(dataRowContainer);
 			},
+			generateClickableInventoryRow(name, quantity) {				
+				var vm = this;
+				let inventoryRowContainer = document.createElement('div');   
+				inventoryRowContainer.classList.add('row');
+				let itemName = document.createElement('div');   
+				itemName.classList.add('col-6', 'mb-2', 'text-center');
+				itemName.setAttribute('id', name);
+				itemName.textContent = name;
+				itemName.addEventListener('click', function(event) {
+					vm.useItem(event.target.id);
+				});
+				
+				inventoryRowContainer.appendChild(itemName);
+
+				let itemQuantity = document.createElement('div'); 
+				itemQuantity.classList.add('col-6', 'text-center');
+				itemQuantity.textContent = quantity;
+				
+				inventoryRowContainer.appendChild(itemQuantity);
+				
+				document.getElementById('menuDataArea').appendChild(inventoryRowContainer);
+			
+			},
+			useItem(name) {
+				console.log(name);
+				const headers = { 
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+				this.formData = new FormData();
+				this.formData.append('token', sessionStorage.getItem('token'));
+				this.formData.append('_method', 'POST');
+				this.formData.append('itemName', name);
+				
+				
+				const useItem = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/useItem',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+			
+				useItem(this.formData)
+				.then(response => {
+					console.log(response.data.results);
+					this.toggleInventory();
+					let itemResults = response.data.results;
+					let newLinePosition = itemResults.indexOf('.') + 1;
+					let processedItemResults = itemResults.slice(0,newLinePosition) + '\r\n' + itemResults.slice(newLinePosition);
+					
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', processedItemResults + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedItemResults + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				})
+				.catch(error => {
+					console.log(error);
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', error.response.message + '\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.message + '\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					
+				});
+				
+				const sleep = function sleep(ms) {
+					return new Promise(resolve => setTimeout(resolve, ms));
+				}
+				
+				sleep(1500).then(() => {
+					this.enemyTurn();
+				});	
+		
+			},
+			populateInventory() {
+				this.formData = new FormData();
+				this.formData.append('token', sessionStorage.getItem('token'));
+				this.formData.append('_method', 'POST');
+	
+				const headers = { 
+				  'Content-Type': 'application/json',
+				  'enctype' : 'application/x-www-form-urlencoded',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				axios({
+					method : "POST",
+					baseURL: 'http://127.0.0.1:8000/api',
+					url    : 'http://127.0.0.1:8000/api/getCharacterInventory',
+					params : '',
+					data   : this.formData,
+					headers: headers,
+				}).then(response => {
+					document.getElementById('menuDataArea').textContent = '';
+					let headSpacer = document.createElement('div'); 
+					headSpacer.classList.add('text-center');
+					headSpacer.textContent = 'Inventory';
+					document.getElementById('menuDataArea').appendChild(headSpacer);
+					let characterInventory = response.data.characterInventory;
+					for(let i = 0; i < characterInventory.length; i++) {
+						this.generateClickableInventoryRow(characterInventory[i].name, characterInventory[i].quantity);
+					}
+				}).catch(error => {
+					console.log(error)
+				});
+			},
 			populateStatus() {
 				this.formData = new FormData();
 				this.formData.append('token', sessionStorage.getItem('token'));
@@ -765,6 +888,214 @@
 					this.$router.push('loginForm');
 				});
 			},
+			
+			enemyTurn() {
+				console.log('hi');
+				/*
+				//hides and disables controls
+				let all = document.getElementsByTagName("*");
+				for (let i = 0, count = all.length; i < count; i++) {
+					all[i].style.pointerEvents = 'none';
+				}
+				
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+		
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
+				document.getElementById('closeEnemyTurnContainer').classList.toggle('d-none');
+				document.getElementById('closeEnemyTurnContainer').style.pointerEvents = 'auto';
+				
+				document.getElementById('closeEnemyTurnButton').style.color = 'black';
+				
+				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + ', enemy deciding...';
+				
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Enemy Turn.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy Turn.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				
+				
+				const headers = { 
+					'Content-Type': 'multipart/form-data',
+					'enctype' : 'multipart/form-data',
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				const getGameState = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/getGameState',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+				
+				getGameState(this.formData)
+				.then(response => {
+					let currentTurn = response.data.currentTurn;
+					
+					let enemyTurnPositions = response.data.enemyTurnPositions;
+					let playerBattleState = response.data.playerBattleState;
+					let playerBattleTarget = response.data.playerBattleTarget;
+					let playerGameTurns = response.data.playerGameTurns;
+					let playerTurnPosition = response.data.playerTurnPosition;
+					let currentEnemyActing = null;
+					let enemyAction = null;
+					
+					//calls controller function to process enemy turn
+					for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
+						if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
+							currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
+							break;
+						}	
+					}
+					
+					this.formData = new FormData();
+					this.formData.append('currentEnemyActing', currentEnemyActing);
+					this.formData.append('_method', 'POST');
+		
+					const headers = { 
+					  'Content-Type': 'multipart/form-data',
+					  'enctype' : 'multipart/form-data',
+					  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+					}
+
+					const enemyReturnDecision = async function(formData) {
+					
+						let response = await axios({
+							method : "POST",
+							baseURL: 'http://127.0.0.1:8000/api',
+							url    : 'http://127.0.0.1:8000/api/gameEnemyTurnDecision',
+							params : '',
+							data   : formData,
+							headers: headers,
+						})
+						return response;
+					};
+					
+					enemyReturnDecision(this.formData)
+					.then(response => {
+						let enemyActionObj = response.data.enemyAction;
+						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
+						let enemyLastTerrain = response.data.enemyLastTerrain;
+						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
+						let enemyOldPosition = response.data.enemyOldPosition;
+						this.tempEnemyLastSquareMarker = response.data.enemyOldPosition;
+						let enemyNewPosition = response.data.enemyNewPosition;
+						let enemyAvatar = response.data.enemyAvatar;
+						
+						//if move
+						if(enemyAction == 'move') {
+							this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
+							let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
+							enemyOldSquare.classList.remove('border-dark');
+							enemyOldSquare.classList.add('border-danger');
+							
+							let all = document.getElementsByTagName("*");
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'auto';
+							}
+							document.getElementById('menuDataArea').textContent = 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + 	enemyNewPosition;
+							
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + 	enemyNewPosition + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy decision: ' + enemyAction + ' from ' + enemyOldPosition + ' to ' + enemyNewPosition + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							
+							document.getElementById('closeEnemyTurnButton').style.color = 'white';
+							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
+						}
+						
+						//if attack
+						if(enemyAction == 'attack') {
+							let mapCoord = enemyNewPosition;
+							
+							const sleep = function sleep(ms) {
+								return new Promise(resolve => setTimeout(resolve, ms));
+							}
+							
+							document.getElementById('menuDataArea').textContent = 'Enemy at ' + mapCoord + ' attacks player!';
+							
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Enemy at ' + mapCoord + ' attacks player!' + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy at ' + mapCoord + ' attacks player!' + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							
+							sleep(1500).then(() => {
+								this.formData = new FormData();
+								this.formData.append('mapPosition', mapCoord);
+								this.formData.append('_method', 'POST');
+					
+								const headers = { 
+								  'Content-Type': 'multipart/form-data',
+								  'enctype' : 'multipart/form-data',
+								  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+								}
+								
+								const startFight = function(formData) {
+									return axios({
+										method : "POST",
+										baseURL: 'http://127.0.0.1:8000/api',
+										url    : 'http://127.0.0.1:8000/api/switchFight',
+										params : '',
+										data   : formData,
+										headers: headers,
+									})
+									.then(response => response.data)
+									.catch(err => console.error(err))
+								};
+						
+								startFight(this.formData)
+								.then(response => {
+									if(response.error != null) {
+										for (let i = 0, count = all.length; i < count; i++) {
+											all[i].style.pointerEvents = 'auto';
+										}
+										if(!localStorage.hasOwnProperty('gameLog'))
+											localStorage.setItem('gameLog', response.error + '\r\n');
+										else
+											localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.error + '\r\n');
+										document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+										return;
+									}	
+									else {
+										this.$router.push({ 
+											name: 'rpgGameBattle', 
+											params: {distance: response.distance, enemy: response.enemy} 
+										}).catch((err) => {
+											for (let i = 0, count = all.length; i < count; i++) {
+												all[i].style.pointerEvents = 'auto';
+											}
+											if(!localStorage.hasOwnProperty('gameLog'))
+												localStorage.setItem('gameLog', 'There was an error starting a battle.\r\n');
+											else
+												localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error starting a battle.\r\n');
+											document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+											console.log(err);
+										});
+									}
+								});							
+							});
+						}
+						//if item
+						
+						//if skill
+						
+					});				
+				});	
+			*/
+			},
+			
 		}
 	}
 </script>

@@ -217,11 +217,15 @@ class CharacterController extends Controller {
 		}
 	}
 
-	//melee selected in battle component
+	//melee selected in battle component, effects updated after battle
 	public function startFight(Request $request) 
 	{
 		try {
 			$results = $this->findBattleTurnOrder($request);
+			$effectsUpdates = $this->updateEffects($request);
+			foreach($effectsUpdates as $update) {
+				$results = $results['message'] . $update;
+			}
 			return response(['results' => $results], 200);
 		}
 		catch(Throwable $e) {
@@ -230,7 +234,7 @@ class CharacterController extends Controller {
 		}
 	}
 	
-	//use item, game code in game turn logic
+	//use item, game code in game turn logic, effects updated after item use
 	public function useItem(Request $request) 
 	{
 		try {

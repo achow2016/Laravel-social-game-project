@@ -113,7 +113,7 @@ trait GameTurnLogic
 					$character->itemsUsed = $character->itemsUsed + 1;	
 					$character->score = $character->score + 1;						
 					$character->save();
-					return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '. ']);
+					return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '.']);
 				}
 				//if there are effects in play, updates with conditions
 				else {
@@ -170,7 +170,7 @@ trait GameTurnLogic
 								$character->itemsUsed = $character->itemsUsed + 1;	
 								$character->score = $character->score + 1;	
 								$character->save();
-								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased its effects. ']);
+								return (['message' => 'Used ' . $ItemUsedData->name . ' and increased its effects.']);
 							}
 							
 							//if same effect but stack limit hit, item is consumed but error returned
@@ -183,7 +183,7 @@ trait GameTurnLogic
 									$character->currentTurn = 1;
 								$character->itemsUsed = $character->itemsUsed + 1;	
 								$character->score = $character->score + 1;	
-								return (['message' => 'Used ' . $ItemUsedData->name . ', but it had no effect. ']);
+								return (['message' => 'Used ' . $ItemUsedData->name . ', but it had no effect.']);
 							}
 						}
 					}
@@ -207,7 +207,7 @@ trait GameTurnLogic
 						$character->itemsUsed = $character->itemsUsed + 1;	
 						$character->score = $character->score + 1;	
 						$character->save();
-						return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '. ']);
+						return (['message' => 'Used ' . $ItemUsedData->name . ', and gained ' . $ItemUsedData->effect . '.']);
 					}	
 				}	
 			}
