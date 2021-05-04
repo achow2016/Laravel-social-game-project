@@ -11,6 +11,8 @@ use App\Models\GameMap;
 use App\Models\GameMapTileset;
 use App\Models\Character;
 use App\Models\GameActiveEnemy;
+use App\Models\ActiveGameCharacterItem;
+use App\Models\GameItem;
 
 //special 
 use App\Traits\GameTurnLogic;
@@ -82,6 +84,7 @@ class MapController extends Controller {
 				
 				$charObj->mapId = $gameMap->id;
 				$gameMap->character()->save($charObj);
+				
 				$user->character()->save($charObj);
 				
 				$tileCheck = $gameMap->tileset()->first();
@@ -138,6 +141,14 @@ class MapController extends Controller {
 				
 				//saves character under user
 				$user->character()->save($character);
+				
+				//grants starter healing item
+				$aidKit = GameItem::where('name', 'Aid Kit')->first();
+				$starterHealingItem = new ActiveGameCharacterItem();
+				$starterHealingItem->setAttribute('itemId', $aidKit->id);
+				$starterHealingItem->setAttribute('ownerId', $character->id);
+				$starterHealingItem->setAttribute('quantity', 1);
+				$character->items()->save($starterHealingItem);
 				
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
@@ -415,7 +426,14 @@ class MapController extends Controller {
 				$responseArray['playerPosition'] = $charObj->mapPosition;
 				$responseArray['mapData'] = $existingMap->tileset()->first()->mapData;
 				
-				//increments turn number, movement count and saves
+				//increments turn number, movement count, effect updates, and saves
+				
+				$updatedEffects = $this->updateEffects($request);
+				if($updatedEffects != null)
+					foreach($updatedEffects as $update) {
+						$responseArray['message'] = $responseArray['message'] . '.' . $update;
+					}
+				
 				$charObj->currentTurn = $charObj->currentTurn + 1;
 				if($charObj->currentTurn > $charObj->gameTurns)
 					$charObj->currentTurn = 1;

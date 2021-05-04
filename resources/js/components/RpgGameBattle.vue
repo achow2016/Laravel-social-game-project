@@ -126,6 +126,16 @@
 			
 		},
 		mounted() {
+			if(!localStorage.hasOwnProperty('gameLog'))
+				localStorage.setItem('gameLog', 'Entering battle.\r\n');
+			else
+				localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Entering battle.\r\n');
+			document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+			
+			setTimeout(function(){
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+			}, 500); 
+			
 			const vm = this;
 			
 			if(this.$route.params === null) {

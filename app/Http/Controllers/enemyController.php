@@ -335,11 +335,11 @@ class EnemyController extends Controller {
 						case($enemyColumn < $charColumn):
 							$enemy->mapPosition = [$enemyRow, $enemyColumn + 1];
 							break;
-						//below enemy
+						//above enemy
 						case($enemyColumn == $charColumn && $charRow < $enemyRow):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
 							break;
-						//above enemy
+						//below enemy
 						case($enemyColumn == $charColumn && $charRow > $enemyRow):
 							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
 							break;

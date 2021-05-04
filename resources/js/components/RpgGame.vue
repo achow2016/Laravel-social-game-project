@@ -206,8 +206,11 @@
 			else
 				localStorage.setItem('gameLog', localStorage.getItem('gameLog'));
 			document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
-			document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
-		
+			
+			setTimeout(function(){
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+			}, 500); 
+			
 			let all = document.getElementsByTagName("*");
 			for (let i = 0, count = all.length; i < count; i++) {
 				all[i].style.pointerEvents = 'auto';
@@ -325,7 +328,7 @@
 
 			if(screen.height > 800) {
 				document.getElementsByTagName('body')[0].style.fontSize = '1.0rem';
-			}	
+			}
 		},
 		methods: {
 			drawPlayerPosition() {
@@ -710,12 +713,18 @@
 				
 				moveCharacter(this.formData)
 				.then(response => {
-					
 					if(response.data.message) {
-						if(!localStorage.hasOwnProperty('gameLog'))
-							localStorage.setItem('gameLog', response.data.message + '\r\n');
+						let msg = response.data.message;
+						let msgPeriodIndex = msg.indexOf('.');
+						let processedMsg;
+						if(msgPeriodIndex != -1)
+							processedMsg = msg.slice(0, msgPeriodIndex + 1) + '\n\r' + msg.slice(msgPeriodIndex + 1);
 						else
-							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.message + '\r\n');
+							processedMsg = response.data.message;
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', processedMsg + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg + '\r\n');
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					}	
@@ -1018,7 +1027,7 @@
 					document.getElementById('menuDataArea').appendChild(headSpacer);
 					let characterInventory = response.data.characterInventory;
 					for(let i = 0; i < characterInventory.length; i++) {
-						this.generateClickableInventoryRow(characterInventory[i].name, characterInventory[i].quantity);
+						this.generateClickableInventoryRow(characterInventory[i]);
 					}
 				}).catch(error => {
 					console.log(error)
@@ -1091,14 +1100,16 @@
 			saveAndQuit() {
 
 			},
-			generateClickableInventoryRow(name, quantity) {				
+			generateClickableInventoryRow(item) {				
 				var vm = this;
 				let inventoryRowContainer = document.createElement('div');   
 				inventoryRowContainer.classList.add('row');
+				inventoryRowContainer.setAttribute('id', item.name + 'Row');
+				
 				let itemName = document.createElement('div');   
 				itemName.classList.add('col-6', 'mb-2', 'text-center');
-				itemName.setAttribute('id', name);
-				itemName.textContent = name;
+				itemName.setAttribute('id', item.name);
+				itemName.textContent = item.name;
 				itemName.addEventListener('click', function(event) {
 					vm.useItem(event.target.id);
 				});
@@ -1107,15 +1118,74 @@
 
 				let itemQuantity = document.createElement('div'); 
 				itemQuantity.classList.add('col-6', 'text-center');
-				itemQuantity.textContent = quantity;
+				itemQuantity.textContent = item.quantity;
 				
 				inventoryRowContainer.appendChild(itemQuantity);
+				
+				let itemDetail = document.createElement('div'); 
+				itemDetail.classList.add('row', 'd-none');
+				itemDetail.setAttribute('id', item.name + 'Detail');
+				inventoryRowContainer.appendChild(itemDetail);
+				
+				//to item details
+				//description
+				let itemDescription = document.createElement('div'); 
+				itemDescription.classList.add('col-12', 'text-center');
+				itemDescription.textContent = item.description;
+				itemDetail.appendChild(itemDescription);
+				
+				//effect granted
+				let itemEffect = document.createElement('div'); 
+				itemEffect.classList.add('col-12', 'text-center');
+				itemEffect.textContent = 'Effect: ' + item.effect;
+				itemDetail.appendChild(itemEffect);
+				
+				//duration
+				let itemDuration = document.createElement('div'); 
+				itemDuration.classList.add('col-12', 'text-center');
+				itemDuration.textContent = 'Duration: ' + item.effectDuration;
+				itemDetail.appendChild(itemDuration);
+				
+				//percentage effect
+				let itemPercentage = document.createElement('div'); 
+				itemPercentage.classList.add('col-12', 'text-center');
+				itemPercentage.textContent = 'Effect Percentage: ' + item.effectPercent;
+				itemDetail.appendChild(itemPercentage);
+				
+				//effect stack amount
+				let itemStackQuantity = document.createElement('div'); 
+				itemStackQuantity.classList.add('col-12', 'text-center');
+				itemStackQuantity.textContent = 'Stacks: ' + item.effectStackAmount;
+				itemDetail.appendChild(itemStackQuantity);
+				
+				//effect stack max
+				let itemStackMax = document.createElement('div'); 
+				itemStackMax.classList.add('col-12', 'text-center');
+				itemStackMax.textContent = 'Stacks Max: ' + item.effectStackLimit;
+				itemDetail.appendChild(itemStackMax);
+				
+				//shop value
+				let itemvalue = document.createElement('div'); 
+				itemvalue.classList.add('col-12', 'text-center');
+				itemvalue.textContent = 'Value: ' + item.shopValue;
+				itemDetail.appendChild(itemvalue);
+				
+				//confirm reminder
+				let reminder = document.createElement('div'); 
+				reminder.classList.add('col-12', 'text-center', 'bg-success');
+				reminder.textContent = 'Click again to activate.';
+				itemDetail.appendChild(reminder);
 				
 				document.getElementById('menuDataArea').appendChild(inventoryRowContainer);
 			
 			},
 			useItem(name) {
-				console.log(name);
+				if(!document.getElementById(name + 'Row').classList.contains('ready')) {
+					document.getElementById(name + 'Row').classList.toggle('ready');
+					document.getElementById(name + 'Row').classList.toggle('bg-secondary');
+					document.getElementById(name + 'Detail').classList.toggle('d-none');
+					return;
+				}
 				const headers = { 
 					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				};

@@ -228,19 +228,27 @@ trait GameTurnLogic
 		$updates = [];
 		$updatedEffects = [];
 		$effects = $charObj->effects;
+		if($effects != null)
 		foreach($effects as $effectIndex => $effect) {
 			//other effects here as they are added to game
 			if($effect['name'] == 'Regen') {
 				$regenRecovery = ($charObj->health * ($effect['effectPercent'] / 100)) * $effect['effectStackAmount'];
-				$charObj->currentHealth = $charObj->currentHealth + $regenRecovery;
-				$updates[] = 'Regenerated ' . $regenRecovery . ' health.';
+				if(($charObj->currentHealth + $regenRecovery) <= $charObj->health) {
+					$charObj->currentHealth = $charObj->currentHealth + $regenRecovery;
+					$updates[] = 'Regenerated ' . $regenRecovery . ' health.';
+				}	
+				else {
+					$remainder = $charObj->health - $charObj->currentHealth;
+					$charObj->currentHealth = $charObj->health;
+					$updates[] = 'Regenerated ' . $remainder . ' health.';
+				}
 				$updatedEffect = (object) [
 					'name' => $effect['name'], 
 					'effectStackAmount' => $effect['effectStackAmount'], 
 					'effectStackLimit' => $effect['effectStackLimit'], 
 					'effectPercent' => $effect['effectPercent'], 
 					'effectDuration' => $effect['effectDuration'],
-					'effectDurationRemaining' => $effect['effectDuration'] - 1
+					'effectDurationRemaining' => $effect['effectDurationRemaining'] - 1
 				];
 				$updatedEffects[] = $updatedEffect;			
 			}
