@@ -16,6 +16,10 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
+	public function dropEnemyLoot() {
+		
+	}	
+	
 	public function findMoveTurnOrder(Request $request)     
 	{               
 		$user = User::where('name', $request->user()->name)->first();
@@ -415,44 +419,56 @@ trait GameTurnLogic
 					$charObj->score = $charObj->score + $charObj->damageDealt;	
 				}
 				
-				$enemyObj->save();
+				//$enemyObj->save();
 				$charObj->save();
 				
-				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && $enemyAttackSuccess)
+				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && $enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Enemy dealt ' . $enemyDamage . ' damage first but killed the enemy with ' . $playerDamage . ' damage!', 'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 					'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 					'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
-					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);				
-				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && !$enemyAttackSuccess)
+					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);	
+				}
+				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && !$enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Enemy attacked first, missed, and you killed the enemy with ' . $playerDamage . ' damage!',
 					'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 					'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 					'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
-				if($enemyObj->currentHealth >= 0 && $playerAttackSuccess && !$enemyAttackSuccess)
+				}	
+				if($enemyObj->currentHealth >= 0 && $playerAttackSuccess && !$enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Hit enemy after they missed you for ' . $playerDamage . '!',
 						'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 						'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 						'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 						'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
-				if($enemyObj->currentHealth >= 0 && !$playerAttackSuccess && $enemyAttackSuccess)
+				}		
+				if($enemyObj->currentHealth >= 0 && !$playerAttackSuccess && $enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Enemy hits you first for ' . $enemyDamage . ' damage and you missed with your attack!',
 						'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 						'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 						'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 						'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
-				if($enemyObj->currentHealth >= 0 && !$playerAttackSuccess && !$enemyAttackSuccess)
+				}	
+				if($enemyObj->currentHealth >= 0 && !$playerAttackSuccess && !$enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Both attacks missed!',
 						'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 						'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 						'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 						'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
-				if($enemyObj->currentHealth >= 0 && $playerAttackSuccess && $enemyAttackSuccess)
+				}		
+				if($enemyObj->currentHealth >= 0 && $playerAttackSuccess && $enemyAttackSuccess) {
+					$enemyObj->save();
 					return (['message' => 'Enemy hits you first for ' . $enemyDamage . ' damage and you attack for ' . $playerDamage . ' damage!',
 						'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 						'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 						'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 						'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
+				}		
 			}
 		}
 		else if(!$playerValidRange && $enemyValidRange){
@@ -492,9 +508,9 @@ trait GameTurnLogic
 			if($charObj->currentTurn > $charObj->gameTurns)
 				$charObj->currentTurn = 1;
 			$charObj->save();
-			$enemyObj->save();
 			
 			if($enemyObj->currentHealth <= 0) {
+				$enemyObj->save();
 				return (['message' => 'Killed enemy from a safe distance with ' . $playerDamage . ' damage!',
 					'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 					'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
@@ -507,6 +523,7 @@ trait GameTurnLogic
 					'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
 					'playerNewStamina' => $charObj->currentStamina . '/' . $charObj->stamina,
 					'enemyNewStamina' => $enemyObj->currentStamina . '/' . $enemyObj->stamina]);
+			$enemyObj->save();		
 		}
 		else {
 			$charObj->battle = false;

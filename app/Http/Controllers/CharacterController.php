@@ -76,7 +76,7 @@ class CharacterController extends Controller {
 			$character->setAttribute('currentAccuracy', $characterClass->accuracy);
 			$character->setAttribute('baseAttackCost', $characterClass->baseAttackCost);
 			$character->setAttribute('attack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
-			$character->setAttribute('currentAttack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc);
+			$character->setAttribute('currentAttack', $characterRace->attack + $characterClass->attack + $request->strengthAlloc + 100);
 			$character->setAttribute('avatar', $characterRace->avatar);
 			$character->setAttribute('meleeAnimation', $characterRace->meleeAnimation);
 			$character->setAttribute('money', 0);

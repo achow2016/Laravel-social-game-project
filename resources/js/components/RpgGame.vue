@@ -571,6 +571,26 @@
 						let enemyNewPosition = response.data.enemyNewPosition;
 						let enemyAvatar = response.data.enemyAvatar;
 						
+						//if dead
+						if(enemyActionObj == 'Dead') {
+							console.log('hi');
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Enemy is dead.' + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy is dead.' + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+							
+							let all = document.getElementsByTagName("*");
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'auto';
+							}
+							document.getElementById('menuDataArea').textContent = 'Enemy is dead.';
+							
+							document.getElementById('closeEnemyTurnButton').style.color = 'white';
+							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
+						}
+						
 						//if move
 						if(enemyAction == 'move') {
 							this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
@@ -751,14 +771,12 @@
 					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled inventory.\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
-			
-				//gets status data only when toggle to make status container visible
-				console.log(document.getElementById('menuDataArea').innerHTML);
-				if(document.getElementById('menuDataArea').innerHTML == 'loading data...')
-					this.populateInventory();
+				
+				if(!document.getElementById('closeInventoryContainer').classList.contains('d-none'))
+					document.getElementById('menuDataArea').textContent = '';
 				else {
-					document.getElementById('menuDataArea').innerHTML = '';
 					document.getElementById('menuDataArea').textContent = 'loading data...';
+					this.populateInventory();				
 				}
 				document.getElementById('messageContainer').classList.toggle('d-none');
 				document.getElementById('gridArea').classList.toggle('d-none');
@@ -864,12 +882,12 @@
 			
 			},
 			toggleInspectMenu() {
-				//gets status data only when toggle to make status container visible
-				if(document.getElementById('closeInspectContainer').classList.contains('d-none'))
-					this.populateInspect();
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				if(!document.getElementById('closeInspectContainer').classList.contains('d-none'))
+					document.getElementById('menuDataArea').textContent = '';
 				else
-					document.getElementById('menuDataArea').textContent = 'loading data...';
-					
+					this.populateInspect();				
+				
 				document.getElementById('controlArea').classList.toggle('d-none');
 				
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
@@ -1026,9 +1044,12 @@
 					headSpacer.textContent = 'Inventory';
 					document.getElementById('menuDataArea').appendChild(headSpacer);
 					let characterInventory = response.data.characterInventory;
-					for(let i = 0; i < characterInventory.length; i++) {
-						this.generateClickableInventoryRow(characterInventory[i]);
-					}
+					if(characterInventory.length == 0)
+						document.getElementById('menuDataArea').textContent = 'Empty';
+					else	
+						for(let i = 0; i < characterInventory.length; i++) {
+							this.generateClickableInventoryRow(characterInventory[i]);
+						}
 				}).catch(error => {
 					console.log(error)
 				});
@@ -1052,7 +1073,7 @@
 				
 				inspectEnemies()
 				.then(response => {
-					console.log(response.data.enemies);
+					//console.log(response.data.enemies);
 					this.enemyStatusData = response.data.enemies;
 					document.getElementById('menuDataArea').textContent = '';
 					document.getElementById('menuDataArea').textContent += response.data.message + '\r\n';
@@ -1068,11 +1089,6 @@
 						this.generateDataRow('Attack', this.enemyStatusData[i].currentAttack + '/' + this.enemyStatusData[i].attack);
 						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
 						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
-						//this.generateDataRow('Recovery', 'H: ' + this.enemyStatusData[i].currentHealthRegen + '/' + //this.enemyStatusData[i].healthRegen
-						//	+ ' | ' + 'S: ' + this.enemyStatusData[i].currentstaminaRegen + '/' + this.enemyStatusData[i].staminaRegen);
-						//this.generateDataRow('Agility', this.enemyStatusData[i].currentAgility + '/' + this.enemyStatusData[i].agility);
-						//this.generateDataRow('Accuracy', this.enemyStatusData[i].currentAccuracy + '/' + this.enemyStatusData[i].accuracy);
-						//this.generateDataRow('money', this.enemyStatusData[i].money);
 					}
 				})
 				.catch(error => {
@@ -1104,14 +1120,13 @@
 				var vm = this;
 				let inventoryRowContainer = document.createElement('div');   
 				inventoryRowContainer.classList.add('row');
-				inventoryRowContainer.setAttribute('id', item.name + 'Row');
 				
 				let itemName = document.createElement('div');   
 				itemName.classList.add('col-6', 'mb-2', 'text-center');
-				itemName.setAttribute('id', item.name);
 				itemName.textContent = item.name;
+				itemName.setAttribute('id', (item.name).replace(/\s+/g,'') + 'Row');
 				itemName.addEventListener('click', function(event) {
-					vm.useItem(event.target.id);
+					vm.expandItem(event.target.id);
 				});
 				
 				inventoryRowContainer.appendChild(itemName);
@@ -1124,7 +1139,7 @@
 				
 				let itemDetail = document.createElement('div'); 
 				itemDetail.classList.add('row', 'd-none');
-				itemDetail.setAttribute('id', item.name + 'Detail');
+				itemDetail.setAttribute('id', (item.name).replace(/\s+/g,'') + 'Detail');
 				inventoryRowContainer.appendChild(itemDetail);
 				
 				//to item details
@@ -1174,18 +1189,22 @@
 				let reminder = document.createElement('div'); 
 				reminder.classList.add('col-12', 'text-center', 'bg-success');
 				reminder.textContent = 'Click again to activate.';
+				reminder.setAttribute('id', item.name);
+				reminder.addEventListener('click', function(event) {
+					vm.useItem(event.target.id);
+				});
 				itemDetail.appendChild(reminder);
 				
 				document.getElementById('menuDataArea').appendChild(inventoryRowContainer);
 			
 			},
+			expandItem(target) {
+				let targetDiv = target.substring(0, target.length - 3) + 'Detail';
+				document.getElementById(target).classList.toggle('bg-secondary');
+				document.getElementById(targetDiv).classList.toggle('bg-secondary');
+				document.getElementById(targetDiv).classList.toggle('d-none');
+			},
 			useItem(name) {
-				if(!document.getElementById(name + 'Row').classList.contains('ready')) {
-					document.getElementById(name + 'Row').classList.toggle('ready');
-					document.getElementById(name + 'Row').classList.toggle('bg-secondary');
-					document.getElementById(name + 'Detail').classList.toggle('d-none');
-					return;
-				}
 				const headers = { 
 					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
 				};

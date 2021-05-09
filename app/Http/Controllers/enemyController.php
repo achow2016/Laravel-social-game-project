@@ -263,6 +263,29 @@ class EnemyController extends Controller {
 			//current enemy acting in this function, using request data
 			$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
 			
+			//if enemy is dead
+			if($enemy->currentHealth <= 0) {
+				$charObj->currentTurn = $charObj->currentTurn + 1;
+				if($charObj->currentTurn > $charObj->gameTurns)
+					$charObj->currentTurn = 1;
+				$charObj->save();
+				return response([
+					'currentTurn' => $charObj->currentTurn,
+					'playerTurnPosition' => $charObj->turnPosition,
+					'playerGameTurns' => $charObj->gameTurns,
+					'playerBattleState' => $charObj->battle,
+					'playerBattleTarget' => $charObj->enemyId,
+					'enemyTurnPositions' => $enemiesTurnPositions,
+					'enemyAction' => 'Dead',
+					'enemyOldPosition' => $enemy->mapPosition,
+					'enemyNewPosition' => null,
+					'enemyId' => $enemy->id,
+					'enemyLastTerrain' => null,
+					'enemyLastTerrainTreeCover' => null,
+					'enemyAvatar' => $enemy->avatar,
+				], 200);	
+			}
+			
 			//validates that this enemy should be acting
 			if($enemy->turnPosition != $charObj->currentTurn) {
 				$enemy = $existingMap->enemies()->get()->where('turnPosition', $charObj->currentTurn)->first();
@@ -373,6 +396,14 @@ class EnemyController extends Controller {
 				//move diagonally
 				else {
 					switch([$enemyRow, $enemyColumn]) {
+						//north of enemy
+						case($enemyRow > $charRow && $enemyColumn == $charColumn):
+							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
+							break;
+						//south of enemy
+						case($enemyRow < $charRow && $enemyColumn == $charColumn):
+							$enemy->mapPosition = [$enemyRow + 1, $enemyColumn];
+							break;
 						//NW of enemy
 						case($enemyRow > $charRow && $enemyColumn > $charColumn):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn - 1];
