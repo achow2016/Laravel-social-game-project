@@ -381,17 +381,22 @@
 						
 						this.enemyMapPositions.push([row, column]);
 						
-						//outlines enemy square 
-						if(!enemySquare.classList.contains('border-danger')) {
-							enemySquare.classList.toggle('border-dark');
-							enemySquare.classList.toggle('border-danger');
+						//outlines enemy square
+						if(this.enemyData[i].currentHealth > 0) {
+							if(!enemySquare.classList.contains('border-danger')) {
+								enemySquare.classList.toggle('border-dark');
+								enemySquare.classList.toggle('border-danger');
+							}
 						}
 						
 						//draws enemy onto square
 						enemySquare.innerHTML = '';
-						let enemyIcon = document.createElement('img');   
-						enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
-						enemyIcon.classList.toggle('img-fluid');   
+						let enemyIcon = document.createElement('img');
+						if(this.enemyData[i].currentHealth > 0)
+							enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
+						else
+							enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
+						enemyIcon.classList.toggle('img-fluid');
 						enemySquare.appendChild(enemyIcon);
 					}
 				})
@@ -489,7 +494,9 @@
 				
 				document.getElementById('closeEnemyTurnButton').style.color = 'black';
 				
-				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + ', enemy deciding...';
+				if(document.getElementById('menuDataArea').classList.contains('d-none'))
+					document.getElementById('menuDataArea').classList.toggle('d-none');
+				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + 'enemy deciding...';
 				
 				if(!localStorage.hasOwnProperty('gameLog'))
 					localStorage.setItem('gameLog', 'Enemy turn\r\n');
@@ -573,11 +580,14 @@
 						
 						//if dead
 						if(enemyActionObj == 'Dead') {
-							console.log('hi');
+							let enemyName = response.data.enemyName;
+							let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);
+							enemyOldSquare.firstElementChild.src = '/img/rpgGame/gameCharacterGraphics/gravestone.png';
+				
 							if(!localStorage.hasOwnProperty('gameLog'))
-								localStorage.setItem('gameLog', 'Enemy is dead.' + '\r\n');
+								localStorage.setItem('gameLog', 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.' + '\r\n');
 							else
-								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy is dead.' + '\r\n');
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.' + '\r\n');
 							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							
@@ -585,10 +595,10 @@
 							for (let i = 0, count = all.length; i < count; i++) {
 								all[i].style.pointerEvents = 'auto';
 							}
-							document.getElementById('menuDataArea').textContent = 'Enemy is dead.';
-							
+							document.getElementById('menuDataArea').textContent = 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.';
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
+							
 						}
 						
 						//if move
@@ -868,6 +878,7 @@
 				document.getElementById('closeEnemyTurnContainer').style.pointerEvents = 'auto';
 				document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
 				document.getElementById('menuDataArea').textContent = 'loading data...';
+				document.getElementById('menuDataArea').classList.toggle('d-none');
 			},
 			toggleGameMenu() {
 				document.getElementById('controlArea').classList.toggle('d-none');

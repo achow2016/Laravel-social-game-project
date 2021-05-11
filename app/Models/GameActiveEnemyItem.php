@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 //use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Database\Factories\CharacterFactory;
 
-class GameActiveEbemyItem extends Model
+class GameActiveEnemyItem extends Model
 {
 	//use HasFactory;
 	
@@ -21,7 +21,7 @@ class GameActiveEbemyItem extends Model
         'itemId',
         'ownerId',
         'quantity'
-
+	];
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -44,7 +44,7 @@ class GameActiveEbemyItem extends Model
 		return $this->hasOne('App\Models\GameItem', 'id', 'itemId');
 	}
 	
-	public function ownerInventory() {
-		return $this->belongTo('App\Models\GameCharacterInventory', 'id', 'inventoryId');
+	public function owner() {
+		return $this->belongTo('App\Models\GameActiveEnemy', 'id', 'ownerId');
 	}
 }

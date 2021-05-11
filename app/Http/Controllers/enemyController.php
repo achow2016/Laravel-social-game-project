@@ -10,7 +10,9 @@ use App\Models\Character;
 use App\Models\CharacterRace;
 use App\Models\CharacterClass;
 use App\Models\GameEnemy;
+use App\Models\GameItem;
 use App\Models\GameActiveEnemy;
+use App\Models\GameActiveEnemyItem;
 use App\Models\User;
 use App\Models\GameMap;
 use App\Models\GameMapTileset;
@@ -120,7 +122,18 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('armsEquipment', $enemyChoices[$enemyChoice]->armsEquipment);
 				$enemy->setAttribute('legsEquipment', $enemyChoices[$enemyChoice]->legsEquipment);
 				$enemy->setAttribute('money', $enemyChoices[$enemyChoice]->money);
+				
 				$existingMap->enemies()->save($enemy);
+				
+				//grants lootable inventory item
+				
+				$enemyLootableItem = $enemyChoices[$enemyChoice]->itemLootInventory;
+				$targetItem = GameItem::where('name', $enemyLootableItem[0]['name'])->first();
+				$enemyItem = new GameActiveEnemyItem();
+				$enemyItem->setAttribute('itemId', $targetItem->id);
+				$enemyItem->setAttribute('ownerId', $enemy->id);
+				$enemyItem->setAttribute('quantity', 1);
+				$enemy->items()->save($enemyItem);
 				
 				//save enemy id to tileset
 				$mapDecoded[$randEnemyPosition[0]][$randEnemyPosition[1]]['enemy'] = strval($enemy->id);
@@ -163,7 +176,7 @@ class EnemyController extends Controller {
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//returns coordinates only for map generator
-			$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar');
+			$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
 			//return response(['enemies' => $existingMap->enemies()->get()], 200);
 			return response(['enemies' => $filteredEnemies], 200);
 		}
@@ -283,6 +296,7 @@ class EnemyController extends Controller {
 					'enemyLastTerrain' => null,
 					'enemyLastTerrainTreeCover' => null,
 					'enemyAvatar' => $enemy->avatar,
+					'enemyName' => $enemy->name,
 				], 200);	
 			}
 			

@@ -20,7 +20,7 @@ class CreateGameActiveEnemyItems extends Migration
 			$table->integer('quantity');
 			$table->timestamps();
 			$table->foreign('itemId')->references('id')->on('game_items')->onDelete('cascade');			
-			$table->foreign('ownerId')->references('id')->on('character')->onDelete('cascade');	
+			$table->foreign('ownerId')->references('id')->on('game_active_enemies')->onDelete('cascade');	
         });
     }
 
