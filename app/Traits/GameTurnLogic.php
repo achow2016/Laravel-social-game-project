@@ -17,7 +17,6 @@ trait GameTurnLogic
 	private $playerTurnOrder;
 	
 	//uses enemy id sent from calling function to drop specific enemy item onto a map square
-	//should drop all equipment and inventory item as a single string to be processed by inspect function in game component
 	public function dropEnemyLoot(Request $request, $enemyId) {
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
@@ -30,18 +29,63 @@ trait GameTurnLogic
 		if($enemy->items()->first()) {
 			$enemyMapPosition = $enemy->mapPosition;
 			$targetItem = GameItem::where('id', $enemyItem->itemId)->first();
-			//Log::debug($enemyItem);
-			//Log::debug($targetItem);
 			
 			//gets map tileset as array for placing enemy data
 			$map = $existingMap->tileset()->first()->pluck('mapData');
 			$mapDecoded = json_decode($map[0], TRUE);
-			$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = strval($targetItem->name);
+			$itemEntry = array('name' => $targetItem->name, 'quantity' => $enemyItem->quantity);
+			//$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = strval($targetItem->name);
+			$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = json_encode($itemEntry);
 			$tileSet = $existingMap->tileset()->first();
 			$tileSet->mapData = $mapDecoded;
 			$existingMap->tileset()->save($tileSet);
 		}	
-	}	
+	}
+	
+	public function pickUpEnemyLoot(Request $request) {
+		$user = User::where('name', $request->user()->name)->first();
+		$charObj = $user->character()->first();
+		$existingMap = GameMap::where('id', $charObj->mapId)->first();
+		$map = $existingMap->tileset()->first()->pluck('mapData');
+		$mapDecoded = json_decode($map[0], TRUE);
+		
+		//uses player psoition to look for item to loot
+		$playerMapPosition = $charObj->mapPosition;
+		$itemName = $mapDecoded[$playerMapPosition[0]][$playerMapPosition[1]]['item'];
+		$processedItem = json_decode($itemName);
+		$targetItem = GameItem::where('name', $processedItem->name)->first();
+		$targetItemQuantity = $processedItem->quantity;
+		
+		//if item is found, removes item from square and places it into player inventory
+		if($targetItem != null) {
+			//if item is duplicate just adds one to it otherwise adds a new item
+			$possibleDuplicateItem = $charObj->items()->get()->where('itemId', $targetItem->id)->first();
+			if($possibleDuplicateItem != null) {
+				$possibleDuplicateItem->quantity = $possibleDuplicateItem->quantity + $targetItemQuantity;
+				$mapDecoded[$playerMapPosition[0]][$playerMapPosition[1]]['item'] = "";
+				$tileSet = $existingMap->tileset()->first();
+				$tileSet->mapData = $mapDecoded;
+				$existingMap->tileset()->save($tileSet);
+				$charObj->items()->save($possibleDuplicateItem);
+				return (['message' => 'Added ' . $targetItemQuantity . ' additional ' . $targetItem->name . '(s) to stock.']);			
+			}	
+			else {
+				$lootItem = new ActiveGameCharacterItem();
+				$lootItem->setAttribute('itemId', $targetItem->id);
+				$lootItem->setAttribute('ownerId', $charObj->id);
+				$lootItem->setAttribute('quantity', targetItemQuantity);
+				$mapDecoded[$playerMapPosition[0]][$playerMapPosition[1]]['item'] = "";
+				$tileSet = $existingMap->tileset()->first();
+				$tileSet->mapData = $mapDecoded;
+				$existingMap->tileset()->save($tileSet);
+				$charObj->items()->save($lootItem);
+				return (['message' => 'Received ' . $targetItemQuantity . ' new ' . $targetItem->name . '(s).']);	
+			}
+		}
+		else {
+			return (['message' => 'No items found.']);	
+		}	
+	}
 	
 	public function findMoveTurnOrder(Request $request)     
 	{               
@@ -358,6 +402,7 @@ trait GameTurnLogic
 			}
 			if($enemyObj->currentHealth <= 0) {
 				$this->dropEnemyLoot($request, $enemyObj->id);
+				$enemyObj->currentStamina = 0;
 				$enemyObj->save();
 				$charObj->save();
 				return (['message' => 'Killed enemy with ' . $playerDamage . ' damage!',
@@ -448,6 +493,7 @@ trait GameTurnLogic
 				
 				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && $enemyAttackSuccess) {
 					$this->dropEnemyLoot($request, $enemyObj->id);
+					$enemyObj->currentStamina = 0;
 					$enemyObj->save();
 					return (['message' => 'Enemy dealt ' . $enemyDamage . ' damage first but killed the enemy with ' . $playerDamage . ' damage!', 'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
 					'playerNewHealth' => $charObj->currentHealth . '/' . $charObj->health,
@@ -456,6 +502,7 @@ trait GameTurnLogic
 				}
 				if($enemyObj->currentHealth <= 0 && $playerAttackSuccess && !$enemyAttackSuccess) {
 					$this->dropEnemyLoot($request, $enemyObj->id);
+					$enemyObj->currentStamina = 0;
 					$enemyObj->save();					
 					return (['message' => 'Enemy attacked first, missed, and you killed the enemy with ' . $playerDamage . ' damage!',
 					'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,
@@ -537,6 +584,7 @@ trait GameTurnLogic
 			
 			if($enemyObj->currentHealth <= 0) {
 				$this->dropEnemyLoot($request, $enemyObj->id);
+				$enemyObj->currentStamina = 0;
 				$enemyObj->save();
 				return (['message' => 'Killed enemy from a safe distance with ' . $playerDamage . ' damage!',
 					'enemyNewHealth' => $enemyObj->currentHealth . '/' . $enemyObj->health,

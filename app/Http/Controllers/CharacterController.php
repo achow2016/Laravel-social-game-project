@@ -252,6 +252,19 @@ class CharacterController extends Controller {
 		}
 	}
 	
+	//picks up item left on map square
+	public function lootEnemy(Request $request) 
+	{
+		try {
+			$results = $this->pickUpEnemyLoot($request);
+			return response(['results' => $results], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'Loot could not be found. Please report to admin.'], 422);
+		}
+	}
+	
 	//gets enemy detail, distance to enemy and moves to battle component to fight targeted enemy
 	public function fightEnemy(Request $request) 
 	{

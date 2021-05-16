@@ -60,7 +60,7 @@
 				<div id="inspectDiv" v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
 				<div id="fightDiv" v-on:click="selectFight" class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
 				<div id="skillDiv" class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
-				<div id="lootDiv" class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
+				<div id="lootDiv" v-on:click="toggleLootMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
 			</div>
 		</div>
 		
@@ -91,7 +91,10 @@
 				</div>
 				<div id="closeInspectContainer" class="flex-fill w-100 d-none">
 					<button v-on:click="toggleInspectMenu" type="button" class="btn btn-dark flex-fill w-100">Close Inspect</button>
-				</div>				
+				</div>
+				<div id="closeLootContainer" class="flex-fill w-100 d-none">
+					<button v-on:click="toggleLootMenu" type="button" class="btn btn-dark flex-fill w-100">Close Loot</button>
+				</div>						
 				<div id="closeGameMenuContainer" class="flex-fill w-100 d-none">
 					<button v-on:click="toggleGameMenu" type="button" class="btn btn-dark flex-fill w-100">Close Menu</button>
 				</div>
@@ -379,6 +382,11 @@
 						let column = this.enemyData[i].mapPosition[1];
 						let enemySquare = document.getElementById(row + '-' + column);
 						
+						//prevent drawing over player
+						if(enemySquare.classList.contains('border-warning') == true || enemySquare.firstElementChild != null) {
+							continue;
+						}
+						
 						this.enemyMapPositions.push([row, column]);
 						
 						//outlines enemy square
@@ -398,6 +406,7 @@
 							enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
 						enemyIcon.classList.toggle('img-fluid');
 						enemySquare.appendChild(enemyIcon);
+						
 					}
 				})
 				.catch(error => {
@@ -555,7 +564,6 @@
 					}
 
 					const enemyReturnDecision = async function(formData) {
-					
 						let response = await axios({
 							method : "POST",
 							baseURL: 'http://127.0.0.1:8000/api',
@@ -582,8 +590,10 @@
 						if(enemyActionObj == 'Dead') {
 							let enemyName = response.data.enemyName;
 							let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);
-							enemyOldSquare.firstElementChild.src = '/img/rpgGame/gameCharacterGraphics/gravestone.png';
-				
+							let graveStoneImage = '/img/rpgGame/gameCharacterGraphics/gravestone.png';
+							if(enemyOldSquare.hasChildNodes() && enemyOldSquare.firstElementChild.src == null)
+								enemyOldSquare.firstElementChild.src = graveStoneImage;
+							
 							if(!localStorage.hasOwnProperty('gameLog'))
 								localStorage.setItem('gameLog', 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.' + '\r\n');
 							else
@@ -857,9 +867,13 @@
 			toggleEnemyTurnResult() {
 				//reset marked square
 				let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
-				enemyOldSquare.classList.add('border-dark');
-				enemyOldSquare.classList.remove('border-danger');
 				
+				if(!enemyOldSquare.classList.contains('border-warning')) {
+					enemyOldSquare.classList.add('border-dark');
+					enemyOldSquare.classList.remove('border-danger');
+					//enemyOldSquare.classList.remove('border-warning');
+				}
+			
 				//enable controls
 				let all = document.getElementsByTagName("*");
 				for (let i = 0, count = all.length; i < count; i++) {
@@ -908,6 +922,24 @@
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
 				
 				document.getElementById('closeInspectContainer').classList.toggle('d-none');
+				
+			},
+			toggleLootMenu() {
+				document.getElementById('menuDataArea').classList.toggle('d-none');
+				if(!document.getElementById('closeLootContainer').classList.contains('d-none'))
+					document.getElementById('menuDataArea').textContent = '';
+				else
+					this.populateLoot();				
+				
+				document.getElementById('controlArea').classList.toggle('d-none');
+				
+				document.getElementById('bottomMenuBar').classList.toggle('d-none');
+				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
+				
+				document.getElementById('currentMenuControl').classList.toggle('d-none');
+				document.getElementById('currentMenuControl').classList.toggle('d-flex');
+				
+				document.getElementById('closeLootContainer').classList.toggle('d-none');
 				
 			},
 			selectFight() {
@@ -1101,6 +1133,60 @@
 						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
 						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
 					}
+				})
+				.catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});
+			},
+			populateLoot() {
+				const headers = { 
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				const lootEnemy = async function() {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/lootEnemy',
+						params : '',
+						data   : '',
+						headers: headers,
+					});
+					return response;
+				};
+				
+				lootEnemy()
+				.then(response => {
+					document.getElementById('menuDataArea').textContent = '';
+					document.getElementById('menuDataArea').textContent += response.data.results.message + '\r\n';
+					if(!localStorage.hasOwnProperty('gameLog')) {
+						localStorage.setItem('gameLog', 'Looted area.\r\n');
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.results.message + '\r\n');
+					}
+					else {
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Looted area.\r\n');
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + response.data.results.message + '\r\n');
+					}	
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				})
 				.catch(error => {
 					//server response errors
