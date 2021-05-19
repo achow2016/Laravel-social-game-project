@@ -292,42 +292,64 @@ trait GameTurnLogic
 		}
 	}
 	
+	//updates effects and their durations on all including passive stamina and health regen
 	public function updateEffects(Request $request)
 	{
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
-		$updates = [];
-		$updatedEffects = [];
-		$effects = $charObj->effects;
-		if($effects != null)
-		foreach($effects as $effectIndex => $effect) {
-			//other effects here as they are added to game
-			if($effect['name'] == 'Regen') {
-				$regenRecovery = ($charObj->health * ($effect['effectPercent'] / 100)) * $effect['effectStackAmount'];
-				if(($charObj->currentHealth + $regenRecovery) <= $charObj->health) {
-					$charObj->currentHealth = $charObj->currentHealth + $regenRecovery;
-					$updates[] = 'Regenerated ' . $regenRecovery . ' health.';
-				}	
-				else {
-					$remainder = $charObj->health - $charObj->currentHealth;
-					$charObj->currentHealth = $charObj->health;
-					$updates[] = 'Regenerated ' . $remainder . ' health.';
-				}
-				$updatedEffect = (object) [
-					'name' => $effect['name'], 
-					'effectStackAmount' => $effect['effectStackAmount'], 
-					'effectStackLimit' => $effect['effectStackLimit'], 
-					'effectPercent' => $effect['effectPercent'], 
-					'effectDuration' => $effect['effectDuration'],
-					'effectDurationRemaining' => $effect['effectDurationRemaining'] - 1
-				];
-				$updatedEffects[] = $updatedEffect;			
-			}
-		}
-		$charObj->effects = $updatedEffects;
-		$charObj->save();
-		return $updates;
+		$existingMap = GameMap::where('id', $charObj->mapId)->first();
+		$enemies = $existingMap->enemies()->get();
 		
+		$updates = array();
+		$updatedEffects = array();
+		
+		$actors = array();
+		$actors[] = $charObj;
+		foreach($enemies as $enemy) {
+			$actors[] = $enemy;
+		}
+		
+		foreach($actors as $actor) {
+			$name = $actor->name;
+			if($name == null)
+				$name = 'You';
+			
+			$effects = $actor->effects;
+			if($effects != null)
+			foreach($effects as $effectIndex => $effect) {
+				//other effects here as they are added to game
+				if($effect['name'] == 'Regen') {
+					$regenRecovery = ($actor->health * ($effect['effectPercent'] / 100)) * $effect['effectStackAmount'];
+					if(($actor->currentHealth + $regenRecovery) <= $actor->health) {
+						$actor->currentHealth = $actor->currentHealth + $regenRecovery;
+						$updates[] = $name . ' regenerated ' . $regenRecovery . ' health.';
+					}	
+					else {
+						$remainder = $actor->health - $actor->currentHealth;
+						$actor->currentHealth = $actor->health;
+						$updates[] = $name . ' regenerated ' . $remainder . ' health.';
+					}
+					$updatedEffect = (object) [
+						'name' => $effect['name'], 
+						'effectStackAmount' => $effect['effectStackAmount'], 
+						'effectStackLimit' => $effect['effectStackLimit'], 
+						'effectPercent' => $effect['effectPercent'], 
+						'effectDuration' => $effect['effectDuration'],
+						'effectDurationRemaining' => $effect['effectDurationRemaining'] - 1
+					];
+					$updatedEffects[] = $updatedEffect;			
+				}
+			}
+			$actor->effects = $updatedEffects;
+			
+			//passives
+			$actor->currentStamina = $actor->currentStamina + $actor->currentStaminaRegen;
+			$updates[] = $name . ' recovered ' . $actor->currentStaminaRegen . ' stamina.';
+			$actor->currentHealth = $actor->currentHealth + $actor->currentHealthRegen;
+			$updates[] = $name . ' recovered ' . $actor->currentHealthRegen . ' health.';
+			$actor->save();
+		}
+		return $updates;
 	}
 	
 	public function exchangeMelee(Request $request)

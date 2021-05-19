@@ -508,13 +508,12 @@
 				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + 'enemy deciding...';
 				
 				if(!localStorage.hasOwnProperty('gameLog'))
-					localStorage.setItem('gameLog', 'Enemy turn\r\n');
+					localStorage.setItem('gameLog', '\r\nEnemy turn\r\n');
 				else
-					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy turn\r\n');
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + '\r\nEnemy turn\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
-				
-				
+			
 				const headers = { 
 					'Content-Type': 'multipart/form-data',
 					'enctype' : 'multipart/form-data',
@@ -536,7 +535,6 @@
 				getGameState(this.formData)
 				.then(response => {
 					let currentTurn = response.data.currentTurn;
-					
 					let enemyTurnPositions = response.data.enemyTurnPositions;
 					let playerBattleState = response.data.playerBattleState;
 					let playerBattleTarget = response.data.playerBattleTarget;
@@ -575,8 +573,11 @@
 						return response;
 					};
 					
+					let msg;
 					enemyReturnDecision(this.formData)
 					.then(response => {
+						console.log(response);
+						msg = response.data.results.message;
 						let enemyActionObj = response.data.enemyAction;
 						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
 						let enemyLastTerrain = response.data.enemyLastTerrain;
@@ -714,8 +715,24 @@
 						
 						//if skill
 						
-					});				
-				});	
+						//enemy end of turn updates
+						let msgPeriodIndex = msg.indexOf('.');
+						let processedMsg;
+						
+						if(msgPeriodIndex != -1)
+							processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2);
+						else
+							processedMsg = response.data.message;
+						
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', processedMsg);
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg);
+							
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					});
+				});
 			},
 			moveCharacter(event) {
 				let all = document.getElementsByTagName("*");
@@ -757,14 +774,17 @@
 						let msg = response.data.message;
 						let msgPeriodIndex = msg.indexOf('.');
 						let processedMsg;
+						
 						if(msgPeriodIndex != -1)
-							processedMsg = msg.slice(0, msgPeriodIndex + 1) + '\n\r' + msg.slice(msgPeriodIndex + 1);
+							processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2);
 						else
 							processedMsg = response.data.message;
+						
 						if(!localStorage.hasOwnProperty('gameLog'))
-							localStorage.setItem('gameLog', processedMsg + '\r\n');
+							localStorage.setItem('gameLog', processedMsg);
 						else
-							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg + '\r\n');
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg);
+						
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 					}	
@@ -893,6 +913,39 @@
 				document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
 				document.getElementById('menuDataArea').textContent = 'loading data...';
 				document.getElementById('menuDataArea').classList.toggle('d-none');
+				
+				const headers = { 
+					'Content-Type': 'multipart/form-data',
+					'enctype' : 'multipart/form-data',
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				const getGameState = async function(formData) {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/getGameState',
+						params : '',
+						data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+				
+				getGameState(this.formData)
+				.then(response => {
+					let currentTurn = response.data.currentTurn;
+					let enemyTurnPositions = response.data.enemyTurnPositions;
+					let playerBattleState = response.data.playerBattleState;
+					let playerBattleTarget = response.data.playerBattleTarget;
+					let playerGameTurns = response.data.playerGameTurns;
+					let playerTurnPosition = response.data.playerTurnPosition;
+					let currentEnemyActing = null;
+					let enemyAction = null;
+					
+					if(currentTurn != playerTurnPosition)
+						this.enemyTurn();
+				});
 			},
 			toggleGameMenu() {
 				document.getElementById('controlArea').classList.toggle('d-none');

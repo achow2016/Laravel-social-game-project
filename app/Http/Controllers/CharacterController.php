@@ -58,6 +58,9 @@ class CharacterController extends Controller {
 			$character = new Character();
 			$character->setAttribute('raceId', $characterRace->id);
 			$character->setAttribute('classId', $characterClass->id);
+			
+			$character->setAttribute('gameLevel', 2);
+			
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
 			$character->setAttribute('health', $characterRace->health + $characterClass->health + $request->lifeAlloc);

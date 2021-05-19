@@ -49,6 +49,9 @@ class MapController extends Controller {
 				
 				$character = new Character();
 				$character->setAttribute('raceId', $charObj->raceId);
+				
+				$character->setAttribute('gameLevel', 2);
+				
 				$character->setAttribute('classId', $charObj->classId);
 				$character->setAttribute('ownerUser', $charObj->id);
 				$character->setAttribute('characterName', $charObj->characterName);
@@ -418,9 +421,9 @@ class MapController extends Controller {
 				}
 				
 				if($movementChoice == 'wait')	
-					$responseArray['message'] = 'Player waits';
+					$responseArray['message'] = 'Player waits.';
 				else
-					$responseArray['message'] = 'Moved ' . $movementChoice;
+					$responseArray['message'] = 'Moved ' . $movementChoice . '.';
 				
 				$responseArray['move'] = $movementChoice;
 				$responseArray['playerPosition'] = $charObj->mapPosition;
@@ -431,7 +434,7 @@ class MapController extends Controller {
 				$updatedEffects = $this->updateEffects($request);
 				if($updatedEffects != null)
 					foreach($updatedEffects as $update) {
-						$responseArray['message'] = $responseArray['message'] . '.' . $update;
+						$responseArray['message'] = $responseArray['message'] . $update;
 					}
 				
 				$charObj->currentTurn = $charObj->currentTurn + 1;

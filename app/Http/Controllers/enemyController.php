@@ -24,10 +24,14 @@ use App\Models\GameBodyEquipment;
 use App\Models\GameHeadEquipment;
 use App\Models\GameLegEquipment;
 
+use App\Traits\GameTurnLogic;
+
 //use DateTime;
 
 class EnemyController extends Controller {
-
+	
+	use GameTurnLogic;
+	
 	//generates enemies and return coordinates for display on map builder
 	public function generateEnemies(Request $request) 
 	{
@@ -51,14 +55,13 @@ class EnemyController extends Controller {
 			$mapDecoded = json_decode($map[0], TRUE);
 			
 			for($i = 0; $i < $gameLevel; $i++) {
-				$enemyChoice = max((rand(0,$enemyChoicesCount - 1)), 0 );
+				//$enemyChoice = max((rand(0,$enemyChoicesCount - 1)), 0);
+				$enemyChoice = rand(0,$enemyChoicesCount - 1);
 				$strengthAlloc = rand(0, 12);
 				$enduranceAlloc = max((rand(0, 12) - $strengthAlloc), 0);
 				$lifeAlloc = max((rand(0, 12) - $strengthAlloc - $enduranceAlloc), 0);
-				
 				$enemyRace = CharacterRace::where('race', $enemyChoices[$enemyChoice]->gameRace)->first();
 				$enemyClass = CharacterClass::where('name', $enemyChoices[$enemyChoice]->gameClass)->first();			
-				
 				$enemyOffhand = GameOffhand::where('name', $enemyChoices[$enemyChoice]->offHand)->first();
 				$enemyWeapon = GameWeapon::where('name', $enemyChoices[$enemyChoice]->weapon)->first();
 				$enemyArmsEquip = GameArmsEquipment::where('name', $enemyChoices[$enemyChoice]->armsEquipment)->first();
@@ -363,7 +366,7 @@ class EnemyController extends Controller {
 				$movementType = rand(0, 2);
 				//move closer by column
 				if($movementType == 0) {
-					switch($enemyColumn) {
+					switch(true) {
 						//on left of enemy
 						case($enemyColumn > $charColumn):
 							$enemy->mapPosition = [$enemyRow, $enemyColumn - 1];
@@ -383,10 +386,10 @@ class EnemyController extends Controller {
 						default:
 							break;
 					}	
-				}	
+				}
 				//move closer by row
-				else if($movementType == 1){
-					switch($enemyRow) {
+				else if($movementType == 1) {
+					switch(true) {
 						//above enemy
 						case($enemyRow > $charRow):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
@@ -409,7 +412,7 @@ class EnemyController extends Controller {
 				}
 				//move diagonally
 				else {
-					switch([$enemyRow, $enemyColumn]) {
+					switch(true) {
 						//north of enemy
 						case($enemyRow > $charRow && $enemyColumn == $charColumn):
 							$enemy->mapPosition = [$enemyRow - 1, $enemyColumn];
@@ -482,7 +485,15 @@ class EnemyController extends Controller {
 			//	$charObj->currentTurn = 1;
 			$charObj->save();
 			
+			$results = array();
+			$results += ['message' => '']; 
+			$effectsUpdates = $this->updateEffects($request);
+			foreach($effectsUpdates as $update) {
+				$results['message'] = $results['message'] . $update;
+			}
+			
 			return response([
+				'results' => $results,
 				'currentTurn' => $charObj->currentTurn,
 				'playerTurnPosition' => $charObj->turnPosition,
 				'playerGameTurns' => $charObj->gameTurns,
