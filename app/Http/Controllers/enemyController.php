@@ -449,7 +449,21 @@ class EnemyController extends Controller {
 							break;
 					}
 				}
+				//check against enemy map positions
+				//enemy map positions to check for duplicates
+				$enemyMapPositions = $existingMap->enemies()->get()->pluck('mapPosition');				
+				$positionMatches = 0;
+				foreach($enemyMapPositions as $enemyCoord) {
+					if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]]) {
+						$positionMatches = $positionMatches + 1;
+					}	
+				}
 				
+				//if two matches (result is overlap another enemy square), does not move
+				if($positionMatches >= 1)
+					$enemy->mapPosition = [$enemyRow, $enemyColumn];
+				
+				//if tries move onto player square, does not move
 				if($enemy->mapPosition == [$charRow, $charColumn])
 					$enemy->mapPosition = [$enemyRow, $enemyColumn];
 				

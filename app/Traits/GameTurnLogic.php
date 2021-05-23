@@ -33,8 +33,12 @@ trait GameTurnLogic
 			//gets map tileset as array for placing enemy data
 			$map = $existingMap->tileset()->first()->pluck('mapData');
 			$mapDecoded = json_decode($map[0], TRUE);
-			$itemEntry = array('name' => $targetItem->name, 'quantity' => $enemyItem->quantity);
+			$itemEntry = array();
+			$itemEntry[] = array('name' => $targetItem->name, 'quantity' => $enemyItem->quantity);
+			//add money
+			$itemEntry[] = array('name' => 'money', 'quantity' => $enemy->money);
 			//$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = strval($targetItem->name);
+			//Log::debug($itemEntry);
 			$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = json_encode($itemEntry);
 			$tileSet = $existingMap->tileset()->first();
 			$tileSet->mapData = $mapDecoded;
@@ -53,6 +57,11 @@ trait GameTurnLogic
 		$playerMapPosition = $charObj->mapPosition;
 		$itemName = $mapDecoded[$playerMapPosition[0]][$playerMapPosition[1]]['item'];
 		$processedItem = json_decode($itemName);
+		
+		if($processedItem == '') {
+			return (['message' => 'No items found.']);			
+		}	
+		
 		$targetItem = GameItem::where('name', $processedItem->name)->first();
 		$targetItemQuantity = $processedItem->quantity;
 		

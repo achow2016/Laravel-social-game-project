@@ -508,9 +508,9 @@
 				document.getElementById('menuDataArea').textContent = document.getElementById('menuDataArea').textContent + 'enemy deciding...';
 				
 				if(!localStorage.hasOwnProperty('gameLog'))
-					localStorage.setItem('gameLog', '\r\nEnemy turn\r\n');
+					localStorage.setItem('gameLog', 'Enemy turn\r\n');
 				else
-					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + '\r\nEnemy turn\r\n');
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Enemy turn\r\n');
 				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 			
@@ -543,10 +543,9 @@
 					let currentEnemyActing = null;
 					let enemyAction = null;
 					
-					//calls controller function to process enemy turn
 					for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
 						if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
-							currentEnemyActing = enemyTurnPositions[parseInt(Object.keys(enemyTurnPositions)[0])];
+							currentEnemyActing = enemyTurnPositions.[(Object.keys(enemyTurnPositions)[i])];
 							break;
 						}	
 					}
@@ -573,12 +572,13 @@
 						return response;
 					};
 					
-					let msg;
+					let msg = null;
 					enemyReturnDecision(this.formData)
 					.then(response => {
 						console.log(response);
-						msg = response.data.results.message;
 						let enemyActionObj = response.data.enemyAction;
+						if(enemyActionObj != 'Dead')
+							msg = response.data.results.message;
 						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
 						let enemyLastTerrain = response.data.enemyLastTerrain;
 						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
@@ -614,11 +614,13 @@
 						
 						//if move
 						if(enemyAction == 'move') {
-							this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
-							let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
-							enemyOldSquare.classList.remove('border-dark');
-							enemyOldSquare.classList.add('border-danger');
-							
+							//if not moving because blocked
+							if(enemyOldPosition != enemyNewPosition) {						
+								this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
+								let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
+								enemyOldSquare.classList.remove('border-dark');
+								enemyOldSquare.classList.add('border-danger');
+							}
 							let all = document.getElementsByTagName("*");
 							for (let i = 0, count = all.length; i < count; i++) {
 								all[i].style.pointerEvents = 'auto';
@@ -716,21 +718,23 @@
 						//if skill
 						
 						//enemy end of turn updates
-						let msgPeriodIndex = msg.indexOf('.');
-						let processedMsg;
-						
-						if(msgPeriodIndex != -1)
-							processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2);
-						else
-							processedMsg = response.data.message;
-						
-						if(!localStorage.hasOwnProperty('gameLog'))
-							localStorage.setItem('gameLog', processedMsg);
-						else
-							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg);
+						if(msg != null) {
+							let msgPeriodIndex = msg.indexOf('.');
+							let processedMsg;
 							
-						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
-						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+							if(msgPeriodIndex != -1)
+								processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2) + '\r\n';
+							else
+								processedMsg = response.data.message + '\r\n';
+							
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', processedMsg);
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + processedMsg);
+								
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+						}
 					});
 				});
 			},
@@ -776,9 +780,9 @@
 						let processedMsg;
 						
 						if(msgPeriodIndex != -1)
-							processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2);
+							processedMsg = msg.replace(/\./g, '\r\n').slice(0, -2) + '\r\n';
 						else
-							processedMsg = response.data.message;
+							processedMsg = response.data.message + '\r\n';
 						
 						if(!localStorage.hasOwnProperty('gameLog'))
 							localStorage.setItem('gameLog', processedMsg);
@@ -885,9 +889,10 @@
 				document.getElementById('menuDataArea').textContent = 'loading data...';
 			},
 			toggleEnemyTurnResult() {
+			
 				//reset marked square
 				let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
-				
+					
 				if(!enemyOldSquare.classList.contains('border-warning')) {
 					enemyOldSquare.classList.add('border-dark');
 					enemyOldSquare.classList.remove('border-danger');
@@ -945,6 +950,14 @@
 					
 					if(currentTurn != playerTurnPosition)
 						this.enemyTurn();
+					else {
+						if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Player turn.' + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Player turn.' + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;						
+					}
 				});
 			},
 			toggleGameMenu() {

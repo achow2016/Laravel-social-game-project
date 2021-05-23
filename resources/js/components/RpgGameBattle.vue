@@ -398,6 +398,13 @@
 				});
 			},
 			returnToMap() {
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Ending battle.' + '\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Ending battle.' + '\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+				
 				this.$router.push({ 
 						name: 'rpgGame'
 					}).catch((err) => {
