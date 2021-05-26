@@ -57,10 +57,11 @@
 				</div>				
 			</div>
 			<div id="actionGrid" class="col-6">
-				<div id="inspectDiv" v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Inspect</div>
-				<div id="fightDiv" v-on:click="selectFight" class="row-9 mb-4 actionRow d-flex justify-content-center">Fight</div>
-				<div id="skillDiv" class="row-9 mb-4 actionRow d-flex justify-content-center">Skill</div>
-				<div id="lootDiv" v-on:click="toggleLootMenu" class="row-9 mb-4 actionRow d-flex justify-content-center">Loot</div>
+				<div id="advanceLevelDiv" v-on:click="advanceLevel" class="row-9 mb-4 actionRow text-center d-none">Exit Map</div>
+				<div id="inspectDiv" v-on:click="toggleInspectMenu" class="row-9 mb-4 actionRow text-center ">Inspect</div>
+				<div id="fightDiv" v-on:click="selectFight" class="row-9 mb-4 actionRow text-center ">Fight</div>
+				<div id="skillDiv" class="row-9 mb-4 actionRow text-center">Skill</div>
+				<div id="lootDiv" v-on:click="toggleLootMenu" class="row-9 mb-4 actionRow text-center">Loot</div>
 			</div>
 		</div>
 		
@@ -237,6 +238,24 @@
 			
 			let currentEnemyActing = null;
 			let enemyAction = null;
+
+			
+			//hide fight button enable exit map button if enemies dead
+			let enemiesAlive = false;
+					
+			for(let i = 0; i < enemyTurnPositions.length; i++) {
+				if(enemyTurnPositions[i].currentHealth > 0) {
+					enemiesAlive = true;
+				}
+			}
+			if(enemiesAlive == false) {
+				document.getElementById('advanceLevelDiv').classList.toggle('d-none');
+				document.getElementById('fightDiv').classList.toggle('d-none');
+				//add allow pointer events
+				//hide fight option div and disable pointer eventt
+				//document.getElementById('advanceLevelDiv').classList.toggle('d-none');
+			}
+
 			
 			//if player was in fight from params
 			let gameGridSquares = document.getElementsByClassName('gameGridSquare');
@@ -543,9 +562,9 @@
 					let currentEnemyActing = null;
 					let enemyAction = null;
 					
-					for(let i = 0; i < Object.keys(enemyTurnPositions).length; i++) {
-						if(Object.keys(enemyTurnPositions)[i] == currentTurn) {
-							currentEnemyActing = enemyTurnPositions.[(Object.keys(enemyTurnPositions)[i])];
+					for(let i = 0; i < enemyTurnPositions.length; i++) {
+						if(enemyTurnPositions[i].turnPosition == currentTurn) {
+							currentEnemyActing = enemyTurnPositions[i].id;
 							break;
 						}	
 					}
@@ -947,6 +966,21 @@
 					let playerTurnPosition = response.data.playerTurnPosition;
 					let currentEnemyActing = null;
 					let enemyAction = null;
+					let enemiesAlive = false;
+					
+					for(let i = 0; i < enemyTurnPositions.length; i++) {
+						if(enemyTurnPositions[i].currentHealth > 0) {
+							enemiesAlive = true;
+						}
+					}
+					
+					//show exit map button if no more enemies alive, hides fight button
+					if(enemiesAlive == false) {
+						if(document.getElementById('advanceLevelDiv').classList.contains('d-none'))
+							document.getElementById('advanceLevelDiv').classList.toggle('d-none');
+						if(!document.getElementById('fightDiv').classList.contains('d-none'))
+							document.getElementById('fightDiv').classList.toggle('d-none');
+					}
 					
 					if(currentTurn != playerTurnPosition)
 						this.enemyTurn();
@@ -958,6 +992,68 @@
 						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;						
 					}
+				});
+			},
+			advanceLevel() {
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Advancing to next level.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Advancing to next level.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+				
+				const headers = { 
+					'Content-Type': 'multipart/form-data',
+					'enctype' : 'multipart/form-data',
+					'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				};
+			
+				const nextLevel = async function() {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/nextLevel',
+						params : '',
+						//data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+				
+				nextLevel()
+				.then(response => {
+					this.$router.push({ 
+						name: 'mapBuilder', 
+						params: {message: response.data.result.message, level: response.data.result.level} 
+					}).catch((err) => {
+						//for (let i = 0, count = all.length; i < count; i++) {
+						//	all[i].style.pointerEvents = 'auto';
+						//}
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', 'There was an error when returning back to the map builder screen.\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the map builder screen.\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+						console.log(err);
+					});
+				});
+				
+				
+				this.$router.push({ 
+					name: 'mapBuilder', 
+					//params: {distance: response.data.distance, enemy: response.data.enemy} 
+				}).catch((err) => {
+					//for (let i = 0, count = all.length; i < count; i++) {
+					//	all[i].style.pointerEvents = 'auto';
+					//}
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', 'There was an error when returning back to the map builder screen.\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the map builder screen.\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					console.log(err);
 				});
 			},
 			toggleGameMenu() {

@@ -48,10 +48,7 @@ class MapController extends Controller {
 				$charObj = $existingMap->character()->first();
 				
 				$character = new Character();
-				$character->setAttribute('raceId', $charObj->raceId);
-				
-				$character->setAttribute('gameLevel', 2);
-				
+				$character->setAttribute('raceId', $charObj->raceId);		
 				$character->setAttribute('classId', $charObj->classId);
 				$character->setAttribute('ownerUser', $charObj->id);
 				$character->setAttribute('characterName', $charObj->characterName);
@@ -82,7 +79,7 @@ class MapController extends Controller {
 				
 				$gameMap = new GameMap();				
 				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
-				$gameMap->setAttribute('level', 1);
+				$gameMap->setAttribute('level', $character->gameLevel);
 				$gameMap->save();
 				
 				$charObj->mapId = $gameMap->id;

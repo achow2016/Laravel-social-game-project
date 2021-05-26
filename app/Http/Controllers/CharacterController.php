@@ -237,6 +237,19 @@ class CharacterController extends Controller {
 		}
 	}
 	
+	//advance game to next level
+	public function nextLevel(Request $request) 
+	{
+		try {
+			$results = $this->advanceLevel($request);
+			return response(['result' => $results], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}
+	}
+	
 	//use item, game code in game turn logic, effects updated after item use
 	public function useItem(Request $request) 
 	{
@@ -375,7 +388,8 @@ class CharacterController extends Controller {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			//$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			$enemiesTurnPositions = $existingMap->enemies()->select('id', 'turnPosition', 'currentHealth')->get();
 			
 			if($charObj->battle == true) {
 				$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();

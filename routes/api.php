@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/getTurnList', 'App\Http\Controllers\CharacterController@getTurnList'); //gets turn listing from character
 	Route::post('/getGameState', 'App\Http\Controllers\CharacterController@getGameState'); //get game state data using character
 	Route::post('/gameEnemyTurnDecision', 'App\Http\Controllers\EnemyController@gameEnemyTurnDecision');
+	Route::post('/nextLevel', 'App\Http\Controllers\CharacterController@nextLevel');
 	//game account
 	Route::post('/getUserProfile', 'App\Http\Controllers\RegistrationController@getUserProfile');
 	Route::post('/updateProfileVideo', 'App\Http\Controllers\RegistrationController@updateProfileVideo');

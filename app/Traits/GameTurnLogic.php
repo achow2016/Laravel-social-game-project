@@ -16,6 +16,22 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
+	//allows progress to next level if conditions met: no enemies remain that are healthy
+	public function advanceLevel(Request $request) {
+		$user = User::where('name', $request->user()->name)->first();
+		$charObj = $user->character()->first();
+		$existingMap = GameMap::where('id', $charObj->mapId)->first();
+		$enemyObjs = $existingMap->enemies()->get()->where('currentHealth', '>', 0)->first();
+		if($enemyObjs != null) {
+			return (['errorMessage' => 'System was unable to advance level, enemies still remain on current level.']);		
+		}
+		else {
+			$charObj->gameLevel = $charObj->gameLevel + 1;
+			$charObj->save();
+			return (['message' => 'Character advanced to next level.', 'level' => $charObj->gameLevel]);	
+		}
+	}
+	
 	//uses enemy id sent from calling function to drop specific enemy item onto a map square
 	public function dropEnemyLoot(Request $request, $enemyId) {
 		$user = User::where('name', $request->user()->name)->first();
