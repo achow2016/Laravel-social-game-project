@@ -37,8 +37,18 @@ class EnemyController extends Controller {
 	{
 		try {
 			$user = User::where('name', $request->user()->name)->first();
-			
+			Log::debug('user check at beginning of enemy gen ' . $user);
+			Log::debug('user id ' . $user->id);
 			$charObj = $user->character()->first();
+			//$charObj = Character::where('ownerUser', $user->id)->first();
+			//Log::debug('char lookup using user id at enemy gen ' . $charObj);
+			
+			foreach(Character::all() as $char) {
+				Log::debug('all char lookup using any user id at enemy gen ' . $char);
+			}
+			
+			//Log::debug('at beginning of enemy gen' . $charObj); not present
+			//Log::debug($charObj); user character disappeared between calls
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			
 			$gameLevel = $charObj->gameLevel;
@@ -99,7 +109,8 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('classId', $enemyClass->id);
 				$enemy->setAttribute('name', $enemyChoices[$enemyChoice]->name);
 				$enemy->setAttribute('health', $enemyRace->health + $enemyClass->health + $lifeAlloc);
-				$enemy->setAttribute('currentHealth', $enemyRace->health + $enemyClass->health + $lifeAlloc);
+				//$enemy->setAttribute('currentHealth', $enemyRace->health + $enemyClass->health + $lifeAlloc);
+				$enemy->setAttribute('currentHealth', 1);
 				$enemy->setAttribute('healthRegen', $enemyRace->healthRegen + $enemyClass->healthRegen);
 				$enemy->setAttribute('currentHealthRegen', $enemyRace->healthRegen + $enemyClass->healthRegen);
 				$enemy->setAttribute('stamina', $enemyRace->stamina + $enemyClass->stamina + $enduranceAlloc);
@@ -126,7 +137,9 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('legsEquipment', $enemyChoices[$enemyChoice]->legsEquipment);
 				$enemy->setAttribute('money', $enemyChoices[$enemyChoice]->money);
 				
-				$existingMap->enemies()->save($enemy);
+				$enemy->setAttribute('mapId', $existingMap->id);
+				$enemy->save();
+				//$existingMap->enemies()->save($enemy);
 				
 				//grants lootable inventory item
 				
@@ -143,7 +156,8 @@ class EnemyController extends Controller {
 			}
 			
 			//returns coordinates only for map generator
-			$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			//$filteredEnemies = $existingMap->enemies()->get()->pluck('mapPosition');
+			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
 			
 			//save updated tileset with enemies
 			//Log::debug($mapDecoded);
@@ -154,7 +168,9 @@ class EnemyController extends Controller {
 			//assign turn number based on agility, sets current turn to one
 			$charObj->gameTurns = $gameLevel + 1;
 			$charObj->currentTurn = 1;
-			$actors = $existingMap->enemies()->get();
+			$charObj->save();
+			//$actors = $existingMap->enemies()->get();
+			$actors = GameActiveEnemy::where('mapId', $existingMap->id)->get();
 			$actors->push($charObj);
 			$sortAgiDesc = $actors->sortBy([['currentAgility', 'desc']]);
 			$turnNumber = 1;
@@ -163,12 +179,15 @@ class EnemyController extends Controller {
 				$turnNumber = $turnNumber + 1;
 				$actor->save();
 			}
+			
+			//Log::debug('move list ' . $actors);
+			//Log::debug('move list sorted player after ' . $charObj);
 
 			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
-			return response(['status' => 'Character could not be created. Please report to admin.'], 422);
+			return response(['status' => 'Enemies could not be created. Please report to admin.'], 422);
 		}	
 	}
 	
@@ -179,8 +198,8 @@ class EnemyController extends Controller {
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//returns coordinates only for map generator
-			$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
-			//return response(['enemies' => $existingMap->enemies()->get()], 200);
+			//$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
+			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth');
 			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
@@ -274,11 +293,13 @@ class EnemyController extends Controller {
 			$mapDecoded = json_decode($map[0], TRUE);
 			
 			//enemy turn positions for component response
-			$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
-			
+			//$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			$enemiesTurnPositions = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('id', 'turnPosition');
+
 			//current enemy acting in this function, using request data
-			$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
-			
+			//$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
+			$enemy = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('id', $request->currentEnemyActing)->first();
+
 			//if enemy is dead
 			if($enemy->currentHealth <= 0) {
 				$charObj->currentTurn = $charObj->currentTurn + 1;
@@ -451,7 +472,9 @@ class EnemyController extends Controller {
 				}
 				//check against enemy map positions
 				//enemy map positions to check for duplicates
-				$enemyMapPositions = $existingMap->enemies()->get()->pluck('mapPosition');				
+				//$enemyMapPositions = $existingMap->enemies()->get()->pluck('mapPosition');		
+				$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');	
+				
 				$positionMatches = 0;
 				foreach($enemyMapPositions as $enemyCoord) {
 					if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]]) {

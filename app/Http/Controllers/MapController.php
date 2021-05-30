@@ -32,65 +32,36 @@ class MapController extends Controller {
 		try {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
+			//$charObj = $user->character()->first();
+			Log::debug('at generate map ' . $charObj);
 			
 			if(!$charObj) {
 				return response(['message' => 'No character found, please create a new character.'], 422);
 			}
 			
-			$charId = $charObj->id;
-			$charMapId = $charObj->mapId;
-			
 			//creates and matchs the game map to the character and enemies
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
 			//if map present delete old one
 			if($existingMap) {
-				//store character
-				$charObj = $existingMap->character()->first();
-				
-				$character = new Character();
-				$character->setAttribute('raceId', $charObj->raceId);		
-				$character->setAttribute('classId', $charObj->classId);
-				$character->setAttribute('ownerUser', $charObj->id);
-				$character->setAttribute('characterName', $charObj->characterName);
-				$character->setAttribute('health', $charObj->health);
-				$character->setAttribute('currentHealth', $charObj->currentHealth);
-				$character->setAttribute('healthRegen', $charObj->healthRegen);
-				$character->setAttribute('currentHealthRegen', $charObj->currentHealthRegen);
-				$character->setAttribute('stamina', $charObj->stamina);
-				$character->setAttribute('currentStamina', $charObj->currentStamina);
-				$character->setAttribute('staminaRegen', $charObj->staminaRegen);
-				$character->setAttribute('currentStaminaRegen', $charObj->currentStaminaRegen);
-				$character->setAttribute('agility', $charObj->agility);
-				$character->setAttribute('currentAgility', $charObj->currentAgility);
-				$character->setAttribute('attack', $charObj->attack);
-				$character->setAttribute('currentAttack', $charObj->currentAttack);
-				
-				$character->setAttribute('defense', $charObj->defense);
-				$character->setAttribute('currentDefense', $charObj->defense);
-				$character->setAttribute('accuracy', $charObj->accuracy);
-				$character->setAttribute('currentAccuracy', $charObj->accuracy);
-				$character->setAttribute('baseAttackCost', $charObj->baseAttackCost);
-				$character->setAttribute('avatar', $charObj->avatar);
-				$character->setAttribute('meleeAnimation', $charObj->meleeAnimation);
-				$character->setAttribute('money', $charObj->money);
-				
-				//delete old map, makes new one and character 
-				$existingMap->delete();
-				
+				//Log::debug($charObj); is present
 				$gameMap = new GameMap();				
 				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
-				$gameMap->setAttribute('level', $character->gameLevel);
+				$gameMap->setAttribute('level', $charObj->gameLevel);
 				$gameMap->save();
 				
 				$charObj->mapId = $gameMap->id;
-				$gameMap->character()->save($charObj);
+				//$user->character()->save($charObj);
+				//$charObj->save();
+				//Log::debug('saving map id' . $charObj); works
 				
-				$user->character()->save($charObj);
-				
-				$tileCheck = $gameMap->tileset()->first();
+				//deletes old tileset and map
+				$tileCheck = $existingMap->tileset()->first();
 				
 				if($tileCheck) 
-					$gameMap->tileset()->delete();
+					$existingMap->tileset()->delete();
+				
+				$existingMap->delete();
 				
 				//generates tileset here, percentages of terrain
 				$tileSet = new GameMapTileset();
@@ -136,20 +107,13 @@ class MapController extends Controller {
 				$gameMap->tileset()->save($tileSet);
 				
 				//places character onto map starting position
-				$character->mapPosition = $gameMap->startPoint;
-				$character->mapId = $gameMap->id;
+				$charObj->mapPosition = $gameMap->startPoint;
+				$charObj->mapId = $gameMap->id;
 				
 				//saves character under user
-				$user->character()->save($character);
-				
-				//grants starter healing item
-				$aidKit = GameItem::where('name', 'Aid Kit')->first();
-				$starterHealingItem = new ActiveGameCharacterItem();
-				$starterHealingItem->setAttribute('itemId', $aidKit->id);
-				$starterHealingItem->setAttribute('ownerId', $character->id);
-				$starterHealingItem->setAttribute('quantity', 1);
-				$character->items()->save($starterHealingItem);
-				
+				$user->character()->save($charObj);
+				//$charObj->save();
+				Log::debug('at end of map gen ' . $charObj);
 				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
 			else {
@@ -246,7 +210,8 @@ class MapController extends Controller {
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//$enemyCoords = $existingMap->enemies()->get()->pluck('mapPosition');
-			$enemies = $existingMap->enemies()->get();
+			//$enemies = $existingMap->enemies()->get();
+			$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get();
 			$playerCoords = $charObj->mapPosition;
 			
 			$movementChoice = null;

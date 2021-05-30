@@ -21,7 +21,9 @@ trait GameTurnLogic
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
-		$enemyObjs = $existingMap->enemies()->get()->where('currentHealth', '>', 0)->first();
+		//$enemyObjs = $existingMap->enemies()->get()->where('currentHealth', '>', 0)->first();
+		$enemyObjs = GameActiveEnemy::where('mapId', $existingMap->id)->where('currentHealth', '>', 0)->first();
+
 		if($enemyObjs != null) {
 			return (['errorMessage' => 'System was unable to advance level, enemies still remain on current level.']);		
 		}
@@ -39,7 +41,9 @@ trait GameTurnLogic
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
 		
 		//current enemy acting in this function, using request data
-		$enemy = $existingMap->enemies()->get()->where('id', $enemyId)->first();
+		//$enemy = $existingMap->enemies()->get()->where('id', $enemyId)->first();
+		$enemy = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('id', $enemyId)->first();
+
 		$enemyItem = $enemy->items()->first();
 		
 		if($enemy->items()->first()) {
@@ -136,12 +140,16 @@ trait GameTurnLogic
 		
 		$mapCoordArray = explode(",", $request->mapPosition);
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
-		$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+		//$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+		$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->first();
+
 		if($enemyObj) {
 			$charObj->enemyId = $enemyObj->id;
 		}	
 		else
-			$enemyObj = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+			//$enemyObj = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+			$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('id', $charObj->enemyId)->first();
+
 	
 		if($charObj->currentAgility < $enemyObj->currentAgility) {
 			$this->playerTurnOrder = 'second';
@@ -323,8 +331,9 @@ trait GameTurnLogic
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
-		$enemies = $existingMap->enemies()->get();
-		
+		//$enemies = $existingMap->enemies()->get();
+		$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get();
+
 		$updates = array();
 		$updatedEffects = array();
 		
@@ -368,10 +377,14 @@ trait GameTurnLogic
 			$actor->effects = $updatedEffects;
 			
 			//passives
-			$actor->currentStamina = $actor->currentStamina + $actor->currentStaminaRegen;
-			$updates[] = $name . ' recovered ' . $actor->currentStaminaRegen . ' stamina.';
-			$actor->currentHealth = $actor->currentHealth + $actor->currentHealthRegen;
-			$updates[] = $name . ' recovered ' . $actor->currentHealthRegen . ' health.';
+			if(($actor->currentStamina + $actor->currentStaminaRegen) <= $actor->stamina) {
+				$actor->currentStamina = $actor->currentStamina + $actor->currentStaminaRegen;
+				$updates[] = $name . ' recovered ' . $actor->currentStaminaRegen . ' stamina.';
+			}
+			if(($actor->currentHealth + $actor->currentHealthRegen) <= $actor->health) {
+				$actor->currentHealth = $actor->currentHealth + $actor->currentHealthRegen;
+				$updates[] = $name . ' recovered ' . $actor->currentHealthRegen . ' health.';
+			}
 			$actor->save();
 		}
 		return $updates;
@@ -412,7 +425,8 @@ trait GameTurnLogic
 		$playerDamage = 0;
 		$playerAttackSuccess = false;
 		if($playerValidRange) {	
-			$playerChanceToHit = $charObj->currentAccuracy - $enemyObj->currentDefense;	
+			//$playerChanceToHit = $charObj->currentAccuracy - $enemyObj->currentDefense;	
+			$playerChanceToHit = 100;	
 			$playerAccuracyRoll = rand(1, 100);
 			if($playerAccuracyRoll <= $playerChanceToHit) {
 				$playerAttackSuccess = true;

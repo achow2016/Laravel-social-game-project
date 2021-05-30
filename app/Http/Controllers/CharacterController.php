@@ -38,7 +38,9 @@ class CharacterController extends Controller {
 					$gameMap->tileset()->first()->delete();
 					$gameMap->delete();
 				}
+				$charCheck->items()->delete();
 				$user->character()->delete();
+				
 			}
 			
 			$request->validate([
@@ -58,9 +60,6 @@ class CharacterController extends Controller {
 			$character = new Character();
 			$character->setAttribute('raceId', $characterRace->id);
 			$character->setAttribute('classId', $characterClass->id);
-			
-			$character->setAttribute('gameLevel', 2);
-			
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
 			$character->setAttribute('health', $characterRace->health + $characterClass->health + $request->lifeAlloc);
@@ -206,7 +205,8 @@ class CharacterController extends Controller {
 			$charObj = $user->character()->first();			
 			$mapCoordArray = explode(",", $request->mapPosition);
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+			//$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
+			$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->first();
 			if(!$enemyObj)
 				return response(['message' => 'Invalid combat target.'], 200);
 			$charObj->enemyId = $enemyObj->id;
@@ -389,7 +389,8 @@ class CharacterController extends Controller {
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//$enemiesTurnPositions = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
-			$enemiesTurnPositions = $existingMap->enemies()->select('id', 'turnPosition', 'currentHealth')->get();
+			//$enemiesTurnPositions = $existingMap->enemies()->select('id', 'turnPosition', 'currentHealth')->get();
+			$enemiesTurnPositions = GameActiveEnemy::where('mapId', $existingMap->id)->select('id', 'turnPosition', 'currentHealth')->get();
 			
 			if($charObj->battle == true) {
 				$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();

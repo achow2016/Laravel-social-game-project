@@ -196,9 +196,11 @@ const router = new VueRouter({
 			name: 'mapBuilder',
 			component: MapBuilder,
 			props: {},
+			/*
 			beforeEnter (to, from, next) {
 				gameCharacterCheck(to,from,next);
 			}
+			*/
 		},
 		{
 			path: '/rpgGame',

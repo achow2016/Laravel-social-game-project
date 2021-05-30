@@ -56,9 +56,11 @@ class GameActiveEnemy extends Model
 		
     ];
 	
+	/*
 	public function gameMap() {
 		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
 	}
+	*/
 	
 	public function items() {
 		return $this->hasMany('App\Models\GameActiveEnemyItem', 'ownerId', 'id');

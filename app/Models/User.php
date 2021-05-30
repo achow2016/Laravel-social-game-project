@@ -21,6 +21,7 @@ class User extends Authenticatable
 	use HasFactory;
 	
 	protected $table = 'rpggameusers';
+	protected $primaryKey = 'id';
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +29,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'avatar', 'profile_video', 'credits', 'membership', 'membership_start_date', 
+        'id', 'name', 'email', 'password', 'avatar', 'profile_video', 'credits', 'membership', 'membership_start_date', 
 			'membership_end_date', 'playtime', 'saveGame'
     ];
 

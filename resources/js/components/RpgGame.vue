@@ -1014,17 +1014,24 @@
 						baseURL: 'http://127.0.0.1:8000/api',
 						url    : 'http://127.0.0.1:8000/api/nextLevel',
 						params : '',
-						//data   : formData,
+						data   : '',
 						headers: headers,
 					});
 					return response;
 				};
 				
+				var message;
+				var level;
+				
 				nextLevel()
-				.then(response => {
-					this.$router.push({ 
+				.then(response => {					
+					message = response.data.result.message;
+					level =  response.data.result.level;
+				});
+				
+				this.$router.push({ 
 						name: 'mapBuilder', 
-						params: {message: response.data.result.message, level: response.data.result.level} 
+						params: {message: message, level: level} 
 					}).catch((err) => {
 						//for (let i = 0, count = all.length; i < count; i++) {
 						//	all[i].style.pointerEvents = 'auto';
@@ -1037,24 +1044,6 @@
 						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 						console.log(err);
 					});
-				});
-				
-				
-				this.$router.push({ 
-					name: 'mapBuilder', 
-					//params: {distance: response.data.distance, enemy: response.data.enemy} 
-				}).catch((err) => {
-					//for (let i = 0, count = all.length; i < count; i++) {
-					//	all[i].style.pointerEvents = 'auto';
-					//}
-					if(!localStorage.hasOwnProperty('gameLog'))
-						localStorage.setItem('gameLog', 'There was an error when returning back to the map builder screen.\r\n');
-					else
-						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the map builder screen.\r\n');
-					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
-					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
-					console.log(err);
-				});
 			},
 			toggleGameMenu() {
 				document.getElementById('controlArea').classList.toggle('d-none');

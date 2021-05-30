@@ -67,10 +67,6 @@ class Character extends Model
 		return $this->hasOne('App\Models\CharacterRace', 'id', 'raceId');
 	}
 	
-	public function gameMap() {
-		return $this->belongsTo('App\Models\GameMap', 'id', 'mapId');
-	}
-	
 	public function gameClass() {
 		return $this->hasOne('App\Models\Class', 'id', 'classId');
 	}

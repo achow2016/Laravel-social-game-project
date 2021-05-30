@@ -41,17 +41,16 @@ class GameMap extends Model
 		'playerPosition' => 'array',
     ];
 	
-	public function character() {
-		return $this->hasOne('App\Models\Character', 'mapId', 'id');	
-	}	
-	
+	/*
 	public function enemies() {
 		return $this->hasMany('App\Models\GameActiveEnemy', 'mapId', 'id');
 	}
+	
 
 	public function mapItems() {
 		return $this->hasMany('App\Models\MapItem', 'mapId', 'id');
 	}
+	*/
 	
 	public function tileset() {
 		return $this->hasOne('App\Models\GameMapTileset', 'mapId', 'id');
