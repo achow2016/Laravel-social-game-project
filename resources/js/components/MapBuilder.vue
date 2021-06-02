@@ -30,13 +30,12 @@
 				</div>
 			</div>
 		</div>
-
+		
 		<div class="row mt-2 mb-2">
 			<div class="col">		
 				
 				<div class="row">
-					<div id="reseedButton" class="col text-center d-none">	
-						<button v-on:click="reseed" id="beginGame" type="button" class="w-100 btn btn-dark active">Reseed Map</button>
+					<div id="textNotifications" class="col text-center">
 					</div>
 				</div>
 				
@@ -77,10 +76,33 @@
 					let gameMap = response.data.gameMap;
 					let mapData = response.data.mapData;
 					let tileSet = response.data.tileSet;
+					let gameLevel = response.data.gameLevel + '.\r\n';
+					let message = response.data.message + '\r\n';
 					
 					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
 					this.mapData = mapData;
 					
+					let levelText = 'Welcome to level ' + gameLevel;
+					document.getElementById('textNotifications').innerText = levelText;
+					
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', levelText);
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + levelText);
+		
+		
+					//prints message if attempted generating map when game in session
+					if(message != null) {
+						document.getElementById('textNotifications').innerText += message;
+					
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', message);
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + message);
+					
+					}
+		
+		
 					document.getElementById('mapGrid').innerHTML = ""; 
 					for (let i = 0; i < 8; i++) {
 						let row = document.createElement('div');
@@ -113,9 +135,8 @@
 							document.getElementById('row' + i).appendChild(element);
 						}
 					}
+					
 					this.drawPlayerPosition();
-					
-					
 					
 					User.generateEnemies({
 					_method: 'POST', token: sessionStorage.getItem('token')
@@ -123,12 +144,21 @@
 						sessionStorage.getItem('token')
 					)
 					.then((response) => {
-						console.log(response);
+						let message = response.data.message + '\r\n';
+					
+						//prints message if attempted generating enemies onto game in session
+						if(message != null) {
+							document.getElementById('textNotifications').innerText += message;
+						
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', message);
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + message);
+								
+						}
 						this.enemyData = response.data.enemies;
 						this.drawEnemyPositions();
 					});	
-					
-					
 				}).catch(error => {
 					//server response errors
 					if (error.response) {
@@ -148,89 +178,8 @@
 				});
 		},
 		mounted() {
-			document.getElementById('reseedButton').classList.toggle('d-none');
 		},
 		methods: {
-			reseed() {
-				User.generateMap({
-					_method: 'POST', token: sessionStorage.getItem('token')
-				}, 
-					sessionStorage.getItem('token')
-				)
-				.then((response) => {
-					let gameMap = response.data.gameMap;
-					let mapData = response.data.mapData;
-					let tileSet = response.data.tileSet;
-					
-					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
-					this.mapData = mapData;
-					
-					document.getElementById('mapGrid').innerHTML = ""; 
-					for (let i = 0; i < 8; i++) {
-						let row = document.createElement('div');
-						row.classList.add('row');
-						row.setAttribute('id', 'row' + i);
-						document.getElementById('mapGrid').appendChild(row);
-						
-						for (let j = 0; j < 8; j++) {
-							let element = document.createElement('div');
-							element.classList.add('col');
-							//element.setAttribute('id', 'row' + i + 'col' + j);
-							
-							if(mapData[i][j].terrain == 'grass')
-								element.classList.add('bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
-							else
-								element.classList.add('bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
-							
-							if(mapData[i][j].treeCover == true) {
-								let treeMarker = document.createTextNode('T');
-								element.id = i + '-' + j;
-								element.appendChild(treeMarker);
-								element.classList.add('tree');
-							}
-							else {
-								let openMarker = document.createTextNode('-');
-								element.id = i + '-' + j;
-								element.appendChild(openMarker);
-								element.classList.add('open');
-							}
-							document.getElementById('row' + i).appendChild(element);
-						}
-					}
-					this.drawPlayerPosition();
-					
-					
-					
-					User.generateEnemies({
-					_method: 'POST', token: sessionStorage.getItem('token')
-					}, 
-						sessionStorage.getItem('token')
-					)
-					.then((response) => {
-						console.log(response);
-						this.enemyData = response.data.enemies;
-						this.drawEnemyPositions();
-					});	
-					
-					
-				}).catch(error => {
-					//server response errors
-					if (error.response) {
-						console.log(error.response.data.message);
-						document.getElementById('mapGrid').textContent = error.response.data.message;
-						document.getElementById('beginGame').remove();
-					} 
-					//for no response	
-					else if(error.request) {
-						// The request was made but no response was received
-						console.log(error.request);
-					} 
-					//catch outside above cases
-					else {
-						console.log('Error', error.message);
-					}
-				});	
-			},
 			beginGame() {
 				this.$router.push('rpgGame');
 			},

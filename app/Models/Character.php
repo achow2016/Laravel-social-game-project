@@ -18,6 +18,8 @@ class Character extends Model
      * @var array
      */
     protected $fillable = [
+		//map check on generation
+		'onNewMap', 'mapComplete',
 		//battle state
 		'battle',
 		'enemyId',

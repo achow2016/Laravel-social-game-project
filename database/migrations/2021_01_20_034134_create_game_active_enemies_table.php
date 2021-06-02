@@ -22,7 +22,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('turnPosition')->nullable();
 			$table->json('turnAction')->nullable();
 			$table->json('effects')->nullable();
-			$table->integer('mapId')->unsigned();
+			$table->integer('mapId');
+			//$table->integer('mapId')->unsigned();
 			$table->integer('raceId')->unsigned();
 			$table->integer('classId')->unsigned();
 			$table->integer('armour')->default('0');
@@ -56,7 +57,7 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('defenseMultiplier')->default('1');
             $table->timestamps();
 		
-			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
+			//$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
 			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade');
 			

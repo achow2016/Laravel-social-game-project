@@ -594,7 +594,6 @@
 					let msg = null;
 					enemyReturnDecision(this.formData)
 					.then(response => {
-						console.log(response);
 						let enemyActionObj = response.data.enemyAction;
 						if(enemyActionObj != 'Dead')
 							msg = response.data.results.message;
@@ -1013,8 +1012,8 @@
 						method : "POST",
 						baseURL: 'http://127.0.0.1:8000/api',
 						url    : 'http://127.0.0.1:8000/api/nextLevel',
-						params : '',
-						data   : '',
+						//params : '',
+						//data   : '',
 						headers: headers,
 					});
 					return response;
@@ -1024,14 +1023,15 @@
 				var level;
 				
 				nextLevel()
-				.then(response => {					
+				.then(response => {
+					console.log(response);
 					message = response.data.result.message;
 					level =  response.data.result.level;
 				});
 				
 				this.$router.push({ 
-						name: 'mapBuilder', 
-						params: {message: message, level: level} 
+						name: 'mapBuilder'
+						//params: {message: message, level: level} 
 					}).catch((err) => {
 						//for (let i = 0, count = all.length; i < count; i++) {
 						//	all[i].style.pointerEvents = 'auto';

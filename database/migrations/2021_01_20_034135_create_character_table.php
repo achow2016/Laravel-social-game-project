@@ -17,6 +17,8 @@ class CreateCharacterTable extends Migration
             $table->increments('id');
 			//battle state
             $table->boolean('battle')->default(false);
+            $table->boolean('onNewMap')->default(false);
+            $table->boolean('mapComplete')->default(false);
 			$table->integer('gameTurns')->nullable();
 			$table->integer('currentTurn')->nullable(); 
 			$table->integer('turnPosition')->nullable();
@@ -25,7 +27,8 @@ class CreateCharacterTable extends Migration
 			$table->integer('combatRange')->default('1');
 			$table->binary('avatar')->nullable();
 			$table->binary('meleeAnimation')->nullable();
-			$table->integer('mapId')->unsigned()->nullable();
+			$table->integer('mapId')->nullable();
+			//$table->integer('mapId')->unsigned()->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->json('mapPosition')->nullable();
 			$table->json('stance')->nullable();
@@ -75,7 +78,7 @@ class CreateCharacterTable extends Migration
 			$table->foreign('ownerUser')->references('id')->on('rpggameusers')->onDelete('cascade'); 
 			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
 			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
-			$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
+			//$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade');
 			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 
 			$table->foreign('offHand')->references('name')->on('offhand_equipment')->onDelete('cascade'); 

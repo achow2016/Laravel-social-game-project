@@ -37,19 +37,16 @@ class EnemyController extends Controller {
 	{
 		try {
 			$user = User::where('name', $request->user()->name)->first();
-			Log::debug('user check at beginning of enemy gen ' . $user);
-			Log::debug('user id ' . $user->id);
 			$charObj = $user->character()->first();
-			//$charObj = Character::where('ownerUser', $user->id)->first();
-			//Log::debug('char lookup using user id at enemy gen ' . $charObj);
 			
-			foreach(Character::all() as $char) {
-				Log::debug('all char lookup using any user id at enemy gen ' . $char);
-			}
-			
-			//Log::debug('at beginning of enemy gen' . $charObj); not present
-			//Log::debug($charObj); user character disappeared between calls
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
+			//if refreshing on map generation component, just returns old enemies created and does not add new ones
+			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
+			if(($charObj->onNewMap && $filteredEnemies->first() != null) || $charObj->mapComplete == false) {
+				//$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
+				return response(['enemies' => $filteredEnemies, 'message' => 'New enemies not generated, game in progress.'], 200);				
+			}
 			
 			$gameLevel = $charObj->gameLevel;
 			$enemyChoices = GameEnemy::where('gameLevel', $gameLevel)->get();
@@ -180,9 +177,6 @@ class EnemyController extends Controller {
 				$actor->save();
 			}
 			
-			//Log::debug('move list ' . $actors);
-			//Log::debug('move list sorted player after ' . $charObj);
-
 			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {

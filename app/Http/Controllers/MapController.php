@@ -33,150 +33,101 @@ class MapController extends Controller {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
 			//$charObj = $user->character()->first();
-			Log::debug('at generate map ' . $charObj);
 			
 			if(!$charObj) {
 				return response(['message' => 'No character found, please create a new character.'], 422);
 			}
 			
-			//creates and matchs the game map to the character and enemies
-			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			//if already placed on new map denies generation of another one
+			if($charObj->onNewMap || $charObj->mapComplete == false) {
+				$lastMap = GameMap::where('id', $charObj->mapId)->first();
+				$lastMapTiles = $lastMap->tileset()->first();
+				$mapData = json_decode($lastMapTiles->mapData);
 			
-			//if map present delete old one
-			if($existingMap) {
-				//Log::debug($charObj); is present
-				$gameMap = new GameMap();				
-				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
-				$gameMap->setAttribute('level', $charObj->gameLevel);
-				$gameMap->save();
-				
-				$charObj->mapId = $gameMap->id;
-				//$user->character()->save($charObj);
-				//$charObj->save();
-				//Log::debug('saving map id' . $charObj); works
-				
-				//deletes old tileset and map
+				return response([
+				'gameLevel' => $charObj->gameLevel,
+				'gameMap' => $lastMap,
+				'tileset' => $lastMapTiles,
+				'mapData' => $mapData,
+				'message' => 'New map not generated, game in progress.'
+				], 200);
+			}
+			
+			$oldMapId = $charObj->mapId;
+		
+			$gameMap = new GameMap();				
+			$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
+			$gameMap->setAttribute('level', 1);
+			
+			//attach enemy and player after start position defined, mark as having been placed on new map already
+			$gameMap->save();
+			$charObj->mapId = $gameMap->id;
+			$charObj->mapPosition = $gameMap->startPoint;
+			$charObj->onNewMap = true;
+			$charObj->save();
+			
+			//replace or generate tileset data for map
+			$tileCheck = $gameMap->tileset()->first();
+			if($tileCheck)
+				$gameMap->tileset()->delete();
+			
+			//generates tileset here, percentages of terrain
+			$tileSet = new GameMapTileset();
+			$tileSet->setAttribute('mapId', $gameMap->id);
+			$allocLimit = 1;
+			
+			//grass
+			$grassAlloc =  rand(1,10) / 10;
+			$allocLimit -= $grassAlloc;
+			
+			//water remainder
+			if($allocLimit > 0)
+				$waterAlloc =  $allocLimit;
+			else
+				$waterAlloc = 0;
+			
+			//trees are placed over water or grass
+			$treeCover = rand(1, 10) / 10;
+			
+			$tileSet->setAttribute('grassCover', $grassAlloc);
+			$tileSet->setAttribute('waterCover', $waterAlloc);
+			$tileSet->setAttribute('treeCover', $treeCover);	
+			
+			//creates the map tileset in 2d array
+			$map = [[]];
+			for ($row = 0; $row < 8; $row++) {
+				for ($col = 0; $col < 8; $col++) {
+					$choice = rand(1, 10) / 10;
+					if($choice <= $grassAlloc)
+						$map[$row][$col] = (object) ['terrain' => 'grass', 'enemy' => '', 'item' => '', 'treeCover' => ''];
+					else
+						$map[$row][$col] = (object) ['terrain' => 'water', 'enemy' => '', 'item' => '', 'treeCover' => ''];
+					
+					if($choice <= $treeCover)
+						$map[$row][$col]->treeCover = true;
+					else
+						$map[$row][$col]->treeCover = false;
+				}
+			}
+			
+			//sets tileset onto map
+			$tileSet->setAttribute('mapData', json_encode($map));
+			$gameMap->tileset()->save($tileSet);
+			
+			//deletes old tileset and map
+			if($oldMapId != null) {
+				$existingMap = GameMap::where('id', $oldMapId)->first();
 				$tileCheck = $existingMap->tileset()->first();
-				
 				if($tileCheck) 
 					$existingMap->tileset()->delete();
-				
 				$existingMap->delete();
-				
-				//generates tileset here, percentages of terrain
-				$tileSet = new GameMapTileset();
-				$tileSet->setAttribute('mapId', $gameMap->id);
-				$allocLimit = 1;
-				
-				//grass
-				$grassAlloc =  rand(1,10) / 10;
-				$allocLimit -= $grassAlloc;
-				
-				//water remainder
-				if($allocLimit > 0)
-					$waterAlloc =  $allocLimit;
-				else
-					$waterAlloc = 0;
-				
-				//trees are placed over water or grass
-				$treeCover = rand(1, 10) / 10;
-				
-				$tileSet->setAttribute('grassCover', $grassAlloc);
-				$tileSet->setAttribute('waterCover', $waterAlloc);
-				$tileSet->setAttribute('treeCover', $treeCover);	
-				
-				//creates the map tileset in 2d array
-				$map = [[]];
-				for ($row = 0; $row < 8; $row++) {
-					for ($col = 0; $col < 8; $col++) {
-						$choice = rand(1, 10) / 10;
-						if($choice <= $grassAlloc)
-							$map[$row][$col] = (object) ['terrain' => 'grass', 'enemy' => '', 'item' => '', 'treeCover' => ''];
-						else
-							$map[$row][$col] = (object) ['terrain' => 'water', 'enemy' => '', 'item' => '', 'treeCover' => ''];
-						
-						if($choice <= $treeCover)
-							$map[$row][$col]->treeCover = true;
-						else
-							$map[$row][$col]->treeCover = false;
-					}
-				}
-				//sets map tile data to tileset
-				$tileSet->setAttribute('mapData', json_encode($map));	
-				//saves tileset onto map
-				$gameMap->tileset()->save($tileSet);
-				
-				//places character onto map starting position
-				$charObj->mapPosition = $gameMap->startPoint;
-				$charObj->mapId = $gameMap->id;
-				
-				//saves character under user
-				$user->character()->save($charObj);
-				//$charObj->save();
-				Log::debug('at end of map gen ' . $charObj);
-				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
 			}
-			else {
-				$gameMap = new GameMap();				
-				$gameMap->setAttribute('startPoint', [rand(0,7), rand(0,7)]);
-				$gameMap->setAttribute('level', 1);
-				
-				//attach enemy and player after start position defined
-				$gameMap->save();
-				$charObj->mapId = $gameMap->id;
-				$charObj->mapPosition = $gameMap->startPoint;
-				$charObj->save();
-				
-				//replace or generate tileset data for map
-				$tileCheck = $gameMap->tileset()->first();
-				if($tileCheck)
-					$gameMap->tileset()->delete();
-				
-				//generates tileset here, percentages of terrain
-				$tileSet = new GameMapTileset();
-				$tileSet->setAttribute('mapId', $gameMap->id);
-				$allocLimit = 1;
-				
-				//grass
-				$grassAlloc =  rand(1,10) / 10;
-				$allocLimit -= $grassAlloc;
-				
-				//water remainder
-				if($allocLimit > 0)
-					$waterAlloc =  $allocLimit;
-				else
-					$waterAlloc = 0;
-				
-				//trees are placed over water or grass
-				$treeCover = rand(1, 10) / 10;
-				
-				$tileSet->setAttribute('grassCover', $grassAlloc);
-				$tileSet->setAttribute('waterCover', $waterAlloc);
-				$tileSet->setAttribute('treeCover', $treeCover);	
-				
-				//creates the map tileset in 2d array
-				$map = [[]];
-				for ($row = 0; $row < 8; $row++) {
-					for ($col = 0; $col < 8; $col++) {
-						$choice = rand(1, 10) / 10;
-						if($choice <= $grassAlloc)
-							$map[$row][$col] = (object) ['terrain' => 'grass', 'enemy' => '', 'item' => '', 'treeCover' => ''];
-						else
-							$map[$row][$col] = (object) ['terrain' => 'water', 'enemy' => '', 'item' => '', 'treeCover' => ''];
-						
-						if($choice <= $treeCover)
-							$map[$row][$col]->treeCover = true;
-						else
-							$map[$row][$col]->treeCover = false;
-					}
-				}
-				
-				//sets tileset onto map
-				$tileSet->setAttribute('mapData', json_encode($map));
-				$gameMap->tileset()->save($tileSet);
-			
-				return response(['gameMap' => $gameMap, 'tileset' => $tileSet, 'mapData' => $map], 200);
-			}		
+			return response([
+				'gameLevel' => $charObj->gameLevel,
+				'gameMap' => $gameMap,
+				'tileset' => $tileSet,
+				'mapData' => $map
+			], 200);		
 		}
 		catch(Throwable $e) {
 			report($e);
