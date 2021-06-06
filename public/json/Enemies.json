@@ -3,8 +3,8 @@
 		{ 
 			"gameLevel": "1",
 			"name": "guard", 
-			"gameRace": "human", 
-			"gameClass": "warrior",  
+			"race": "human", 
+			"class": "warrior",  
 			"money":"100",
 			"weapon":"Small Dagger",
 			"offHand":"Leather Buckler",
@@ -25,8 +25,8 @@
 		{ 
 			"gameLevel": "2",
 			"name": "guard2", 
-			"gameRace": "human", 
-			"gameClass": "warrior",  
+			"race": "human", 
+			"class": "warrior",  
 			"money":"100",
 			"weapon":"Small Dagger",
 			"offHand":"Leather Buckler",

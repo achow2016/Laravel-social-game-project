@@ -39,7 +39,7 @@ class MapController extends Controller {
 			}
 			
 			//if already placed on new map denies generation of another one
-			if($charObj->onNewMap || $charObj->mapComplete == false) {
+			if($charObj->onNewMap == true || ($charObj->mapComplete == false && $charObj->mapId != null)) {
 				$lastMap = GameMap::where('id', $charObj->mapId)->first();
 				$lastMapTiles = $lastMap->tileset()->first();
 				$mapData = json_decode($lastMapTiles->mapData);

@@ -68,12 +68,7 @@ class User extends Authenticatable
 	{
 		return $this->hasMany('App\Models\rpgGameMessage', 'rpg_game_user_id', 'id');
 	}
-	
-	public function score()
-	{
-		return $this->hasOne('App\Models\rpgGameScore', 'rpg_game_user_id', 'id');
-	}
-	
+
 	public function profileImage()
 	{
 		return $this->hasOne('App\Models\ProfileImage', 'user_id', 'id');
@@ -92,6 +87,10 @@ class User extends Authenticatable
 	public function character()
 	{
 		return $this->hasOne('App\Models\Character', 'ownerUser', 'id');
+	}
+	
+	public function score() {
+		return $this->hasOne('App\Models\GameScoreRecord', 'ownerUser', 'id');
 	}
 	
 	public function posts()

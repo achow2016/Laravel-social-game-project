@@ -25,7 +25,7 @@ class Character extends Model
 		'enemyId',
 		'gameTurns', 'currentTurn', 'turnPosition', 'turnAction',
 		'gameLevel', 'mapId', 'mapPosition',
-        'ownerUser', 'charactername', 'raceId', 'classId', 'avatar',
+        'ownerUser', 'charactername', 'race', 'class', 'avatar',
 		'accuracy', 'agility', 'attack',
 		'currentAccuracy', 'currentAgility', 'currentAttack',
 		'damageDealt', 'damageReceived', 'itemsUsed', 'money', 'totalEarnings', 'score',
@@ -35,7 +35,7 @@ class Character extends Model
 		'currentStaminaRegen', 'currentHealthRegen',
 		'attackMultiplier', 'defenseMultiplier',
 		'defense', 'currentDefense',
-		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',
+		'weapon','offHandEquipment','bodyEquipment','headEquipment','armsEquipment','legsEquipment',
 		'stance', 'baseAttackCost',
 		'combatRange',
 		'effects'
@@ -66,11 +66,11 @@ class Character extends Model
 	}	
 	
 	public function race() {
-		return $this->hasOne('App\Models\CharacterRace', 'id', 'raceId');
+		return $this->hasOne('App\Models\CharacterRace', 'race', 'race');
 	}
 	
 	public function gameClass() {
-		return $this->hasOne('App\Models\Class', 'id', 'classId');
+		return $this->hasOne('App\Models\Class', 'class', 'class');
 	}
 	
 	public function currentEnemy() {
@@ -86,27 +86,27 @@ class Character extends Model
 	}
 	
 	public function weapon() {
-		return $this->hasOne('App\Models\GameWeapon', 'id', 'weaponId');
+		return $this->hasOne('App\Models\GameWeapon', 'name', 'weapon');
 	}
 	
 	public function legEquipment() {
-		return $this->hasMany('App\Models\GameLegEquipment', 'id', 'legEquipmentId');
+		return $this->hasMany('App\Models\GameLegEquipment', 'name', 'legEquipment');
 	}
 	
 	public function armsEquipment() {
-		return $this->hasMany('App\Models\GameArmsEquipment', 'id', 'armsEquipmentId');
+		return $this->hasMany('App\Models\GameArmsEquipment', 'name', 'armsEquipment');
 	}
 	
 	public function headEquipment() {
-		return $this->hasMany('App\Models\GameHeadEquipment', 'id', 'headEquipmentId');
+		return $this->hasMany('App\Models\GameHeadEquipment', 'name', 'headEquipment');
 	}
 	
 	public function bodyEquipment() {
-		return $this->hasMany('App\Models\GameBodyEquipment', 'id', 'bodyEquipmentId');
+		return $this->hasMany('App\Models\GameBodyEquipment', 'name', 'bodyEquipment');
 	}
 	
 	public function offHand() {
-		return $this->hasMany('App\Models\GameOffhand', 'id', 'offHandEquipmentId');
+		return $this->hasMany('App\Models\GameOffhand', 'name', 'offHandEquipment');
 	}
 	
 	//many other models and db game data tables needed to be added and seeded

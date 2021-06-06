@@ -18,7 +18,7 @@ class GameActiveEnemy extends Model
      * @var array
      */
     protected $fillable = [
-        'mapId', 'gameRace', 'name', 'raceId', 'avatar', 'gameClass',
+        'mapId', 'race', 'name', 'avatar', 'class',
 		'health', 'stamina', 'accuracy', 'agility', 'attack', 'staminaRegen', 'healthRegen',
 		'currentHealth', 'currentStamina', 'currentAccuracy', 'currentAgility',
 		'currentAttack', 'currentStaminaRegen', 'currentHealthRegen',

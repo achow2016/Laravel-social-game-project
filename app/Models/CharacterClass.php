@@ -18,7 +18,7 @@ class CharacterClass extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'weaknesses', 'resistances', 'skills', 'stamina', 'accuracy', 'attack', 'baseAttackCost', 'staminaRegen', 'healthRegen', 'agility', 'defense'
+        'class', 'weaknesses', 'resistances', 'skills', 'stamina', 'accuracy', 'attack', 'baseAttackCost', 'staminaRegen', 'healthRegen', 'agility', 'defense'
     ];
 
 			
@@ -43,6 +43,6 @@ class CharacterClass extends Model
     ];
 	
 	public function character() {
-		return $this->belongsTo('App\Models\Character', 'classId', 'id');	
+		return $this->belongsTo('App\Models\Character', 'class', 'class');	
 	}	
 }

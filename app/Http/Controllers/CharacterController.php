@@ -15,6 +15,15 @@ use App\Models\GameMapTileset;
 use App\Models\GameActiveEnemy;
 use App\Models\ActiveGameCharacterItem;
 use App\Models\GameItem;
+use App\Models\GameWeapon;
+use App\Models\GameOffhand;
+use App\Models\GameLegEquipment;
+use App\Models\GameArmsEquipment;
+use App\Models\GameHeadEquipment;
+use App\Models\GameBodyEquipment;
+use App\Models\GameScoreRecord;
+
+
 
 //use DateTime;
 
@@ -55,11 +64,11 @@ class CharacterController extends Controller {
 			]);
 			
 			$characterRace = CharacterRace::where('race', $request->gameRace)->first();
-			$characterClass = CharacterClass::where('name', $request->gameClass)->first();
+			$characterClass = CharacterClass::where('class', $request->gameClass)->first();
 			
 			$character = new Character();
-			$character->setAttribute('raceId', $characterRace->id);
-			$character->setAttribute('classId', $characterClass->id);
+			$character->setAttribute('race', $characterRace->race);
+			$character->setAttribute('class', $characterClass->class);
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
 			$character->setAttribute('health', $characterRace->health + $characterClass->health + $request->lifeAlloc);
@@ -421,7 +430,69 @@ class CharacterController extends Controller {
 			report($e);
 			return response(['status' => 'game state data list could not be made. Please report to admin.'], 422);
 		}
-	}	
+	}
 	
+	//quits game, save score
+	public function quitGame(Request $request) 
+	{
+		try {
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();			
+			
+			//delete previous record if any
+			$score = GameScoreRecord::where('ownerUser', $user->id)->get();
+			if($score->first()) {
+				$score->first()->delete();
+			}
+			
+			//save score
+			$score = new GameScoreRecord();
+			$score->setAttribute('gameLevel', $charObj->gameLevel);
+			$score->setAttribute('race', $charObj->race);
+			$score->setAttribute('class', $charObj->class);
+			$score->setAttribute('ownerUser', $request->user()->id);
+			$score->setAttribute('characterName', $charObj->characterName);
+			$score->setAttribute('avatar', $charObj->avatar);
+			$score->setAttribute('health', $charObj->health);
+			$score->setAttribute('healthRegen', $charObj->healthRegen);
+			$score->setAttribute('stamina', $charObj->stamina);
+			$score->setAttribute('staminaRegen', $charObj->staminaRegen);
+			$score->setAttribute('agility', $charObj->agility);
+			$score->setAttribute('defense', $charObj->defense);
+			$score->setAttribute('accuracy', $charObj->accuracy);
+			$score->setAttribute('attack', $charObj->attack);
+			$score->setAttribute('armour', $charObj->armour);
+			$score->setAttribute('money', $charObj->money);
+			$score->setAttribute('weapon', $charObj->weapon);
+			$score->setAttribute('offHandEquipment', $charObj->offHandEquipment);
+			$score->setAttribute('damageDealt', $charObj->damageDealt);
+			$score->setAttribute('damageReceived', $charObj->damageReceived);
+			$score->setAttribute('itemsUsed', $charObj->itemsUsed);
+			$score->setAttribute('enemiesKilled', $charObj->enemiesKilled);
+			$score->setAttribute('squaresMoved', $charObj->squaresMoved);
+			$score->setAttribute('totalEarnings', $charObj->totalEarnings);
+			$score->setAttribute('score', $charObj->score);
+			$score->setAttribute('bodyEquipment', $charObj->bodyEquipment);
+			$score->setAttribute('headEquipment', $charObj->headEquipment);
+			$score->setAttribute('armsEquipment', $charObj->armsEquipment);
+			$score->setAttribute('legsEquipment', $charObj->legsEquipment);
+			$user->score()->save($score);
+			
+			//clean up map
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			GameActiveEnemy::where('mapId', $existingMap->id)->delete();
+			$tileCheck = $existingMap->tileset()->first();
+			if($tileCheck) 
+				$existingMap->tileset()->delete();
+			$existingMap->delete();
+			$user->character()->delete();
+			
+			return response(['message' => 'Quit game, deleted character and map.'], 200);
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
+		}
+	}
 }
 ?>

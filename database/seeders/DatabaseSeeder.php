@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
 		
 		foreach ($data['class'] as $item) {            
 			$characterClass = new CharacterClass();
-			$characterClass->setAttribute('name', $item['name']);
+			$characterClass->setAttribute('class', $item['name']);
 			$characterClass->setAttribute('resistances', $item['resistances']);
 			$characterClass->setAttribute('weaknesses', $item['weaknesses']);
 			$characterClass->setAttribute('attack', $item['attack']);
@@ -233,8 +233,8 @@ class DatabaseSeeder extends Seeder
 			$enemy = new GameEnemy();
 			$enemy->setAttribute('name', $item['name']);
 			$enemy->setAttribute('gameLevel', $item['gameLevel']);
-			$enemy->setAttribute('gameRace', $item['gameRace']);
-			$enemy->setAttribute('gameClass', $item['gameClass']);
+			$enemy->setAttribute('race', $item['race']);
+			$enemy->setAttribute('class', $item['class']);
 			$enemy->setAttribute('money', $item['money']);
 			$enemy->setAttribute('itemLootInventory', $item['itemLootInventory']);
 			$enemy->setAttribute('avatar', $item['avatar']);

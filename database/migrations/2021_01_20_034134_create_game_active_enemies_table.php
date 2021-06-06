@@ -13,6 +13,8 @@ class CreateGameActiveEnemiesTable extends Migration
      */
     public function up()
     {
+		    Schema::dropIfExists('game_active_enemies');
+    
         Schema::create('game_active_enemies', function (Blueprint $table) {
             $table->increments('id');
 			$table->boolean('battleTurnMade')->default(false);
@@ -24,8 +26,8 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->json('effects')->nullable();
 			$table->integer('mapId');
 			//$table->integer('mapId')->unsigned();
-			$table->integer('raceId')->unsigned();
-			$table->integer('classId')->unsigned();
+			$table->string('race');
+			$table->string('class');
 			$table->integer('armour')->default('0');
 			$table->integer('health')->default('0');
 			$table->integer('combatRange')->default('1');
@@ -58,8 +60,8 @@ class CreateGameActiveEnemiesTable extends Migration
             $table->timestamps();
 		
 			//$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
-			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
-			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade');
+			$table->foreign('race')->references('race')->on('character_races')->onDelete('cascade'); 
+			$table->foreign('class')->references('class')->on('character_classes')->onDelete('cascade');
 			
 			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 
 			$table->foreign('offHand')->references('name')->on('offhand_equipment')->onDelete('cascade'); 

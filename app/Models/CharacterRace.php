@@ -42,6 +42,6 @@ class CharacterRace extends Model
     ];
 	
 	public function character() {
-		return $this->belongsTo('App\Models\Character', 'raceId', 'id');	
+		return $this->belongsTo('App\Models\Character', 'race', 'race');	
 	}	
 }

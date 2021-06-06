@@ -92,7 +92,7 @@
 		
 		
 					//prints message if attempted generating map when game in session
-					if(message != null) {
+					if(response.data.message != null) {
 						document.getElementById('textNotifications').innerText += message;
 					
 						if(!localStorage.hasOwnProperty('gameLog'))
@@ -147,7 +147,7 @@
 						let message = response.data.message + '\r\n';
 					
 						//prints message if attempted generating enemies onto game in session
-						if(message != null) {
+						if(response.data.message != null) {
 							document.getElementById('textNotifications').innerText += message;
 						
 							if(!localStorage.hasOwnProperty('gameLog'))

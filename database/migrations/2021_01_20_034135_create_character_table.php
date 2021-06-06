@@ -33,8 +33,8 @@ class CreateCharacterTable extends Migration
 			$table->json('mapPosition')->nullable();
 			$table->json('stance')->nullable();
 			$table->json('effects')->nullable();
-			$table->integer('raceId')->unsigned();
-			$table->integer('classId')->unsigned();
+			$table->string('race');
+			$table->string('class');
 			$table->integer('ownerUser')->unsigned();
 			$table->string('characterName')->unique();
 			$table->integer('health')->default('0');
@@ -76,8 +76,8 @@ class CreateCharacterTable extends Migration
             
 			$table->timestamps();
 			$table->foreign('ownerUser')->references('id')->on('rpggameusers')->onDelete('cascade'); 
-			$table->foreign('raceId')->references('id')->on('character_races')->onDelete('cascade'); 
-			$table->foreign('classId')->references('id')->on('character_classes')->onDelete('cascade'); 
+			$table->foreign('race')->references('race')->on('character_races')->onDelete('cascade'); 
+			$table->foreign('class')->references('class')->on('character_classes')->onDelete('cascade'); 
 			//$table->foreign('mapId')->references('id')->on('game_maps')->onDelete('cascade'); 
 			$table->foreign('enemyId')->references('id')->on('game_active_enemies')->onDelete('cascade');
 			$table->foreign('weapon')->references('name')->on('weapons')->onDelete('cascade'); 

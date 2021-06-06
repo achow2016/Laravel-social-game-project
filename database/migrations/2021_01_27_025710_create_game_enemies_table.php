@@ -17,9 +17,9 @@ class CreateGameEnemiesTable extends Migration
         Schema::create('game_enemies', function (Blueprint $table) {
             $table->increments('id');
 			$table->binary('avatar')->nullable();
-			$table->string('gameRace');
+			$table->string('race');
 			$table->string('name');
-			$table->string('gameClass');
+			$table->string('class');
 			$table->string('weapon')->nullable();
 			$table->string('offHand')->nullable();
 			$table->string('bodyEquipment')->nullable();

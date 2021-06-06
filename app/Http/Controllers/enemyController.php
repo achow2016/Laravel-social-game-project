@@ -43,7 +43,7 @@ class EnemyController extends Controller {
 			
 			//if refreshing on map generation component, just returns old enemies created and does not add new ones
 			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
-			if(($charObj->onNewMap && $filteredEnemies->first() != null) || $charObj->mapComplete == false) {
+			if(($charObj->onNewMap == true && $filteredEnemies->first() != null) || ($charObj->mapComplete == false && $filteredEnemies->first() != null)) {
 				//$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
 				return response(['enemies' => $filteredEnemies, 'message' => 'New enemies not generated, game in progress.'], 200);				
 			}
@@ -67,8 +67,8 @@ class EnemyController extends Controller {
 				$strengthAlloc = rand(0, 12);
 				$enduranceAlloc = max((rand(0, 12) - $strengthAlloc), 0);
 				$lifeAlloc = max((rand(0, 12) - $strengthAlloc - $enduranceAlloc), 0);
-				$enemyRace = CharacterRace::where('race', $enemyChoices[$enemyChoice]->gameRace)->first();
-				$enemyClass = CharacterClass::where('name', $enemyChoices[$enemyChoice]->gameClass)->first();			
+				$enemyRace = CharacterRace::where('race', $enemyChoices[$enemyChoice]->race)->first();
+				$enemyClass = CharacterClass::where('class', $enemyChoices[$enemyChoice]->class)->first();			
 				$enemyOffhand = GameOffhand::where('name', $enemyChoices[$enemyChoice]->offHand)->first();
 				$enemyWeapon = GameWeapon::where('name', $enemyChoices[$enemyChoice]->weapon)->first();
 				$enemyArmsEquip = GameArmsEquipment::where('name', $enemyChoices[$enemyChoice]->armsEquipment)->first();
@@ -102,8 +102,8 @@ class EnemyController extends Controller {
 					$additionalDefense = $additionalDefense + $value->defense; 
 				}	
 					
-				$enemy->setAttribute('raceId', $enemyRace->id);
-				$enemy->setAttribute('classId', $enemyClass->id);
+				$enemy->setAttribute('race', $enemyRace->race);
+				$enemy->setAttribute('class', $enemyClass->class);
 				$enemy->setAttribute('name', $enemyChoices[$enemyChoice]->name);
 				$enemy->setAttribute('health', $enemyRace->health + $enemyClass->health + $lifeAlloc);
 				//$enemy->setAttribute('currentHealth', $enemyRace->health + $enemyClass->health + $lifeAlloc);

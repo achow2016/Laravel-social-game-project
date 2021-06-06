@@ -65,9 +65,11 @@
 			</div>
 		</div>
 		
-		<!--div class="row mt-5 mb-5"-->
-			<div class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
-		<!--/div-->
+		<div class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
+		
+		<div class="overflow-auto text-center d-none" id="gameMenu">
+			<div id="quitDiv" v-on:click="quitGame" class="row-9 mb-4 actionRow text-center">Quit Game</div>
+		</div>
 		
 		<div class="row fixed-bottom">
 		
@@ -353,6 +355,66 @@
 			}
 		},
 		methods: {
+			quitGame() {
+				const headers = { 
+				  'Content-Type': 'multipart/form-data',
+				  'enctype' : 'multipart/form-data',
+				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
+				}
+				
+				const quitGame = async function() {
+					let response = await axios({
+						method : "POST",
+						baseURL: 'http://127.0.0.1:8000/api',
+						url    : 'http://127.0.0.1:8000/api/quitGame',
+						params : '',
+						//data   : formData,
+						headers: headers,
+					});
+					return response;
+				};
+				
+				quitGame()
+				.then(response => {
+					console.log(response);
+				})
+				.catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
+				});
+				
+				this.$router.push({ 
+					name: 'welcome'
+					//params: {message: message, level: level} 
+				}).catch((err) => {
+					//for (let i = 0, count = all.length; i < count; i++) {
+					//	all[i].style.pointerEvents = 'auto';
+					//}
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', 'There was an error when returning back to the game home screen.\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the game home screen.\r\n');
+					console.log(err);
+				});
+				
+			},
 			drawPlayerPosition() {
 				//store, get current coords
 				this.lastPlayerPosition = this.playerPosition;
@@ -627,7 +689,6 @@
 							document.getElementById('menuDataArea').textContent = 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.';
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
-							
 						}
 						
 						//if move
@@ -824,6 +885,27 @@
 					}
 					document.getElementById('directionplaceholder').classList.toggle('d-none');
 					this.enemyTurn();
+				})
+				.catch(error => {
+					//server response errors
+					if (error.response) {
+						console.log(error.response.data.message);
+						if(!localStorage.hasOwnProperty('gameLog'))
+							localStorage.setItem('gameLog', error.response.data.message + '\r\n');
+						else
+							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + error.response.data.message + '\r\n');
+						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					} 
+					//for no response	
+					else if(error.request) {
+						// The request was made but no response was received
+						console.log(error.request);
+					} 
+					//catch outside above cases
+					else {
+						console.log('Error', error.message);
+					}
 				});
 			},
 			toggleInventory() {
@@ -1030,32 +1112,44 @@
 				});
 				
 				this.$router.push({ 
-						name: 'mapBuilder'
-						//params: {message: message, level: level} 
-					}).catch((err) => {
-						//for (let i = 0, count = all.length; i < count; i++) {
-						//	all[i].style.pointerEvents = 'auto';
-						//}
-						if(!localStorage.hasOwnProperty('gameLog'))
-							localStorage.setItem('gameLog', 'There was an error when returning back to the map builder screen.\r\n');
-						else
-							localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the map builder screen.\r\n');
-						document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
-						document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
-						console.log(err);
-					});
+					name: 'mapBuilder'
+					//params: {message: message, level: level} 
+				}).catch((err) => {
+					//for (let i = 0, count = all.length; i < count; i++) {
+					//	all[i].style.pointerEvents = 'auto';
+					//}
+					if(!localStorage.hasOwnProperty('gameLog'))
+						localStorage.setItem('gameLog', 'There was an error when returning back to the map builder screen.\r\n');
+					else
+						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'There was an error when returning back to the map builder screen.\r\n');
+					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					console.log(err);
+				});
 			},
 			toggleGameMenu() {
-				document.getElementById('controlArea').classList.toggle('d-none');
+				if(!localStorage.hasOwnProperty('gameLog'))
+					localStorage.setItem('gameLog', 'Toggled menu.\r\n');
+				else
+					localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Toggled menu.\r\n');
+				document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+				document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 				
+				document.getElementById('messageContainer').classList.toggle('d-none');
+				document.getElementById('gridArea').classList.toggle('d-none');
+				
+				//closes map controls area, shows menu
+				document.getElementById('controlArea').classList.toggle('d-none');
+				document.getElementById('gameMenu').classList.toggle('d-none');
+				
+				//closes bottom game menu bar
 				document.getElementById('bottomMenuBar').classList.toggle('d-none');
 				document.getElementById('bottomMenuBar').classList.toggle('d-flex');
 				
+				//shows target meny button
 				document.getElementById('currentMenuControl').classList.toggle('d-none');
 				document.getElementById('currentMenuControl').classList.toggle('d-flex');
-				
 				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
-			
 			},
 			toggleInspectMenu() {
 				document.getElementById('menuDataArea').classList.toggle('d-none');
