@@ -17,7 +17,6 @@ class CreateCharacterTable extends Migration
             $table->increments('id');
 			//battle state
             $table->boolean('battle')->default(false);
-            $table->boolean('onNewMap')->default(false);
             $table->boolean('mapComplete')->default(false);
 			$table->integer('gameTurns')->nullable();
 			$table->integer('currentTurn')->nullable(); 

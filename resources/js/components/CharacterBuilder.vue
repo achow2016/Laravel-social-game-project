@@ -185,7 +185,6 @@
 			User.getData({_method: 'POST', token: sessionStorage.getItem('token')},
 				sessionStorage.getItem('token'))
 				.then((response) => {
-					console.log(response);
 					this.username = response.data.user.name;
 				});
 		},
@@ -271,7 +270,6 @@
 							sessionStorage.getItem('token')
 						)
 						.then(response => {
-							console.log(response);
 							localStorage.setItem('gameLog', 'Welcome to rpgGame.\n\r');
 							this.$router.push('mapBuilder');
 						})

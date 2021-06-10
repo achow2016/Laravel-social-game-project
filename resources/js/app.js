@@ -45,6 +45,7 @@ import RpgGameBattle from './components/RpgGameBattle'
 import Chat from './components/Chat'
 import Store from './components/Store'
 import MapBuilder from './components/MapBuilder'
+import ScoreLister from './components/ScoreLister'
 import GuestBook from './components/GuestBook'
 import Profile from './components/Profile'
 import Sitemap from './components/Sitemap'
@@ -190,7 +191,16 @@ const router = new VueRouter({
 			beforeEnter (to, from, next) {
 				gameCharacterCheck(to,from,next);
 			}
-		},		
+		},
+		{
+			path: '/scoreLister',
+			name: 'scoreLister',
+			component: ScoreLister,
+			props: {},
+			beforeEnter (to, from, next) {
+				gameCharacterCheck(to,from,next);
+			}
+		},
 		{
 			path: '/mapBuilder',
 			name: 'mapBuilder',
@@ -223,9 +233,6 @@ const router = new VueRouter({
 					//data   : '',
 					headers: headers
 				}).then(response => {		
-					
-					console.log(response);
-				
 					to.params.currentTurn = response.data.currentTurn;
 					to.params.enemyTurnPositions = response.data.enemyTurnPositions;
 					to.params.playerBattleState = response.data.playerBattleState;

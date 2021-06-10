@@ -43,7 +43,7 @@ class EnemyController extends Controller {
 			
 			//if refreshing on map generation component, just returns old enemies created and does not add new ones
 			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
-			if(($charObj->onNewMap == true && $filteredEnemies->first() != null) || ($charObj->mapComplete == false && $filteredEnemies->first() != null)) {
+			if($charObj->mapComplete == false && $filteredEnemies->first() != null) {
 				//$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');
 				return response(['enemies' => $filteredEnemies, 'message' => 'New enemies not generated, game in progress.'], 200);				
 			}

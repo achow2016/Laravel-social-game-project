@@ -90,7 +90,7 @@ class User extends Authenticatable
 	}
 	
 	public function score() {
-		return $this->hasOne('App\Models\GameScoreRecord', 'ownerUser', 'id');
+		return $this->hasOne('App\Models\GameScoreRecord', 'userId', 'id');
 	}
 	
 	public function posts()

@@ -18,7 +18,7 @@ class GameScoreRecord extends Model
      * @var array
      */
     protected $fillable = [
-		'gameLevel', 'ownerUser', 'charactername', 'race', 'class', 'avatar',
+		'gameLevel', 'userName', 'userId', 'charactername', 'race', 'class', 'avatar',
 		'accuracy', 'agility', 'attack',
 		'damageDealt', 'damageReceived', 'itemsUsed', 'money', 'totalEarnings', 'score',
 		'health', 'stamina',
@@ -44,6 +44,6 @@ class GameScoreRecord extends Model
     ];
 	
 	public function user() {
-		return $this->belongsTo('App\Models\User', 'rpg_game_user_id', 'ownerUser');	
+		return $this->belongsTo('App\Models\User', 'id', 'userId');	
 	}	
 }

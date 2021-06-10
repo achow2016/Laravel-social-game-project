@@ -388,9 +388,28 @@ class CharacterController extends Controller {
 			report($e);
 			return response(['message' => 'game state data list could not be made. Please report to admin.'], 422);
 		}
-	}	
+	}
 	
-	//gets game state
+	//gets game scores
+	public function getScores(Request $request) 
+	{
+		try {		
+			$user = User::where('name', $request->user()->name)->first();
+			$charObj = $user->character()->first();
+			$scores = GameScoreRecord::select('userName', 'characterName', 'score')->get();
+			
+			return response([
+				'scores' => $scores
+			], 200);
+			
+		}
+		catch(Throwable $e) {
+			report($e);
+			return response(['message' => 'game score data list could not be made. Please report to admin.'], 422);
+		}
+	}
+	
+	//gets game state, calls set game clear if enemy turn positions return no healthy enemies
 	public function getGameState(Request $request) 
 	{
 		try {		
@@ -401,6 +420,19 @@ class CharacterController extends Controller {
 			//$enemiesTurnPositions = $existingMap->enemies()->select('id', 'turnPosition', 'currentHealth')->get();
 			$enemiesTurnPositions = GameActiveEnemy::where('mapId', $existingMap->id)->select('id', 'turnPosition', 'currentHealth')->get();
 			
+			//set level to complete on check
+			if(!$charObj->mapComplete) {
+				$enemyHealthy = false;
+				foreach($enemiesTurnPositions as $enemy) {
+					if($enemy->currentHealth > 0)
+						$enemyHealthy = true;
+				}
+				if(!$enemyHealthy) {
+					$charObj->mapComplete = true;
+					$charObj->save();
+				}
+			}
+	
 			if($charObj->battle == true) {
 				$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
 				return response([
@@ -440,7 +472,7 @@ class CharacterController extends Controller {
 			$charObj = $user->character()->first();			
 			
 			//delete previous record if any
-			$score = GameScoreRecord::where('ownerUser', $user->id)->get();
+			$score = GameScoreRecord::where('userId', $user->id)->get();
 			if($score->first()) {
 				$score->first()->delete();
 			}
@@ -450,7 +482,8 @@ class CharacterController extends Controller {
 			$score->setAttribute('gameLevel', $charObj->gameLevel);
 			$score->setAttribute('race', $charObj->race);
 			$score->setAttribute('class', $charObj->class);
-			$score->setAttribute('ownerUser', $request->user()->id);
+			$score->setAttribute('userName', $request->user()->name);
+			$score->setAttribute('userId', $request->user()->id);
 			$score->setAttribute('characterName', $charObj->characterName);
 			$score->setAttribute('avatar', $charObj->avatar);
 			$score->setAttribute('health', $charObj->health);

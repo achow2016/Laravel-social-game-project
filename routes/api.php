@@ -51,6 +51,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/gameEnemyTurnDecision', 'App\Http\Controllers\EnemyController@gameEnemyTurnDecision');
 	Route::post('/nextLevel', 'App\Http\Controllers\CharacterController@nextLevel');
 	Route::post('/quitGame', 'App\Http\Controllers\CharacterController@quitGame');
+	Route::post('/getScores', 'App\Http\Controllers\CharacterController@getScores');
 	//game account
 	Route::post('/getUserProfile', 'App\Http\Controllers\RegistrationController@getUserProfile');
 	Route::post('/updateProfileVideo', 'App\Http\Controllers\RegistrationController@updateProfileVideo');

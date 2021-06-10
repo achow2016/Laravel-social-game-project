@@ -39,7 +39,7 @@ class MapController extends Controller {
 			}
 			
 			//if already placed on new map denies generation of another one
-			if($charObj->onNewMap == true || ($charObj->mapComplete == false && $charObj->mapId != null)) {
+			if($charObj->mapComplete == false && $charObj->mapId != null) {
 				$lastMap = GameMap::where('id', $charObj->mapId)->first();
 				$lastMapTiles = $lastMap->tileset()->first();
 				$mapData = json_decode($lastMapTiles->mapData);
@@ -63,7 +63,6 @@ class MapController extends Controller {
 			$gameMap->save();
 			$charObj->mapId = $gameMap->id;
 			$charObj->mapPosition = $gameMap->startPoint;
-			$charObj->onNewMap = true;
 			$charObj->save();
 			
 			//replace or generate tileset data for map
@@ -353,8 +352,12 @@ class MapController extends Controller {
 				$charObj->currentTurn = $charObj->currentTurn + 1;
 				if($charObj->currentTurn > $charObj->gameTurns)
 					$charObj->currentTurn = 1;
-				$charObj->squaresMoved = $charObj->squaresMoved + 1;	
-				$charObj->score = $charObj->score + 1;	
+				
+				if(!$charObj->mapComplete) {
+					$charObj->squaresMoved = $charObj->squaresMoved + 1;	
+					$charObj->score = $charObj->score + 1;
+				}
+				
 				$charObj->save();
 				return response($responseArray, 200);
 			}

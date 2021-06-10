@@ -85,12 +85,10 @@
 			}
 		},
 		created() {
-			console.log(this.$route.params.errorMessage);
 			let responseData = this.$route.params.response.data;
 			this.username = responseData.user.name;
 			if(responseData.characterState == 'true')
 				this.saveGame = true;
-			console.log(responseData);
 		},
 		methods: {
 			continueGame(){
@@ -100,7 +98,7 @@
 				this.$router.push('characterBuilder')
 			},
 			listScores() {
-				this.$router.push('listScores')
+				this.$router.push('ScoreLister')
 			},
 			chat() {
 				this.$router.push('chat')
