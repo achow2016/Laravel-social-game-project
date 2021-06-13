@@ -133,7 +133,8 @@
 				enemyStatusData: '',
 				enemyMapPositions: [],
 				tempEnemyLastSquareMarker: '',
-				previousMessage: ''
+				previousMessage: '',
+				enemyMoved: false
 			}
 		},
 		beforeMount() {
@@ -478,16 +479,32 @@
 							}
 						}
 						
-						//draws enemy onto square
-						enemySquare.innerHTML = '';
-						let enemyIcon = document.createElement('img');
-						if(this.enemyData[i].currentHealth > 0)
-							enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
-						else
-							enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
-						enemyIcon.classList.toggle('img-fluid');
-						enemySquare.appendChild(enemyIcon);
+						//remove drawing this enemy if enemy is dead and is sharing a space with a live one 
+						let enemyOverlapFound = false;
+						if(this.enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
+							console.log('hi');
 						
+							for(let j = 0; j < this.enemyData.length; j++) {
+								if(this.enemyData[i].mapPosition == this.enemyData[j].mapPosition) {
+									enemyOverlapFound = true;
+									continue;
+								}
+							}
+						}
+						
+						if(enemyOverlapFound == false) {
+							//draws enemy onto square
+							enemySquare.innerHTML = '';
+							
+							let enemyIcon = document.createElement('img');
+							if(this.enemyData[i].currentHealth > 0)
+								enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
+							else
+								enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
+							enemyIcon.classList.toggle('img-fluid');
+							enemySquare.appendChild(enemyIcon);
+						}
+					
 					}
 				})
 				.catch(error => {
@@ -657,9 +674,10 @@
 					enemyReturnDecision(this.formData)
 					.then(response => {
 						let enemyActionObj = response.data.enemyAction;
-						if(enemyActionObj != 'Dead')
-							msg = response.data.results.message;
 						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
+						if(enemyAction != 'dead')
+								msg = response.data.results.message;
+							
 						let enemyLastTerrain = response.data.enemyLastTerrain;
 						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
 						let enemyOldPosition = response.data.enemyOldPosition;
@@ -668,7 +686,7 @@
 						let enemyAvatar = response.data.enemyAvatar;
 						
 						//if dead
-						if(enemyActionObj == 'Dead') {
+						if(enemyAction == 'dead') {
 							let enemyName = response.data.enemyName;
 							let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);
 							let graveStoneImage = '/img/rpgGame/gameCharacterGraphics/gravestone.png';
@@ -690,16 +708,26 @@
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
 						}
-						
+
 						//if move
 						if(enemyAction == 'move') {
 							//if not moving because blocked
-							if(enemyOldPosition != enemyNewPosition) {						
+							if(enemyOldPosition.sort().toString() == enemyNewPosition.sort().toString()) {
+								console.log(enemyOldPosition.sort().toString());
+								//this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
+								let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);							
+								enemyOldSquare.classList.remove('border-dark');
+								enemyOldSquare.classList.add('border-danger');
+								this.enemyMoved = false;
+							}
+							else {	
 								this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
 								let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
 								enemyOldSquare.classList.remove('border-dark');
 								enemyOldSquare.classList.add('border-danger');
+								this.enemyMoved = true;
 							}
+							
 							let all = document.getElementsByTagName("*");
 							for (let i = 0, count = all.length; i < count; i++) {
 								all[i].style.pointerEvents = 'auto';
@@ -991,12 +1019,14 @@
 			toggleEnemyTurnResult() {
 			
 				//reset marked square
-				let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
-					
-				if(!enemyOldSquare.classList.contains('border-warning')) {
-					enemyOldSquare.classList.add('border-dark');
-					enemyOldSquare.classList.remove('border-danger');
-					//enemyOldSquare.classList.remove('border-warning');
+				if(this.enemyMoved) {
+					let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
+						
+					if(!enemyOldSquare.classList.contains('border-warning')) {
+						enemyOldSquare.classList.add('border-dark');
+						enemyOldSquare.classList.remove('border-danger');
+						//enemyOldSquare.classList.remove('border-warning');
+					}
 				}
 			
 				//enable controls

@@ -307,7 +307,7 @@ class EnemyController extends Controller {
 					'playerBattleState' => $charObj->battle,
 					'playerBattleTarget' => $charObj->enemyId,
 					'enemyTurnPositions' => $enemiesTurnPositions,
-					'enemyAction' => 'Dead',
+					'enemyAction' => ['action' => 'dead'],
 					'enemyOldPosition' => $enemy->mapPosition,
 					'enemyNewPosition' => null,
 					'enemyId' => $enemy->id,
@@ -467,13 +467,19 @@ class EnemyController extends Controller {
 				//check against enemy map positions
 				//enemy map positions to check for duplicates
 				//$enemyMapPositions = $existingMap->enemies()->get()->pluck('mapPosition');		
-				$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');	
-				
+				//$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');	
+				$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->select('mapPosition', 'currentHealth')->get();
 				$positionMatches = 0;
 				foreach($enemyMapPositions as $enemyCoord) {
-					if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]]) {
+					
+					//if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]]) {
+					//	$positionMatches = $positionMatches + 1;
+					//}
+					
+					//allows movement onto dead enemy occupied square
+					if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]] && $enemyCoord->currentHealth > 0) {
 						$positionMatches = $positionMatches + 1;
-					}	
+					}						
 				}
 				
 				//if two matches (result is overlap another enemy square), does not move
@@ -504,7 +510,7 @@ class EnemyController extends Controller {
 			$mapDecoded[$enemyRow][$enemyColumn]['enemy'] = "";
 			
 			//saves enemy id to new square
-			$mapDecoded[$enemy->mapPosition[0]][ $enemy->mapPosition[1]]['enemy'] = strval($enemy->id);
+			$mapDecoded[$enemy->mapPosition[0]][$enemy->mapPosition[1]]['enemy'] = strval($enemy->id);
 
 			//saves updated tileset, character and enemy
 			$tileSet = $existingMap->tileset()->first();
@@ -533,7 +539,7 @@ class EnemyController extends Controller {
 				'enemyTurnPositions' => $enemiesTurnPositions,
 				'enemyAction' => $enemy->turnAction,
 				'enemyOldPosition' => [$enemyRow, $enemyColumn],
-				'enemyNewPosition' => $enemy->mapPosition,
+				'enemyNewPosition' => [$enemy->mapPosition[0], $enemy->mapPosition[1]],
 				'enemyId' => $enemy->id,
 				'enemyLastTerrain' => $enemyLastTerrain,
 				'enemyLastTerrainTreeCover' => $enemyLastTerrainTreeCover,

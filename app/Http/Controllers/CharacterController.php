@@ -314,7 +314,8 @@ class CharacterController extends Controller {
 			*/
 			
 			$enemyMapCoord = explode(",", $request->input('mapPosition'));
-			$enemy = $existingMap->enemies()->get()->where('mapPosition', $enemyMapCoord)->first();
+			//$enemy = $existingMap->enemies()->get()->where('mapPosition', $enemyMapCoord)->first();
+			$enemy = GameActiveEnemy::where('mapId', $existingMap->id)->where('mapPosition', $enemyMapCoord)->first();
 			
 			$enemyRow = $enemyMapCoord[0];
 			$enemyColumn = $enemyMapCoord[1];
@@ -362,7 +363,8 @@ class CharacterController extends Controller {
 			$playerTurnPosition = $charObj->turnPosition;
 			
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			$enemiesTurnOrder = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			//$enemiesTurnOrder = $existingMap->enemies()->get()->pluck('id', 'turnPosition');
+			$enemiesTurnOrder = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('id', 'turnPosition');
 			
 			return response(['playerTurnPosition' => $playerTurnPosition, 'enemiesTurnOrder' => $enemiesTurnOrder], 200);
 		}
@@ -434,7 +436,8 @@ class CharacterController extends Controller {
 			}
 	
 			if($charObj->battle == true) {
-				$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+				//$enemy = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
+				$enemy = GameActiveEnemy::where('id', $charObj->enemyId)->first();
 				return response([
 					'currentTurn' => $charObj->currentTurn,
 					'playerAvatar' => $charObj->avatar,
