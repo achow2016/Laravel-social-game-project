@@ -42,6 +42,8 @@ class CharacterController extends Controller {
 			$charCheck = $user->character()->first();
 			
 			if($charCheck) {
+				$enemies = GameActiveEnemy::where('mapId', $charCheck->mapId);
+				$enemies->delete();
 				$gameMap = GameMap::where('id', $charCheck->mapId)->first();
 				if($gameMap) {
 					$gameMap->tileset()->first()->delete();
@@ -68,6 +70,9 @@ class CharacterController extends Controller {
 			
 			$character = new Character();
 			$character->setAttribute('race', $characterRace->race);
+
+			$character->setAttribute('gameLevel', 2);
+
 			$character->setAttribute('class', $characterClass->class);
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
@@ -215,7 +220,9 @@ class CharacterController extends Controller {
 			$mapCoordArray = explode(",", $request->mapPosition);
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
-			$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->first();
+			//$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->first();
+			$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->where('currentHealth', '>', 0)->first();
+
 			if(!$enemyObj)
 				return response(['message' => 'Invalid combat target.'], 200);
 			$charObj->enemyId = $enemyObj->id;
@@ -231,7 +238,7 @@ class CharacterController extends Controller {
 
 	//melee selected in battle component, effects updated after battle
 	public function startFight(Request $request) 
-	{
+	{	
 		try {
 			$results = $this->findBattleTurnOrder($request);
 			$effectsUpdates = $this->updateEffects($request);

@@ -65,7 +65,7 @@
 			</div>
 		</div>
 		
-		<div class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
+		<div style="overflow-y:scroll; height:30vh;" class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
 		
 		<div class="overflow-auto text-center d-none" id="gameMenu">
 			<div id="quitDiv" v-on:click="quitGame" class="row-9 mb-4 actionRow text-center">Quit Game</div>
@@ -197,6 +197,7 @@
 					this.drawEnemyPositions();
 				})
 				.catch(error => {
+					console.log(error);
 					if(!localStorage.hasOwnProperty('gameLog'))
 						localStorage.setItem('gameLog', error.response.data + '\r\n');
 					else
@@ -418,7 +419,9 @@
 			},
 			drawPlayerPosition() {
 				//store, get current coords
-				this.lastPlayerPosition = this.playerPosition;
+				this.lastPlayerPosition = JSON.parse(JSON.stringify(this.playerPosition));
+				
+	
 				let row = this.playerPosition[0];
 				let column = this.playerPosition[1];
 				let playerSquare = document.getElementById(row + '-' + column);
@@ -465,9 +468,11 @@
 						let enemySquare = document.getElementById(row + '-' + column);
 						
 						//prevent drawing over player
+						/*
 						if(enemySquare.classList.contains('border-warning') == true || enemySquare.firstElementChild != null) {
 							continue;
 						}
+						*/
 						
 						this.enemyMapPositions.push([row, column]);
 						
@@ -479,15 +484,33 @@
 							}
 						}
 						
-						//remove drawing this enemy if enemy is dead and is sharing a space with a live one 
-						let enemyOverlapFound = false;
-						if(this.enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
-							console.log('hi');
+						//var playerPosition = JSON.parse(JSON.stringify(this.lastPlayerPosition));
 						
-							for(let j = 0; j < this.enemyData.length; j++) {
-								if(this.enemyData[i].mapPosition == this.enemyData[j].mapPosition) {
-									enemyOverlapFound = true;
-									continue;
+						//remove drawing this enemy if enemy is dead and is sharing a space with a live one. Searches once only.
+						let enemyOverlapFound = false;
+						
+						let enemyPosition = JSON.parse(JSON.stringify(this.enemyData[i].mapPosition));
+						//console.log(enemyPosition);
+						let playerPosition = JSON.parse(JSON.stringify(this.lastPlayerPosition));
+						//console.log(playerPosition);
+			
+						//array equals function
+						//https://www.30secondsofcode.org/blog/s/javascript-array-comparison
+						
+						const equals = (a, b) =>
+						a.length === b.length &&
+						a.every((v, i) => v === b[i]);
+			
+						if(this.enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
+							if(this.enemyData.length > 1) {
+								for(let j = 0; j < this.enemyData.length; j++) {
+								
+									enemyPosition = JSON.parse(JSON.stringify(this.enemyData[i].mapPosition));
+						
+									if(equals(enemyPosition, playerPosition) || (enemyPosition == this.enemyData[j].mapPosition && this.enemyData[i].id != this.enemyData[j].id)) {
+										enemyOverlapFound = true;
+										continue;
+									}
 								}
 							}
 						}
@@ -508,6 +531,7 @@
 					}
 				})
 				.catch(error => {
+					console.log(error);
 					//server response errors
 					if (error.response) {
 						console.log(error.response.data.message);
@@ -687,11 +711,13 @@
 						
 						//if dead
 						if(enemyAction == 'dead') {
+							this.enemyMoved = false;
 							let enemyName = response.data.enemyName;
 							let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);
 							let graveStoneImage = '/img/rpgGame/gameCharacterGraphics/gravestone.png';
-							if(enemyOldSquare.hasChildNodes() && enemyOldSquare.firstElementChild.src == null)
-								enemyOldSquare.firstElementChild.src = graveStoneImage;
+							if(enemyOldSquare.hasChildNodes() && enemyOldSquare.firstElementChild.tagName == 'img')
+								if(enemyOldSquare.firstElementChild.src != graveStoneImage)
+									enemyOldSquare.firstElementChild.src = graveStoneImage;
 							
 							if(!localStorage.hasOwnProperty('gameLog'))
 								localStorage.setItem('gameLog', 'Turn passed: ' + enemyName + ' at ' + enemyOldPosition + ' is dead.' + '\r\n');
@@ -712,8 +738,7 @@
 						//if move
 						if(enemyAction == 'move') {
 							//if not moving because blocked
-							if(enemyOldPosition.sort().toString() == enemyNewPosition.sort().toString()) {
-								console.log(enemyOldPosition.sort().toString());
+							if(enemyOldPosition.toString() == enemyNewPosition.toString()) {
 								//this.updateEnemyPosition(enemyLastTerrainTreeCover, enemyOldPosition, enemyNewPosition, enemyAvatar);
 								let enemyOldSquare = document.getElementById(enemyOldPosition[0] + '-' + enemyOldPosition[1]);							
 								enemyOldSquare.classList.remove('border-dark');
@@ -1407,6 +1432,8 @@
 						this.generateDataRow('Attack', this.enemyStatusData[i].currentAttack + '/' + this.enemyStatusData[i].attack);
 						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
 						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
+						let br = document.createElement('BR');
+						document.getElementById('menuDataArea').appendChild(br);
 					}
 				})
 				.catch(error => {

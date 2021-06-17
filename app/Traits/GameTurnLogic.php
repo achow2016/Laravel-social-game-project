@@ -59,7 +59,17 @@ trait GameTurnLogic
 			$itemEntry[] = array('name' => 'money', 'quantity' => $enemy->money);
 			//$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = strval($targetItem->name);
 			//Log::debug($itemEntry);
-			$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = json_encode($itemEntry);
+			if($mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] == null)
+				$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = json_encode($itemEntry);
+			else {
+				$oldItemData = $mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'];
+				$processedItem = json_decode($oldItemData);
+				Log::debug($processedItem);
+				$processedItem = array_merge($processedItem, $itemEntry);
+				Log::debug($processedItem);
+				$mapDecoded[$enemyMapPosition[0]][$enemyMapPosition[1]]['item'] = json_encode($processedItem);
+			}
+			
 			$tileSet = $existingMap->tileset()->first();
 			$tileSet->mapData = $mapDecoded;
 			$existingMap->tileset()->save($tileSet);
@@ -138,18 +148,31 @@ trait GameTurnLogic
 		$user = User::where('name', $request->user()->name)->first();
 		$charObj = $user->character()->first();
 		
+		//targeted grid square
 		$mapCoordArray = explode(",", $request->mapPosition);
+		
 		$existingMap = GameMap::where('id', $charObj->mapId)->first();
-		//$enemyObj = $existingMap->enemies()->get()->where('mapPosition', $mapCoordArray)->first();
-		$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('mapPosition', $mapCoordArray)->first();
-
+		
+		//if two enemies are on one square from result, one is dead and the one with <0 health is filtered here 
+		//$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->where('mapPosition', $mapCoordArray)->where('currentHealth', '>', 0)->first();
+		$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->where('mapPosition', $request->mapPosition)->where('currentHealth', '>', 0)->first();
+		
+		/*
+		mapCoordArray
+		
+		[2021-06-15 00:43:04] local.DEBUG: array (
+		  0 => '',
+		)  
+		
+		*/
+		
 		if($enemyObj) {
 			$charObj->enemyId = $enemyObj->id;
 		}	
 		else
 			//$enemyObj = $existingMap->enemies()->get()->where('id', $charObj->enemyId)->first();
 			$enemyObj = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('id', $charObj->enemyId)->first();
-
+		
 	
 		if($charObj->currentAgility < $enemyObj->currentAgility) {
 			$this->playerTurnOrder = 'second';

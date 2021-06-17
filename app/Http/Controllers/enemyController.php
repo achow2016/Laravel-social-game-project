@@ -193,7 +193,7 @@ class EnemyController extends Controller {
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//returns coordinates only for map generator
 			//$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
-			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth');
+			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth', 'id');
 			return response(['enemies' => $filteredEnemies], 200);
 		}
 		catch(Throwable $e) {
@@ -215,7 +215,7 @@ class EnemyController extends Controller {
 			//returns coordinates only for map generator
 			//$enemies = $existingMap->enemies()->get()->pluck('attack', 'currentAttack', 'health', 'currentHealth', 'stamina', 			//'currentStamina', 'mapPosition');
 			
-			$enemies = $existingMap->enemies()->get([
+			$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get([
 				'name', 'attack', 'currentAttack', 'health',
 				'currentHealth', 'stamina', 'currentStamina', 'mapPosition', 'armour'
 			]);
@@ -470,14 +470,15 @@ class EnemyController extends Controller {
 				//$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->get()->pluck('mapPosition');	
 				$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->select('mapPosition', 'currentHealth')->get();
 				$positionMatches = 0;
-				foreach($enemyMapPositions as $enemyCoord) {
+				foreach($enemyMapPositions as $enemyPosition) {
 					
 					//if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]]) {
 					//	$positionMatches = $positionMatches + 1;
 					//}
 					
 					//allows movement onto dead enemy occupied square
-					if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]] && $enemyCoord->currentHealth > 0) {
+					//if($enemy->mapPosition == [$enemyCoord[0], $enemyCoord[1]] && $enemyCoord->currentHealth > 0) {
+					if($enemy->mapPosition == $enemyPosition->mapPosition && $enemyPosition->currentHealth > 0) {
 						$positionMatches = $positionMatches + 1;
 					}						
 				}
