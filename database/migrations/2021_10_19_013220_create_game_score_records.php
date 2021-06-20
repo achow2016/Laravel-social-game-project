@@ -17,6 +17,7 @@ class CreateGameScoreRecords extends Migration
             $table->increments('id');
 			$table->binary('avatar')->nullable();
 			$table->integer('gameLevel');
+			$table->json('mapData')->nullable();
 			$table->string('race');
 			$table->string('class');
 			$table->integer('userId')->unsigned();

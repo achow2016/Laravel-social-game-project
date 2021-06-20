@@ -32,6 +32,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 	Route::post('/getCharacterInventory', 'App\Http\Controllers\CharacterController@getCharacterInventory');
 	Route::post('/getCharacterExistenceStatus', 'App\Http\Controllers\CharacterController@getCharacterStatus');
 	Route::post('/getCharacterBattleStatus', 'App\Http\Controllers\CharacterController@getCharacterBattleStatus');
+	Route::post('/getCharacterScoreDetails', 'App\Http\Controllers\ScoreController@getCharacterScoreDetails');
+	Route::post('/getCharacterScoreAvatar', 'App\Http\Controllers\ScoreController@getCharacterScoreAvatar');
 	Route::post('/generateMap', 'App\Http\Controllers\MapController@generateMap');
 	Route::post('/generateEnemies', 'App\Http\Controllers\EnemyController@generateEnemies');
 	Route::post('/getEnemies', 'App\Http\Controllers\EnemyController@getEnemies');

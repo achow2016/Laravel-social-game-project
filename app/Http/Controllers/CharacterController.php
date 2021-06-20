@@ -480,6 +480,8 @@ class CharacterController extends Controller {
 		try {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = $user->character()->first();			
+			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$mapData = $existingMap->tileset()->first()->mapData;
 			
 			//delete previous record if any
 			$score = GameScoreRecord::where('userId', $user->id)->get();
@@ -490,6 +492,7 @@ class CharacterController extends Controller {
 			//save score
 			$score = new GameScoreRecord();
 			$score->setAttribute('gameLevel', $charObj->gameLevel);
+			$score->setAttribute('mapData', $mapData);
 			$score->setAttribute('race', $charObj->race);
 			$score->setAttribute('class', $charObj->class);
 			$score->setAttribute('userName', $request->user()->name);
@@ -522,7 +525,7 @@ class CharacterController extends Controller {
 			$user->score()->save($score);
 			
 			//clean up map
-			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			
 			GameActiveEnemy::where('mapId', $existingMap->id)->delete();
 			$tileCheck = $existingMap->tileset()->first();
 			if($tileCheck) 
