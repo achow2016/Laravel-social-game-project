@@ -65,7 +65,7 @@
 			</div>
 		</div>
 		
-		<div style="overflow-y:scroll; height:30vh;" class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
+		<div style="overflow:scroll; overflow-y:scroll; height:70vh; margin-top:8vh; margin-bottom:8vh;" class="overflow-auto text-center d-none" id="menuDataArea">loading data...</div>
 		
 		<div class="overflow-auto text-center d-none" id="gameMenu">
 			<div id="quitDiv" v-on:click="quitGame" class="row-9 mb-4 actionRow text-center">Quit Game</div>

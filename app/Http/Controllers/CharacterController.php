@@ -489,10 +489,14 @@ class CharacterController extends Controller {
 				$score->first()->delete();
 			}
 			
+			$enemyMapPositions = GameActiveEnemy::where('mapId', $existingMap->id)->select('mapPosition', 'name', 'currentHealth', 'avatar')->get();
+				
 			//save score
 			$score = new GameScoreRecord();
 			$score->setAttribute('gameLevel', $charObj->gameLevel);
 			$score->setAttribute('mapData', $mapData);
+			$score->setAttribute('playerMapPosition', json_encode($charObj->mapPosition));
+			$score->setAttribute('enemyMapPositions', json_encode($enemyMapPositions));
 			$score->setAttribute('race', $charObj->race);
 			$score->setAttribute('class', $charObj->class);
 			$score->setAttribute('userName', $request->user()->name);

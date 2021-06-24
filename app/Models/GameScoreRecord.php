@@ -18,6 +18,8 @@ class GameScoreRecord extends Model
      * @var array
      */
     protected $fillable = [
+		'playerMapPosition','enemyMapPositions',
+		
 		'gameLevel', 'mapData', 'userName', 'userId', 'charactername', 'race', 'class', 'avatar',
 		'accuracy', 'agility', 'attack',
 		'damageDealt', 'damageReceived', 'itemsUsed', 'money', 'totalEarnings', 'score',

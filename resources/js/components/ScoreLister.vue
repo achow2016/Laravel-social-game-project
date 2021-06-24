@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid d-flex flex-column text-light">
 	
-		<header class="row fixed-top">
+		<header style="opacity:1" class="row fixed-top">
 			<div class="col text-center d-flex">		
 				<div class="flex-fill w-33">
 					<router-link :to="{ name: 'welcome' }"><button type="button" class="btn btn-dark flex-fill w-100">Home</button></router-link>
@@ -32,18 +32,24 @@
 			</div>
 		</div>
 		
-		<div class="row mt-5 mb-2">
-			<div id="scoreDetailContainer" class="col text-center">
-			
+		<div>
+			<div class="row">
+				<div class="col">
+					<div id="scoreDetailContainer" class="col text-center">
+					
+					</div>
+				</div>	
 			</div>
 			<div class="row">
-				<div id="mapGrid" class="col text-center">
-			
-				</div>
+				<div class="col">
+					<div id="mapGrid" class="col text-center mt-1 mb-3">
+					
+					</div>
+				</div>	
 			</div>
 		</div>
 		
-		<div id="currentMenuControl" class="col text-center d-none">
+		<div style="opacity:.5" id="currentMenuControl" class="col text-center d-none fixed-bottom">
 			<div id="closeScoreDetailContainer" class="flex-fill w-100 d-none">
 				<button v-on:click="toggleScoreDetail" type="button" class="btn btn-dark flex-fill w-100">Close</button>
 			</div>
@@ -122,6 +128,98 @@
 			
 		},
 		methods: {
+			drawPlayerPosition(playerPosition, playerAvatar) {
+				let lastPlayerPosition = JSON.parse(playerPosition);
+				let row = lastPlayerPosition[0];
+				let column = lastPlayerPosition[1];
+				let playerSquare = document.getElementById(row + '-' + column);
+				
+				//outlines player square
+				playerSquare.classList.toggle('border-dark');
+				playerSquare.classList.toggle('border-warning');
+				
+				//draws player onto square
+				playerSquare.innerHTML = '';
+				let playerIcon = document.createElement('img');   
+				playerIcon.setAttribute('src', playerAvatar);   
+				playerIcon.classList.toggle('img-fluid');   
+				playerSquare.appendChild(playerIcon);
+			},
+			enemySquareDetail(name) {
+				console.log(name);
+			},
+			drawEnemyPositions(enemies, playerPosition) {
+				let enemyMapPositions = [];
+				let enemyData = JSON.parse(enemies);
+				let vm = this;
+				
+				for(let i = 0; i < enemyData.length; i++) {			
+					//get current coords
+					let row = enemyData[i].mapPosition[0];//add enemy detail on click
+					let column = enemyData[i].mapPosition[1];
+					let enemySquare = document.getElementById(row + '-' + column);
+					enemySquare.id = enemyData[i].name + ' ' + enemySquare.id;
+					
+					enemySquare.addEventListener('click', function(event) {
+						vm.enemySquareDetail(event.target.id);
+					});
+
+					//prevent drawing over player
+					enemyMapPositions.push([row, column]);
+					
+					//outlines enemy square
+					if(enemyData[i].currentHealth > 0) {
+						if(!enemySquare.classList.contains('border-danger')) {
+							enemySquare.classList.toggle('border-dark');
+							enemySquare.classList.toggle('border-danger');
+						}
+					}
+					
+					//remove drawing this enemy if enemy is dead and is sharing a space with a live one. Searches once only.
+					let enemyOverlapFound = false;
+					
+					let enemyPosition = enemyData[i].mapPosition;
+					let playerPosition = playerPosition;
+		
+					//array equals function
+					//https://www.30secondsofcode.org/blog/s/javascript-array-comparison
+					
+					const equals = (a, b) =>
+					a.length === b.length &&
+					a.every((v, i) => v === b[i]);
+		
+					if(enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
+						if(enemyData.length > 1) {
+							for(let j = 0; j < enemyData.length; j++) {
+							
+								enemyPosition = JSON.parse(JSON.stringify(enemyData[i].mapPosition));
+					
+								if(equals(enemyPosition, playerPosition) || (enemyPosition == enemyData[j].mapPosition && enemyData[i].id != enemyData[j].id)) {
+									enemyOverlapFound = true;
+									continue;
+								}
+							}
+						}
+					}
+					
+					if(enemyOverlapFound == false) {
+						//draws enemy onto square
+						enemySquare.innerHTML = '';
+						
+						let enemyIcon = document.createElement('img');
+						if(enemyData[i].currentHealth > 0)
+							enemyIcon.setAttribute('src', enemyData[i].avatar);   
+						else
+							enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
+						enemyIcon.classList.toggle('img-fluid');
+						enemyIcon.id = enemyData[i].name + ' avatar';
+					
+						enemySquare.appendChild(enemyIcon);
+					}
+					
+				}
+		
+			},
 			generateCharacterGameMap(mapData) {
 				this.mapData = JSON.parse(mapData);
 				
@@ -157,7 +255,6 @@
 						document.getElementById('row' + i).appendChild(element);
 					}
 				}
-				
 			},
 			populateScoreDetails(id) {
 				let targetUser = id;
@@ -193,6 +290,8 @@
 					document.getElementById('scoreDetailContainer').textContent = '';
 					this.generateDataRow('Current Avatar', response.data.details.characterName, 'avatar');
 					this.generateDataRow('Name', response.data.details.characterName);
+					this.generateDataRow('Race', response.data.details.race);
+					this.generateDataRow('Class', response.data.details.class);
 					this.generateDataRow('Health', response.data.details.health);
 					this.generateDataRow('Stamina', response.data.details.stamina);
 					this.generateDataRow('Recovery', 'H ' + response.data.details.healthRegen + ' / ' + 'S ' + response.data.details.staminaRegen);
@@ -208,8 +307,16 @@
 					this.generateDataRow('All Time Earnings', response.data.details.totalEarnings);
 					this.generateDataRow('Squares Travelled', response.data.details.squaresMoved);
 					this.generateDataRow('Total Score', response.data.details.score);
-					
-					this.generateCharacterGameMap(response.data.details.mapData);
+					this.generateDataRow('Equipment', null, 'equipmentHeader');
+					this.generateDataRow('Weapon', response.data.details.weapon);
+					this.generateDataRow('Off-Hand', response.data.details.offhandEquipment);
+					this.generateDataRow('Body', response.data.details.bodyEquipment);
+					this.generateDataRow('Head', response.data.details.headEquipment);
+					this.generateDataRow('Arms', response.data.details.armsEquipment);
+					this.generateDataRow('Legs', response.data.details.legsEquipment);
+					this.generateCharacterGameMap(response.data.details.mapData);						
+					this.drawPlayerPosition(response.data.details.playerMapPosition, response.data.details.avatar);
+					this.drawEnemyPositions(response.data.details.enemyMapPositions, response.data.details.playerMapPosition);
 				})
 				.catch(error => {
 					console.log(error);
@@ -222,9 +329,29 @@
 				else
 					document.getElementById('scoreDetailContainer').textContent = '';
 					
-				document.getElementById('scoreContainer').classList.toggle('d-none');
-				document.getElementById('messageContainer').classList.toggle('d-none');
+				var scoreContainer = document.getElementById('scoreContainer');
+				scoreContainer.classList.toggle('d-none');
+				if(scoreContainer.parentElement.classList.contains('mt-5'))
+					scoreContainer.parentElement.classList.remove('mt-5', 'mb-2');
+				else
+					scoreContainer.parentElement.classList.add('mt-5', 'mb-2');
+					
+				var messageContainer = document.getElementById('messageContainer');
+				messageContainer.classList.toggle('d-none');
+				if(messageContainer.parentElement.classList.contains('mt-5'))
+					messageContainer.parentElement.classList.remove('mt-5', 'mb-2');
+				else
+					messageContainer.parentElement.classList.add('mt-5', 'mb-2');
+					
+				document.getElementById('currentMenuControl').classList.toggle('d-none');	
 				document.getElementById('closeScoreDetailContainer').classList.toggle('d-none');	
+				
+				document.getElementById('mapGrid').textContent = '';
+				
+				if(document.querySelector('header').style.opacity == 1)
+					document.querySelector('header').style.opacity = 0.5;
+				else
+					document.querySelector('header').style.opacity = 1;
 			},
 			generateClickableScoreRow(score) {
 				var vm = this;
@@ -303,6 +430,17 @@
 					
 					document.getElementById('scoreDetailContainer').appendChild(dataRowContainer);
 				}
+				else if(type == 'equipmentHeader') {
+					let dataRowContainer = document.createElement('div');   
+					dataRowContainer.classList.add('row');
+					
+					let headerTextContainer = document.createElement('div'); 
+					headerTextContainer.classList.add('col-12', 'text-center');
+					headerTextContainer.textContent = key;
+					dataRowContainer.appendChild(headerTextContainer);
+					
+					document.getElementById('scoreDetailContainer').appendChild(dataRowContainer);
+				}
 				else {
 					let dataRowContainer = document.createElement('div');   
 					dataRowContainer.classList.add('row');
@@ -314,7 +452,10 @@
 					
 					let dataRowFieldData = document.createElement('div'); 
 					dataRowFieldData.classList.add('col-6', 'text-center');
-					dataRowFieldData.textContent = data;
+					if(data != null)
+						dataRowFieldData.textContent = data;
+					else
+						dataRowFieldData.textContent = 'none';
 					dataRowContainer.appendChild(dataRowFieldData);
 					
 					document.getElementById('scoreDetailContainer').appendChild(dataRowContainer);

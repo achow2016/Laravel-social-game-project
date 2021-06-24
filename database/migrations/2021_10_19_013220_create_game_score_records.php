@@ -18,6 +18,8 @@ class CreateGameScoreRecords extends Migration
 			$table->binary('avatar')->nullable();
 			$table->integer('gameLevel');
 			$table->json('mapData')->nullable();
+			$table->json('playerMapPosition')->nullable();
+			$table->json('enemyMapPositions')->nullable();
 			$table->string('race');
 			$table->string('class');
 			$table->integer('userId')->unsigned();
