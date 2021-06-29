@@ -9,6 +9,7 @@
 			"healthRegen": "0",
 			"baseAttackCost": "10",
 			"agility": "10",
+			"sightRange": "3",
 			"avatar": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
 			"meleeAnimation": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		},
@@ -21,6 +22,7 @@
 			"healthRegen": "1",
 			"baseAttackCost": "7",
 			"agility": "15",
+			"sightRange": "4",
 			"avatar": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif",
 			"meleeAnimation": "/img/rpgGame/gameCharacterGraphics/NewPiskel.gif"
 		}

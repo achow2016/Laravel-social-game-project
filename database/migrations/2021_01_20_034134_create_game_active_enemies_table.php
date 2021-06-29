@@ -31,6 +31,7 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('armour')->default('0');
 			$table->integer('health')->default('0');
 			$table->integer('combatRange')->default('1');
+			$table->integer('sightRange')->nullable();
 			$table->integer('currentHealth')->default('0');
 			$table->integer('stamina')->default('0');
 			$table->integer('currentStamina')->default('0');

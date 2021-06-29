@@ -1,6 +1,7 @@
 <template>
-    <div class="container-fluid d-flex flex-column text-light">
 	
+
+    <div class="container-fluid d-flex flex-column text-light">	
 		<header style="opacity:1" class="row fixed-top">
 			<div class="col text-center d-flex">		
 				<div class="flex-fill w-33">
@@ -17,6 +18,12 @@
 	
 		<div class="row mt-5 mb-2">
 			<div id="messageContainer" class="col overflow-auto" style="white-space:pre;height:40px">
+			</div>
+		</div>
+		
+		<div id="squareDetailsContainer" class="row mt-5 mb-2 position-fixed d-none">
+			<div id="squareDetails" class="col overflow-auto">
+			
 			</div>
 		</div>
 		
@@ -147,6 +154,33 @@
 			},
 			enemySquareDetail(name) {
 				console.log(name);
+				let idArray = name.split(' ');
+				let enemies = [];
+				for(let i = 0; i < idArray.length; i++) {
+					if(idArray[i] != 'avatar' && Number.isInteger(parseInt(idArray[i].charAt(0))) != true)
+						enemies.push(idArray[i]);
+				}
+				console.log(enemies);
+				document.getElementById('squareDetailsContainer').classList.toggle('d-none');
+				let squareDetailsDiv = document.getElementById('squareDetails');
+				let dataRowContainer = document.createElement('div');   
+				dataRowContainer.classList.add('row', 'bg-secondary', 'mb-1');
+				let dataRowText = document.createElement('p');
+				dataRowText.classList.add('col', 'text-center');
+				dataRowText.style.margin = 0;
+				dataRowText.textContent = enemies;
+				dataRowContainer.append(dataRowText);
+				console.log(dataRowContainer);
+				squareDetailsDiv.append(dataRowContainer);
+				
+				const sleep = function sleep(ms) {
+					return new Promise(resolve => setTimeout(resolve, ms));
+				}
+				
+				sleep(1500).then(() => {
+					document.getElementById('squareDetailsContainer').classList.toggle('d-none');
+					document.getElementById('squareDetails').textContent = '';
+				});	
 			},
 			drawEnemyPositions(enemies, playerPosition) {
 				let enemyMapPositions = [];
@@ -477,4 +511,14 @@
 </script>
 
 <style scoped>
+	#squareDetails {
+		width:33vw; 
+		margin-left:33vw;
+		padding-top:30vh;
+		margin-top:15vh;
+		margin-bottom:53vh;
+		height: 71vh;
+		z-index: 1000;
+		opacity:.7;
+	}
 </style>

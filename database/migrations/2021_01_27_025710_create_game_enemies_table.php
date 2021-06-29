@@ -29,6 +29,7 @@ class CreateGameEnemiesTable extends Migration
 			$table->integer('gameLevel')->default('0');
 			$table->integer('money')->default('0');
 			$table->integer('combatRange')->default('1');
+			$table->integer('sightRange')->nullable();
 			$table->json('itemLootInventory')->nullable();
 			$table->json('additionalSkills')->nullable(); //skills in addition to class skills at creation
             $table->timestamps();

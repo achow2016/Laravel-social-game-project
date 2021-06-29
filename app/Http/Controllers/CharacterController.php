@@ -23,8 +23,6 @@ use App\Models\GameHeadEquipment;
 use App\Models\GameBodyEquipment;
 use App\Models\GameScoreRecord;
 
-
-
 //use DateTime;
 
 use App\Traits\GameTurnLogic;
@@ -76,6 +74,7 @@ class CharacterController extends Controller {
 			$character->setAttribute('class', $characterClass->class);
 			$character->setAttribute('ownerUser', $request->user()->id);
 			$character->setAttribute('characterName', $request->characterName);
+			$character->setAttribute('sightRange', $characterRace->sightRange);
 			$character->setAttribute('health', $characterRace->health + $characterClass->health + $request->lifeAlloc);
 			$character->setAttribute('currentHealth', $characterRace->health + $characterClass->health + $request->lifeAlloc);
 			$character->setAttribute('healthRegen', $characterRace->healthRegen + $characterClass->healthRegen);

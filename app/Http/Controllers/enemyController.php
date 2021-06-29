@@ -105,6 +105,7 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('race', $enemyRace->race);
 				$enemy->setAttribute('class', $enemyClass->class);
 				$enemy->setAttribute('name', $enemyChoices[$enemyChoice]->name);
+				$enemy->setAttribute('sightRange', $enemyRace->sightRange);
 				$enemy->setAttribute('health', $enemyRace->health + $enemyClass->health + $lifeAlloc);
 				//$enemy->setAttribute('currentHealth', $enemyRace->health + $enemyClass->health + $lifeAlloc);
 				$enemy->setAttribute('currentHealth', 1);
@@ -193,8 +194,54 @@ class EnemyController extends Controller {
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			//returns coordinates only for map generator
 			//$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
-			$filteredEnemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth', 'id');
-			return response(['enemies' => $filteredEnemies], 200);
+			$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth', 'id');
+			
+			//creates 2d array of character-visible tiles based on its sight range  
+			/*
+			
+			col 0
+			
+	row	0	x x x v x x x x
+			x x v v v x x x
+			x v v v v v x x
+			v v v c v v v x
+			x v v v v v x x
+			x x v v v x x x
+			x x x v x x x x
+			x x x x x x x x
+			
+			*/
+			
+			$visibleSpan = 1 + ($charObj->sightRange * 2);
+			$visibleTiles = array(); 
+			$playerPosition = $charObj->mapPosition;
+			$playerRow = $playerPosition[0];
+			$playerCol = $playerPosition[1];
+			$spanOffset = $charObj->sightRange; //offset from y = 0
+			$playerSightRange = $charObj->sightRange;
+			
+			for($i = 0; $i < $visibleSpan; $i++) {
+				//index to start from keeping y axis line in middle
+				$rowStartIndex =  0 - ($playerSightRange - $spanOffset);
+				if($spanOffset > 0) {
+					$visibleRowLength = (($playerSightRange - $spanOffset) * 2) + 1;			
+					for($j = 0; $j < $visibleRowLength; $j++) {
+						array_push($visibleTiles, [($charRow - $spanOffset), $charCol + ($rowStartIndex + $j)]);
+					}
+				}
+				//removing effect from negative offset to get proper lengths
+				else {
+					$visibleRowLength = (($playerSightRange - ($spanOffset * -1)) * 2) + 1;			
+					for($j = 0; $j < $visibleRowLength; $j++) {
+						array_push($visibleTiles, [($charRow - ($spanOffset * -1)), $charCol + ($rowStartIndex + $j)]);
+					}
+				}	
+				$spanOffset = $spanOffset - 1; 
+			}
+			
+			Log::debug($visibleTiles);
+			
+			return response(['enemies' => $enemies], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
