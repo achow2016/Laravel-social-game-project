@@ -60,9 +60,11 @@ class MapController extends Controller {
 			$gameMap->setAttribute('level', 1);
 			
 			//attach enemy and player after start position defined, mark as having been placed on new map already
+			//with new information, make set of visible tiles for player
 			$gameMap->save();
 			$charObj->mapId = $gameMap->id;
 			$charObj->mapPosition = $gameMap->startPoint;
+			$charObj->visibleTiles = json_encode($this->findVisibleTiles($charObj));
 			$charObj->save();
 			
 			//replace or generate tileset data for map

@@ -31,6 +31,7 @@ class CreateCharacterTable extends Migration
 			//$table->integer('mapId')->unsigned()->nullable();
 			$table->integer('gameLevel')->default('1');
 			$table->json('mapPosition')->nullable();
+			$table->json('visibleTiles')->nullable();
 			$table->json('stance')->nullable();
 			$table->json('effects')->nullable();
 			$table->string('race');

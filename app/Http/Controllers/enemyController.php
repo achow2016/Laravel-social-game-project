@@ -136,6 +136,7 @@ class EnemyController extends Controller {
 				$enemy->setAttribute('money', $enemyChoices[$enemyChoice]->money);
 				
 				$enemy->setAttribute('mapId', $existingMap->id);
+				$enemy->visibleTiles = json_encode($this->findVisibleTiles($enemy));
 				$enemy->save();
 				//$existingMap->enemies()->save($enemy);
 				
@@ -192,55 +193,9 @@ class EnemyController extends Controller {
 			$user = User::where('name', $request->user()->name)->first();
 			$charObj = $user->character()->first();
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
-			//returns coordinates only for map generator
-			//$filteredEnemies = $existingMap->enemies()->get()->map->only('mapPosition', 'avatar', 'currentHealth');
 			$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get()->map->only('mapPosition', 'avatar', 'currentHealth', 'id');
-			
-			//creates 2d array of character-visible tiles based on its sight range  
-			/*
-			
-			col 0
-			
-	row	0	x x x v x x x x
-			x x v v v x x x
-			x v v v v v x x
-			v v v c v v v x
-			x v v v v v x x
-			x x v v v x x x
-			x x x v x x x x
-			x x x x x x x x
-			
-			*/
-			
-			$visibleSpan = 1 + ($charObj->sightRange * 2);
-			$visibleTiles = array(); 
-			$playerPosition = $charObj->mapPosition;
-			$playerRow = $playerPosition[0];
-			$playerCol = $playerPosition[1];
-			$spanOffset = $charObj->sightRange; //offset from y = 0
-			$playerSightRange = $charObj->sightRange;
-			
-			for($i = 0; $i < $visibleSpan; $i++) {
-				//index to start from keeping y axis line in middle
-				$rowStartIndex =  0 - ($playerSightRange - $spanOffset);
-				if($spanOffset > 0) {
-					$visibleRowLength = (($playerSightRange - $spanOffset) * 2) + 1;			
-					for($j = 0; $j < $visibleRowLength; $j++) {
-						array_push($visibleTiles, [($charRow - $spanOffset), $charCol + ($rowStartIndex + $j)]);
-					}
-				}
-				//removing effect from negative offset to get proper lengths
-				else {
-					$visibleRowLength = (($playerSightRange - ($spanOffset * -1)) * 2) + 1;			
-					for($j = 0; $j < $visibleRowLength; $j++) {
-						array_push($visibleTiles, [($charRow - ($spanOffset * -1)), $charCol + ($rowStartIndex + $j)]);
-					}
-				}	
-				$spanOffset = $spanOffset - 1; 
-			}
-			
-			Log::debug($visibleTiles);
-			
+			$enemies = $this->findVisibleEnemies($charObj, $enemies);
+			$enemies = json_decode($enemies, true);
 			return response(['enemies' => $enemies], 200);
 		}
 		catch(Throwable $e) {
@@ -577,22 +532,53 @@ class EnemyController extends Controller {
 				$results['message'] = $results['message'] . $update;
 			}
 			
-			return response([
-				'results' => $results,
-				'currentTurn' => $charObj->currentTurn,
-				'playerTurnPosition' => $charObj->turnPosition,
-				'playerGameTurns' => $charObj->gameTurns,
-				'playerBattleState' => $charObj->battle,
-				'playerBattleTarget' => $charObj->enemyId,
-				'enemyTurnPositions' => $enemiesTurnPositions,
-				'enemyAction' => $enemy->turnAction,
-				'enemyOldPosition' => [$enemyRow, $enemyColumn],
-				'enemyNewPosition' => [$enemy->mapPosition[0], $enemy->mapPosition[1]],
-				'enemyId' => $enemy->id,
-				'enemyLastTerrain' => $enemyLastTerrain,
-				'enemyLastTerrainTreeCover' => $enemyLastTerrainTreeCover,
-				'enemyAvatar' => $enemy->avatar,
-			], 200);
+			//if enemy not visible to player, enemy turn actions are hidden on client side unless affecting player
+			if($this->checkEnemyVisibility($charObj, $enemy)) {
+				return response([
+					'results' => $results,
+					'currentTurn' => $charObj->currentTurn,
+					'playerTurnPosition' => $charObj->turnPosition,
+					'playerGameTurns' => $charObj->gameTurns,
+					'playerBattleState' => $charObj->battle,
+					'playerBattleTarget' => $charObj->enemyId,
+					'enemyTurnPositions' => $enemiesTurnPositions,
+					'enemyAction' => $enemy->turnAction,
+					'enemyOldPosition' => [$enemyRow, $enemyColumn],
+					'enemyNewPosition' => [$enemy->mapPosition[0], $enemy->mapPosition[1]],
+					'enemyId' => $enemy->id,
+					'enemyLastTerrain' => $enemyLastTerrain,
+					'enemyLastTerrainTreeCover' => $enemyLastTerrainTreeCover,
+					'enemyAvatar' => $enemy->avatar,
+				], 200);
+			}
+			//hides actions and results updates on hidden enemies
+			else {
+				$results = explode('.', $results['message']);
+				Log::debug($results);
+				$filteredResults = array();
+				foreach($results as $result) {
+					if(str_contains($result, 'You'))
+						array_push($filteredResults, $result);
+				}	
+				
+				return response([
+					'results' => $filteredResults,
+					'currentTurn' => $charObj->currentTurn,
+					'playerTurnPosition' => $charObj->turnPosition,
+					'playerGameTurns' => $charObj->gameTurns,
+					'playerBattleState' => $charObj->battle,
+					'playerBattleTarget' => $charObj->enemyId,
+					//'enemyTurnPositions' => 'hidden',
+					'enemyTurnPositions' => $enemiesTurnPositions,
+					'enemyAction' => 'hidden',
+					'enemyOldPosition' => 'hidden',
+					'enemyNewPosition' => 'hidden',
+					'enemyId' => 'hidden',
+					'enemyLastTerrain' => 'hidden',
+					'enemyLastTerrainTreeCover' => 'hidden',
+					'enemyAvatar' => 'hidden',
+				], 200);
+			}
 		}
 		catch(Throwable $e) {
 			report($e);

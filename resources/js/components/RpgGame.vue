@@ -134,7 +134,8 @@
 				enemyMapPositions: [],
 				tempEnemyLastSquareMarker: '',
 				previousMessage: '',
-				enemyMoved: false
+				enemyMoved: false,
+				enemyHidden: false
 			}
 		},
 		beforeMount() {
@@ -457,14 +458,17 @@
 					return response;
 				};
 				
+				let vm = this;
+				
 				getEnemies()
 				.then(response => {
-					this.enemyMapPositions = [];
-					this.enemyData = response.data.enemies;
-					for(let i = 0; i < this.enemyData.length; i++) {			
+					vm.enemyMapPositions = [];
+					vm.enemyData = JSON.parse(JSON.stringify(response.data.enemies));
+					vm.enemyData = Object.keys(vm.enemyData).map((k) => vm.enemyData[k])
+					for(let i = 0; i < vm.enemyData.length; i++) {
 						//get current coords
-						let row = this.enemyData[i].mapPosition[0];
-						let column = this.enemyData[i].mapPosition[1];
+						let row = vm.enemyData[i].mapPosition[0];
+						let column = vm.enemyData[i].mapPosition[1];
 						let enemySquare = document.getElementById(row + '-' + column);
 						
 						//prevent drawing over player
@@ -474,24 +478,24 @@
 						}
 						*/
 						
-						this.enemyMapPositions.push([row, column]);
+						vm.enemyMapPositions.push([row, column]);
 						
 						//outlines enemy square
-						if(this.enemyData[i].currentHealth > 0) {
+						if(vm.enemyData[i].currentHealth > 0) {
 							if(!enemySquare.classList.contains('border-danger')) {
 								enemySquare.classList.toggle('border-dark');
 								enemySquare.classList.toggle('border-danger');
 							}
 						}
 						
-						//var playerPosition = JSON.parse(JSON.stringify(this.lastPlayerPosition));
+						//var playerPosition = JSON.parse(JSON.stringify(vm.lastPlayerPosition));
 						
 						//remove drawing this enemy if enemy is dead and is sharing a space with a live one. Searches once only.
 						let enemyOverlapFound = false;
 						
-						let enemyPosition = JSON.parse(JSON.stringify(this.enemyData[i].mapPosition));
+						let enemyPosition = JSON.parse(JSON.stringify(vm.enemyData[i].mapPosition));
 						//console.log(enemyPosition);
-						let playerPosition = JSON.parse(JSON.stringify(this.lastPlayerPosition));
+						let playerPosition = JSON.parse(JSON.stringify(vm.lastPlayerPosition));
 						//console.log(playerPosition);
 			
 						//array equals function
@@ -501,13 +505,13 @@
 						a.length === b.length &&
 						a.every((v, i) => v === b[i]);
 			
-						if(this.enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
-							if(this.enemyData.length > 1) {
-								for(let j = 0; j < this.enemyData.length; j++) {
+						if(vm.enemyData[i].currentHealth <= 0 && enemyOverlapFound == false) {
+							if(vm.enemyData.length > 1) {
+								for(let j = 0; j < vm.enemyData.length; j++) {
 								
-									enemyPosition = JSON.parse(JSON.stringify(this.enemyData[i].mapPosition));
+									enemyPosition = JSON.parse(JSON.stringify(vm.enemyData[i].mapPosition));
 						
-									if(equals(enemyPosition, playerPosition) || (enemyPosition == this.enemyData[j].mapPosition && this.enemyData[i].id != this.enemyData[j].id)) {
+									if(equals(enemyPosition, playerPosition) || (enemyPosition == vm.enemyData[j].mapPosition && vm.enemyData[i].id != vm.enemyData[j].id)) {
 										enemyOverlapFound = true;
 										continue;
 									}
@@ -520,8 +524,8 @@
 							enemySquare.innerHTML = '';
 							
 							let enemyIcon = document.createElement('img');
-							if(this.enemyData[i].currentHealth > 0)
-								enemyIcon.setAttribute('src', this.enemyData[i].avatar);   
+							if(vm.enemyData[i].currentHealth > 0)
+								enemyIcon.setAttribute('src', vm.enemyData[i].avatar);   
 							else
 								enemyIcon.setAttribute('src', '/img/rpgGame/gameCharacterGraphics/gravestone.png');
 							enemyIcon.classList.toggle('img-fluid');
@@ -701,7 +705,27 @@
 						enemyAction = enemyActionObj[Object.keys(enemyActionObj)[0]];
 						if(enemyAction != 'dead')
 								msg = response.data.results.message;
+						
+						//if hidden out of sight range
+						if(response.data.enemyAction == 'hidden') {
+							this.enemyHidden = true;
+							if(!localStorage.hasOwnProperty('gameLog'))
+								localStorage.setItem('gameLog', 'Something moved.' + '\r\n');
+							else
+								localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Something moved.' + '\r\n');
+							document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
+							document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 							
+							let all = document.getElementsByTagName("*");
+							for (let i = 0, count = all.length; i < count; i++) {
+								all[i].style.pointerEvents = 'auto';
+							}
+							document.getElementById('menuDataArea').textContent = 'Something moved.';
+							document.getElementById('closeEnemyTurnButton').style.color = 'white';
+							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
+						}
+						
+						this.enemyHidden = false;
 						let enemyLastTerrain = response.data.enemyLastTerrain;
 						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
 						let enemyOldPosition = response.data.enemyOldPosition;
@@ -1044,7 +1068,7 @@
 			toggleEnemyTurnResult() {
 			
 				//reset marked square
-				if(this.enemyMoved) {
+				if(this.enemyMoved && !this.enemyHidden) {
 					let enemyOldSquare = document.getElementById(this.tempEnemyLastSquareMarker[0] + '-' + this.tempEnemyLastSquareMarker[1]);							
 						
 					if(!enemyOldSquare.classList.contains('border-warning')) {

@@ -25,7 +25,7 @@ class GameActiveEnemy extends Model
 		'baseAttackCost',
 		'currentHealth', 'currentStamina',
 		'attackMultiplier', 'defenseMultiplier',
-		'mapPosition',
+		'mapPosition', 'visibleTiles',
 		'money',
 		'defense', 'currentDefense','stance',
 		'weaponId','offHandEquipmentId','bodyEquipmentId','headEquipmentId','armsEquipmentId','legsEquipmentId',

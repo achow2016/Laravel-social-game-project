@@ -22,6 +22,7 @@ class CreateCharacterRaceTable extends Migration
 			$table->integer('stamina');
 			$table->integer('staminaRegen');
 			$table->integer('agility');
+			$table->integer('sightRange');
 			$table->json('weaknesses')->nullable();
 			$table->json('resistances')->nullable();
 			$table->binary('avatar')->nullable();

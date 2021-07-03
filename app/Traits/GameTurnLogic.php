@@ -16,6 +16,79 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
+	//creates 2d array of character-visible tiles based on its sight range  
+	/*			
+			col 0
+				
+		row	0	x x x v x x x x
+				x x v v v x x x
+				x v v v v v x x
+				v v v c v v v x
+				x v v v v v x x
+				x x v v v x x x
+				x x x v x x x x
+				x x x x x x x x
+	*/	
+	public function findVisibleTiles($charObj) {
+		$visibleSpan = 1 + ($charObj->sightRange * 2);
+		$visibleTiles = array(); 
+		$playerPosition = $charObj->mapPosition;
+		$playerRow = $playerPosition[0];
+		$playerCol = $playerPosition[1];
+		$spanOffset = $charObj->sightRange; //offset from y = 0
+		$playerSightRange = $charObj->sightRange;
+		$rowStartIndex =  0 - ($playerSightRange - $spanOffset);
+		
+		for($i = 0; $i < $visibleSpan; $i++) {
+			//index to start from keeping y axis line in middle
+			//$rowStartIndex =  0 - ($playerSightRange - $spanOffset);
+			if($spanOffset > 0) {
+				$visibleRowLength = (($playerSightRange - $spanOffset) * 2) + 1;			
+				for($j = 0; $j < $visibleRowLength; $j++) {
+					array_push($visibleTiles, [($playerRow - $spanOffset), ($playerCol + ($rowStartIndex + $j))]);
+				}
+			}
+			//removing effect from negative offset to get proper lengths
+			else {
+				$visibleRowLength = (($playerSightRange - ($spanOffset * -1)) * 2) + 1;			
+				for($j = 0; $j < $visibleRowLength; $j++) {
+					array_push($visibleTiles, [($playerRow + ($spanOffset * -1)), ($playerCol + ($rowStartIndex + $j))]);
+				}
+			}
+			$spanOffset = $spanOffset - 1; 
+			if($spanOffset >= 0)
+				$rowStartIndex = $rowStartIndex - 1;
+			else
+				$rowStartIndex = $rowStartIndex + 1;
+		}
+		return $visibleTiles;
+	}	
+	
+	//returns array of visible enemies from an enemy list
+	public function findVisibleEnemies($charObj, $enemies) {
+		//$visibleTiles = $this->findVisibleTiles($charObj);
+		$visibleTiles = json_decode($charObj->visibleTiles);
+		//Log::debug($visibleTiles);
+		foreach($enemies as $key => $enemy) {
+			if(!in_array($enemy['mapPosition'], $visibleTiles)) {
+				//Log::debug('enemy not visible: ' . $enemy['id']);
+				unset($enemies[$key]);
+			}
+		}
+		return $enemies;
+	}
+	
+	//returns true if enemy is visible to player
+	public function checkEnemyVisibility($charObj, $enemy) {
+		//$visibleTiles = $this->findVisibleTiles($charObj);
+		$visibleTiles = json_decode($charObj->visibleTiles);
+		if(!in_array($enemy->mapPosition, $visibleTiles)) {
+			return false;
+		}
+		else
+			return true;
+	}
+	
 	//allows progress to next level if conditions met: no enemies remain that are healthy
 	public function advanceLevel(Request $request) {
 		$user = User::where('name', $request->user()->name)->first();
@@ -400,11 +473,11 @@ trait GameTurnLogic
 			$actor->effects = $updatedEffects;
 			
 			//passives
-			if(($actor->currentStamina + $actor->currentStaminaRegen) <= $actor->stamina) {
+			if(($actor->currentStamina + $actor->currentStaminaRegen) <= $actor->stamina && $actor->currentStaminaRegen > 0) {
 				$actor->currentStamina = $actor->currentStamina + $actor->currentStaminaRegen;
 				$updates[] = $name . ' recovered ' . $actor->currentStaminaRegen . ' stamina.';
 			}
-			if(($actor->currentHealth + $actor->currentHealthRegen) <= $actor->health) {
+			if(($actor->currentHealth + $actor->currentHealthRegen) <= $actor->health && $actor->currentHealthRegen > 0) {
 				$actor->currentHealth = $actor->currentHealth + $actor->currentHealthRegen;
 				$updates[] = $name . ' recovered ' . $actor->currentHealthRegen . ' health.';
 			}

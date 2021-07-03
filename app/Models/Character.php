@@ -38,7 +38,7 @@ class Character extends Model
 		'weapon','offHandEquipment','bodyEquipment','headEquipment','armsEquipment','legsEquipment',
 		'stance', 'baseAttackCost',
 		'combatRange', 'sightRange',
-		'effects'
+		'effects', 'visibleTiles'
 	];
 
     /**

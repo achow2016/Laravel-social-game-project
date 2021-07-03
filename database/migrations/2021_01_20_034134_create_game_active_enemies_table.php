@@ -24,6 +24,9 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->integer('turnPosition')->nullable();
 			$table->json('turnAction')->nullable();
 			$table->json('effects')->nullable();
+			$table->json('visibleTiles')->nullable();
+			$table->json('stance')->nullable();
+			$table->json('mapPosition')->nullable();
 			$table->integer('mapId');
 			//$table->integer('mapId')->unsigned();
 			$table->string('race');
@@ -48,7 +51,6 @@ class CreateGameActiveEnemiesTable extends Migration
 			$table->string('headEquipment')->nullable();
 			$table->string('armsEquipment')->nullable();
 			$table->string('legsEquipment')->nullable();
-			$table->json('mapPosition')->nullable();
 			$table->integer('staminaRegen')->default('0');
 			$table->integer('currentStaminaRegen')->default('0');
 			$table->integer('healthRegen')->default('0');
