@@ -360,7 +360,8 @@ class MapController extends Controller {
 					$charObj->score = $charObj->score + 1;
 				}
 				
-				$charObj->save();
+				$this->updateVisibleTiles($charObj, $request->direction);
+				//$charObj->save();
 				return response($responseArray, 200);
 			}
 			else

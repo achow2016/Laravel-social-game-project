@@ -131,6 +131,7 @@
 				playerStatus: '',
 				enemyData: '',
 				enemyStatusData: '',
+				farEnemies: '',
 				enemyMapPositions: [],
 				tempEnemyLastSquareMarker: '',
 				previousMessage: '',
@@ -724,8 +725,10 @@
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
 						}
+						else {
+							this.enemyHidden = false;
+						}
 						
-						this.enemyHidden = false;
 						let enemyLastTerrain = response.data.enemyLastTerrain;
 						let enemyLastTerrainTreeCover = response.data.enemyLastTerrainTreeCover;
 						let enemyOldPosition = response.data.enemyOldPosition;
@@ -874,7 +877,7 @@
 						//if skill
 						
 						//enemy end of turn updates
-						if(msg != null) {
+						if((msg != null && typeof msg != 'undefined' && !msg === '') && this.enemyHidden == false) {
 							let msgPeriodIndex = msg.indexOf('.');
 							let processedMsg;
 							
@@ -1231,6 +1234,7 @@
 				document.getElementById('closeGameMenuContainer').classList.toggle('d-none');
 			},
 			toggleInspectMenu() {
+				document.getElementById('menuDataArea').style.height = '70vh';
 				document.getElementById('menuDataArea').classList.toggle('d-none');
 				if(!document.getElementById('closeInspectContainer').classList.contains('d-none'))
 					document.getElementById('menuDataArea').textContent = '';
@@ -1442,7 +1446,11 @@
 				.then(response => {
 					//console.log(response.data.enemies);
 					this.enemyStatusData = response.data.enemies;
+					this.farEnemies = response.data.farEnemies;
+					
 					document.getElementById('menuDataArea').textContent = '';
+					document.getElementById('menuDataArea').style.height = '20vh';
+					
 					document.getElementById('menuDataArea').textContent += response.data.message + '\r\n';
 					if(!localStorage.hasOwnProperty('gameLog'))
 						localStorage.setItem('gameLog', 'Inspected enemies.\r\n');
@@ -1450,12 +1458,21 @@
 						localStorage.setItem('gameLog', localStorage.getItem('gameLog') + 'Inspected enemies.\r\n');
 					document.getElementById('messageContainer').textContent = localStorage.getItem('gameLog');
 					document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+					
 					for(let i = 0; i < this.enemyStatusData.length; i++) {
 						this.generateDataRow('Name', this.enemyStatusData[i].name);
 						this.generateDataRow('Direction', this.enemyStatusData[i].mapOrientation);
 						this.generateDataRow('Attack', this.enemyStatusData[i].currentAttack + '/' + this.enemyStatusData[i].attack);
 						this.generateDataRow('Health', this.enemyStatusData[i].currentHealth + '/' + this.enemyStatusData[i].health);
 						this.generateDataRow('Stamina', this.enemyStatusData[i].currentStamina + '/' + this.enemyStatusData[i].stamina);
+						let br = document.createElement('BR');
+						document.getElementById('menuDataArea').appendChild(br);
+					}
+					
+					for(let i = 0; i < this.farEnemies.length; i++) {
+						this.generateDataRow('Name', this.farEnemies[i].name);
+						this.generateDataRow('Position', this.farEnemies[i].mapPosition);
+						this.generateDataRow('Offset', this.farEnemies[i].offsetToPlayer);
 						let br = document.createElement('BR');
 						document.getElementById('menuDataArea').appendChild(br);
 					}

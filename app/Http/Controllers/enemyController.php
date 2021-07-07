@@ -186,7 +186,7 @@ class EnemyController extends Controller {
 			return response(['status' => 'Enemies could not be created. Please report to admin.'], 422);
 		}	
 	}
-	
+	//gets visible enemies and returns them to game vue
 	public function getEnemies(Request $request) 
 	{
 		try {
@@ -203,7 +203,7 @@ class EnemyController extends Controller {
 			return response(['status' => 'enemies could not be found. Please report to admin.'], 422);
 		}		
 	}
-
+	//returns detailed enemy information for all adjacent enemies, reduced information for further visible enemies
 	public function inspectEnemies(Request $request) 
 	{
 		try {
@@ -213,16 +213,14 @@ class EnemyController extends Controller {
 			$charColumn = $charObj->mapPosition[1];
 			$existingMap = GameMap::where('id', $charObj->mapId)->first();
 			
-			//$enemies = $existingMap->enemies()->get();
-			//returns coordinates only for map generator
-			//$enemies = $existingMap->enemies()->get()->pluck('attack', 'currentAttack', 'health', 'currentHealth', 'stamina', 			//'currentStamina', 'mapPosition');
-			
 			$enemies = GameActiveEnemy::where('mapId', $existingMap->id)->get([
 				'name', 'attack', 'currentAttack', 'health',
 				'currentHealth', 'stamina', 'currentStamina', 'mapPosition', 'armour'
 			]);
+			$enemies = $this->findVisibleEnemies($charObj, $enemies);
 			
 			$inspectableTargets = array();
+			$farTargets = array();
 
 			$observedSquares = array(
 				'northwest' => [$charRow - 1, $charColumn - 1],
@@ -235,7 +233,8 @@ class EnemyController extends Controller {
 				'southeast' => [$charRow + 1, $charColumn + 1],
 			);
 			
-			foreach ($observedSquares as $key => $val) {
+			//adds all close observable enemies
+			foreach($observedSquares as $key => $val) {
 				foreach($enemies as $enemy => $e) {
 					if($e->mapPosition === $val) {
 						$e->mapOrientation = $key;
@@ -244,10 +243,29 @@ class EnemyController extends Controller {
 					}
 				}
 			}
+			
+			//adds remainder to other array, with offset from player position
+			$enemies = $enemies->map->only('name', 'mapPosition');
+			foreach($enemies as $enemy => $e) {
+				$offsetToPlayer = [$e['mapPosition'][0] - $charRow, $e['mapPosition'][1] - $charColumn]; 
+				$e['offsetToPlayer'] = $offsetToPlayer;
+				array_push($farTargets, $e);
+			}
+		
 			if(empty($inspectableTargets))
-				return response(['message' => 'No enemies nearby.', 'squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
+				return response([
+					'message' => 'No enemies nearby.',
+					'squares' => $observedSquares,
+					'enemies' => $inspectableTargets,
+					'farEnemies' => $farTargets
+				], 200);
 			else
-				return response(['message' => 'Inspection complete.', 'squares' => $observedSquares, 'enemies' => $inspectableTargets], 200);
+				return response([
+					'message' => 'Inspection complete.',
+					'squares' => $observedSquares,
+					'enemies' => $inspectableTargets,
+					'farEnemies' => $farTargets
+				], 200);
 		}
 		catch(Throwable $e) {
 			report($e);
@@ -554,7 +572,7 @@ class EnemyController extends Controller {
 			//hides actions and results updates on hidden enemies
 			else {
 				$results = explode('.', $results['message']);
-				Log::debug($results);
+				//Log::debug($results);
 				$filteredResults = array();
 				foreach($results as $result) {
 					if(str_contains($result, 'You'))
@@ -573,7 +591,7 @@ class EnemyController extends Controller {
 					'enemyAction' => 'hidden',
 					'enemyOldPosition' => 'hidden',
 					'enemyNewPosition' => 'hidden',
-					'enemyId' => 'hidden',
+					'enemyId' => $enemy->id,
 					'enemyLastTerrain' => 'hidden',
 					'enemyLastTerrainTreeCover' => 'hidden',
 					'enemyAvatar' => 'hidden',

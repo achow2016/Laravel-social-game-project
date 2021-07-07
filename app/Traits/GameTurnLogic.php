@@ -16,6 +16,60 @@ trait GameTurnLogic
 {
 	private $playerTurnOrder;
 	
+	public function updateVisibleTiles($charObj, $requestDirection) {
+		$visibleTiles = json_decode($charObj->visibleTiles);
+		//Log::debug($requestDirection);
+		//Log::debug($visibleTiles);
+		switch($requestDirection) {
+			case 'up':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] - 1, $tile[1]];
+				}
+				break;
+			case 'down':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] + 1, $tile[1]];
+				}
+				break;
+			case 'left':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0], $tile[1] - 1];
+				}
+				break;
+			case 'right':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] + 1, $tile[1] + 1];
+				}
+				break;
+			case 'upLeft':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] - 1, $tile[1] - 1];
+				}
+				break;
+			case 'upRight':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] - 1, $tile[1] + 1];
+				}
+				break;
+			case 'downLeft':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] + 1, $tile[1] - 1];
+				}
+				break;
+			case 'downRight':
+				foreach($visibleTiles as $key => $tile) {
+					$visibleTiles[$key] = [$tile[0] + 1, $tile[1] + 1];
+				}
+				break;
+			case 'wait':
+				break;
+			default:
+				break;
+		}
+		$charObj->visibleTiles = json_encode($visibleTiles);
+		$charObj->save();
+	}
+	
 	//creates 2d array of character-visible tiles based on its sight range  
 	/*			
 			col 0
