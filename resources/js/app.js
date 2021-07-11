@@ -240,6 +240,7 @@ const router = new VueRouter({
 					to.params.playerGameTurns = response.data.playerGameTurns;
 					to.params.playerTurnPosition = response.data.playerTurnPosition;
 					to.params.playerAvatar = response.data.playerAvatar;
+					to.params.playerVisibleTiles = response.data.playerVisibleTiles;
 					
 					if(response.data.currentEnemyMapCoord)
 						to.params.currentEnemyMapCoord = response.data.currentEnemyMapCoord;

@@ -141,6 +141,7 @@
 		},
 		beforeMount() {
 			let params = this.$route.params;
+			
 			if(!params.playerBattleState) {
 				const headers = {
 				  'Authorization' : 'Bearer ' + sessionStorage.getItem('token')
@@ -160,9 +161,13 @@
 				
 				getMap()
 				.then(response => {
-					this.mapData = JSON.parse(response.data.mapData);
+					//this.mapData = JSON.parse(response.data.mapData);
+					this.mapData = response.data.mapData;
 					this.playerPosition = response.data.playerPosition;
 					
+					document.getElementById('mapGrid').innerHTML = ""; 
+
+					//first draws grayed out base 8x8 grid
 					document.getElementById('mapGrid').innerHTML = ""; 
 					for (let i = 0; i < 8; i++) {
 						let row = document.createElement('div');
@@ -173,26 +178,32 @@
 						for (let j = 0; j < 8; j++) {
 							let element = document.createElement('div');
 							element.classList.add('col');
-							//element.setAttribute('id', 'row' + i + 'col' + j);
-							
-							if(this.mapData[i][j].terrain == 'grass')
-								element.classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
-							else
-								element.classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
-							
-							if(this.mapData[i][j].treeCover == true) {
-								let treeMarker = document.createTextNode('T');
-								element.id = i + '-' + j;
-								element.appendChild(treeMarker);
-								element.classList.add('tree');
-							}
-							else {
-								let openMarker = document.createTextNode('-');
-								element.id = i + '-' + j;
-								element.appendChild(openMarker);
-								element.classList.add('open');
-							}
+							element.classList.add('gameGridSquare', 'bg-dark', 'pt-2', 'pb-2', 'border', 'border-dark');
+							let openMarker = document.createTextNode('-');
+							element.id = i + '-' + j;
+							element.appendChild(openMarker);
+							element.classList.add('open');
 							document.getElementById('row' + i).appendChild(element);
+						}
+					}
+
+					//next draws terrain from visible tiles
+					for (let i = 0; i < 8; i++) {
+						for (let j = 0; j < 8; j++) {
+							if(this.mapData[i][j] != 0) {
+								document.getElementById(i + '-' + j).classList.remove('bg-dark');
+								if(this.mapData[i][j].terrain == 'grass')
+									document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
+								else
+									document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
+								
+								if(this.mapData[i][j].treeCover == true) {
+									document.getElementById(i + '-' + j).innerHTML = '';
+									let treeMarker = document.createTextNode('T');
+									document.getElementById(i + '-' + j).appendChild(treeMarker);
+									document.getElementById(i + '-' + j).classList.add('tree');
+								}
+							}
 						}
 					}
 					this.drawPlayerPosition();
@@ -245,7 +256,6 @@
 			let currentEnemyActing = null;
 			let enemyAction = null;
 
-			
 			//hide fight button enable exit map button if enemies dead
 			let enemiesAlive = false;
 					
@@ -954,7 +964,44 @@
 					
 					this.playerPosition = response.data.playerPosition;
 					
-					this.clearPlayerPosition();
+					
+					//update map grid
+					
+					this.mapData = response.data.mapData;
+					//this.playerPosition = response.data.playerPosition;
+					
+					//first draws grayed out base 8x8 grid
+					for (let i = 0; i < 8; i++) {
+						for (let j = 0; j < 8; j++) {
+							document.getElementById(i + '-' + j).textContent = '';
+							let openMarker = document.createTextNode('-');
+							document.getElementById(i + '-' + j).setAttribute('class','');
+							document.getElementById(i + '-' + j).classList.add('col', 'open', 'gameGridSquare', 'bg-dark', 'pt-2', 'pb-2', 'border', 'border-dark');
+							document.getElementById(i + '-' + j).appendChild(openMarker);
+						}
+					}
+					
+					//next draws terrain from visible tiles
+					for (let i = 0; i < 8; i++) {
+						for (let j = 0; j < 8; j++) {
+							if(this.mapData[i][j] != 0) {
+								document.getElementById(i + '-' + j).classList.remove('bg-dark');
+								if(this.mapData[i][j].terrain == 'grass')
+									document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
+								else
+									document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
+								
+								if(this.mapData[i][j].treeCover == true) {
+									document.getElementById(i + '-' + j).innerHTML = '';
+									let treeMarker = document.createTextNode('T');
+									document.getElementById(i + '-' + j).appendChild(treeMarker);
+									document.getElementById(i + '-' + j).classList.add('tree');
+								}
+							}
+						}
+					}
+					
+					//this.clearPlayerPosition();
 					this.drawPlayerPosition();
 					this.drawEnemyPositions();
 					

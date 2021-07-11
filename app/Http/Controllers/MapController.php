@@ -141,10 +141,17 @@ class MapController extends Controller {
 	{
 		try {
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
-			$existingMap = GameMap::where('id', $charObj->mapId)->first();
+			$mapData = json_decode(GameMap::where('id', $charObj->mapId)->first()->tileset()->first()->mapData);
+			$visibleTiles = json_decode($charObj->visibleTiles);
+			$drawnTiles = array_fill(0, 8, array_fill(0, 8, 0));
+			foreach($visibleTiles as $tile) {
+				if($tile[0] <= 7 && $tile[0] >= 0 && $tile[1] <= 7 && $tile[1] >= 0)
+					$drawnTiles[$tile[0]][$tile[1]] = $mapData[$tile[0]][$tile[1]];
+			}
 			
-			if($existingMap)
-				return response(['playerPosition' => $charObj->mapPosition, 'mapData' => $existingMap->tileset()->first()->mapData], 200);
+			if($mapData)
+				return response(['playerPosition' => $charObj->mapPosition, 'mapData' => $drawnTiles], 200);
+				
 			else
 				return response(['status' => 'No map, please start a new game.'], 422);
 		}
@@ -361,7 +368,19 @@ class MapController extends Controller {
 				}
 				
 				$this->updateVisibleTiles($charObj, $request->direction);
-				//$charObj->save();
+				
+				
+				
+				//sends updated visible tiles as well 
+				$mapData = json_decode($existingMap->tileset()->first()->mapData);
+				$visibleTiles = json_decode($charObj->visibleTiles);
+				$drawnTiles = array_fill(0, 8, array_fill(0, 8, 0));
+				foreach($visibleTiles as $tile) {
+					if($tile[0] <= 7 && $tile[0] >= 0 && $tile[1] <= 7 && $tile[1] >= 0)
+						$drawnTiles[$tile[0]][$tile[1]] = $mapData[$tile[0]][$tile[1]];
+				}
+				$responseArray['mapData'] = $drawnTiles;
+				
 				return response($responseArray, 200);
 			}
 			else

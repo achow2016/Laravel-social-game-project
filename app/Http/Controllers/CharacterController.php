@@ -463,6 +463,7 @@ class CharacterController extends Controller {
 					'playerGameTurns' => $charObj->gameTurns,
 					'playerBattleState' => $charObj->battle,
 					'playerBattleTarget' => $charObj->enemyId,
+					'playerVisibleTiles' => $charObj->visibleTiles,
 					'enemyTurnPositions' => $enemiesTurnPositions
 				], 200);
 			}	
