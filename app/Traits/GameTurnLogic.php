@@ -38,7 +38,7 @@ trait GameTurnLogic
 				break;
 			case 'right':
 				foreach($visibleTiles as $key => $tile) {
-					$visibleTiles[$key] = [$tile[0] + 1, $tile[1] + 1];
+					$visibleTiles[$key] = [$tile[0], $tile[1] + 1];
 				}
 				break;
 			case 'upLeft':
@@ -134,13 +134,16 @@ trait GameTurnLogic
 	
 	//returns true if enemy is visible to player
 	public function checkEnemyVisibility($charObj, $enemy) {
+		$flag = false;
 		//$visibleTiles = $this->findVisibleTiles($charObj);
 		$visibleTiles = json_decode($charObj->visibleTiles);
-		if(!in_array($enemy->mapPosition, $visibleTiles)) {
-			return false;
+		if(in_array($enemy->mapPosition, $visibleTiles) === false) {
+			return $flag;
 		}
-		else
-			return true;
+		else {
+			$flag = true;
+			return $flag;
+		}
 	}
 	
 	//allows progress to next level if conditions met: no enemies remain that are healthy

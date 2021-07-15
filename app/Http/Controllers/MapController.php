@@ -94,10 +94,12 @@ class MapController extends Controller {
 			$tileSet->setAttribute('waterCover', $waterAlloc);
 			$tileSet->setAttribute('treeCover', $treeCover);	
 			
+			$gameLevel = $charObj->gameLevel;
+			
 			//creates the map tileset in 2d array
 			$map = [[]];
-			for ($row = 0; $row < 8; $row++) {
-				for ($col = 0; $col < 8; $col++) {
+			for ($row = 0; $row < (9 + $gameLevel - 1); $row++) {
+				for ($col = 0; $col < (9 + $gameLevel - 1); $col++) {
 					$choice = rand(1, 10) / 10;
 					if($choice <= $grassAlloc)
 						$map[$row][$col] = (object) ['terrain' => 'grass', 'enemy' => '', 'item' => '', 'treeCover' => ''];
@@ -143,9 +145,10 @@ class MapController extends Controller {
 			$charObj = Character::where('ownerUser', $request->user()->id)->first();
 			$mapData = json_decode(GameMap::where('id', $charObj->mapId)->first()->tileset()->first()->mapData);
 			$visibleTiles = json_decode($charObj->visibleTiles);
-			$drawnTiles = array_fill(0, 8, array_fill(0, 8, 0));
+			//$drawnTiles = array_fill(0, 8, array_fill(0, 8, 0));
+			$drawnTiles = array_fill(0, 9, array_fill(0, 9, 0));
 			foreach($visibleTiles as $tile) {
-				if($tile[0] <= 7 && $tile[0] >= 0 && $tile[1] <= 7 && $tile[1] >= 0)
+				if($tile[0] <= 8 && $tile[0] >= 0 && $tile[1] <= 8 && $tile[1] >= 0)
 					$drawnTiles[$tile[0]][$tile[1]] = $mapData[$tile[0]][$tile[1]];
 			}
 			
@@ -374,9 +377,9 @@ class MapController extends Controller {
 				//sends updated visible tiles as well 
 				$mapData = json_decode($existingMap->tileset()->first()->mapData);
 				$visibleTiles = json_decode($charObj->visibleTiles);
-				$drawnTiles = array_fill(0, 8, array_fill(0, 8, 0));
+				$drawnTiles = array_fill(0, 9, array_fill(0, 9, 0));
 				foreach($visibleTiles as $tile) {
-					if($tile[0] <= 7 && $tile[0] >= 0 && $tile[1] <= 7 && $tile[1] >= 0)
+					if($tile[0] <= 8 && $tile[0] >= 0 && $tile[1] <= 8 && $tile[1] >= 0)
 						$drawnTiles[$tile[0]][$tile[1]] = $mapData[$tile[0]][$tile[1]];
 				}
 				$responseArray['mapData'] = $drawnTiles;

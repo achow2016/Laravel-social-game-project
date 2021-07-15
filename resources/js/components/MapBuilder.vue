@@ -78,6 +78,8 @@
 					let tileSet = response.data.tileSet;
 					let gameLevel = response.data.gameLevel + '.\r\n';
 					let message = response.data.message + '\r\n';
+					let levelMod = response.data.gameLevel;
+					
 					
 					this.startPoint = [gameMap.startPoint[0], gameMap.startPoint[1]];
 					this.mapData = mapData;
@@ -102,18 +104,19 @@
 					
 					}
 		
-		
+					
 					document.getElementById('mapGrid').innerHTML = ""; 
-					for (let i = 0; i < 8; i++) {
+					for (let i = 0; i < (8 + levelMod - 1); i++) {
 						let row = document.createElement('div');
 						row.classList.add('row');
 						row.setAttribute('id', 'row' + i);
 						document.getElementById('mapGrid').appendChild(row);
 						
-						for (let j = 0; j < 8; j++) {
+						for (let j = 0; j < (8 + levelMod - 1); j++) {
 							let element = document.createElement('div');
-							element.classList.add('col');
-							//element.setAttribute('id', 'row' + i + 'col' + j);
+							element.classList.add('col', 'gridSquare');
+							element.style.height = '4vh';
+							element.style.padding = '0.5vh';
 							
 							if(mapData[i][j].terrain == 'grass')
 								element.classList.add('bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
@@ -219,7 +222,7 @@
 					//remembers what was on the square so player icon can be drawn over it
 					//this.terrainLayerData = playerSquare.textContent;
 					
-					//draws player onto square
+					//draws player onto square 
 					enemySquare.innerHTML = '';
 					let enemyIcon = document.createElement('img');   
 					enemyIcon.setAttribute('src', 'http://127.0.0.1:8000/img/bishop.svg');   

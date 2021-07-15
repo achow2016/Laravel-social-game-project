@@ -313,7 +313,7 @@ class EnemyController extends Controller {
 			//current enemy acting in this function, using request data
 			//$enemy = $existingMap->enemies()->get()->where('id', $request->currentEnemyActing)->first();
 			$enemy = GameActiveEnemy::where('mapId', $existingMap->id)->get()->where('id', $request->currentEnemyActing)->first();
-
+			
 			//if enemy is dead
 			if($enemy->currentHealth <= 0) {
 				$charObj->currentTurn = $charObj->currentTurn + 1;
@@ -396,7 +396,8 @@ class EnemyController extends Controller {
 			}
 			else if($enemy->combatRange < $finalDistance) {
 				$enemy->turnAction = ['action' => 'move'];
-				
+				$enemyWasHidden = $this->checkEnemyVisibility($charObj, $enemy);
+				Log::debug(strval($enemyWasHidden));
 				//depending on which random number used, enemy will prefer a row, column or diagonal move
 				$movementType = rand(0, 2);
 				//move closer by column
@@ -551,7 +552,17 @@ class EnemyController extends Controller {
 			}
 			
 			//if enemy not visible to player, enemy turn actions are hidden on client side unless affecting player
-			if($this->checkEnemyVisibility($charObj, $enemy)) {
+			$enemyVisible = $this->checkEnemyVisibility($charObj, $enemy);
+			if($enemyVisible === true) {
+				//sends updated visible tiles as well 
+				$mapData = json_decode($existingMap->tileset()->first()->mapData);
+				$visibleTiles = json_decode($charObj->visibleTiles);
+				$drawnTiles = array_fill(0, 9, array_fill(0, 9, 0));
+				foreach($visibleTiles as $tile) {
+					if($tile[0] <= 8 && $tile[0] >= 0 && $tile[1] <= 8 && $tile[1] >= 0)
+						$drawnTiles[$tile[0]][$tile[1]] = $mapData[$tile[0]][$tile[1]];
+				}
+				
 				return response([
 					'results' => $results,
 					'currentTurn' => $charObj->currentTurn,
@@ -567,6 +578,7 @@ class EnemyController extends Controller {
 					'enemyLastTerrain' => $enemyLastTerrain,
 					'enemyLastTerrainTreeCover' => $enemyLastTerrainTreeCover,
 					'enemyAvatar' => $enemy->avatar,
+					'visibleTiles' => $drawnTiles
 				], 200);
 			}
 			//hides actions and results updates on hidden enemies

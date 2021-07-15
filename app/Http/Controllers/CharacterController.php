@@ -432,8 +432,15 @@ class CharacterController extends Controller {
 			if(!$charObj->mapComplete) {
 				$enemyHealthy = false;
 				foreach($enemiesTurnPositions as $enemy) {
-					if($enemy->currentHealth > 0)
+					if($enemy->currentHealth > 0) {
 						$enemyHealthy = true;
+						$enemy['alive'] = true;
+						unset($enemy['currentHealth']);
+					}
+					else {
+						$enemy['alive'] = false;
+						unset($enemy['currentHealth']);
+					}
 				}
 				if(!$enemyHealthy) {
 					$charObj->mapComplete = true;

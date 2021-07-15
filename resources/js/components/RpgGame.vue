@@ -169,15 +169,18 @@
 
 					//first draws grayed out base 8x8 grid
 					document.getElementById('mapGrid').innerHTML = ""; 
-					for (let i = 0; i < 8; i++) {
+					for (let i = 0; i < 9; i++) {
 						let row = document.createElement('div');
 						row.classList.add('row', 'mapGridRow');
 						row.setAttribute('id', 'row' + i);
 						document.getElementById('mapGrid').appendChild(row);
 						
-						for (let j = 0; j < 8; j++) {
+						for (let j = 0; j < 9; j++) {
 							let element = document.createElement('div');
 							element.classList.add('col');
+							element.style.height = '4vh';
+							element.style.padding = '0.5vh';
+							element.style.lineHeight = '1';
 							element.classList.add('gameGridSquare', 'bg-dark', 'pt-2', 'pb-2', 'border', 'border-dark');
 							let openMarker = document.createTextNode('-');
 							element.id = i + '-' + j;
@@ -188,8 +191,8 @@
 					}
 
 					//next draws terrain from visible tiles
-					for (let i = 0; i < 8; i++) {
-						for (let j = 0; j < 8; j++) {
+					for (let i = 0; i < 9; i++) {
+						for (let j = 0; j < 9; j++) {
 							if(this.mapData[i][j] != 0) {
 								document.getElementById(i + '-' + j).classList.remove('bg-dark');
 								if(this.mapData[i][j].terrain == 'grass')
@@ -805,6 +808,44 @@
 							
 							document.getElementById('closeEnemyTurnButton').style.color = 'white';
 							document.getElementById('closeEnemyTurnButton').style.pointerEvents = 'auto';
+						
+						
+							//update map grid					
+							this.mapData = response.data.visibleTiles;
+							
+							//first draws grayed out base 8x8 grid
+							for (let i = 0; i < 9; i++) {
+								for (let j = 0; j < 9; j++) {
+									document.getElementById(i + '-' + j).textContent = '';
+									let openMarker = document.createTextNode('-');
+									document.getElementById(i + '-' + j).setAttribute('class','');
+									document.getElementById(i + '-' + j).classList.add('col', 'open', 'gameGridSquare', 'bg-dark', 'pt-2', 'pb-2', 'border', 'border-dark');
+									document.getElementById(i + '-' + j).appendChild(openMarker);
+								}
+							}
+							
+							//next draws terrain from visible tiles
+							for (let i = 0; i < 9; i++) {
+								for (let j = 0; j < 9; j++) {
+									if(this.mapData[i][j] != 0) {
+										document.getElementById(i + '-' + j).classList.remove('bg-dark');
+										if(this.mapData[i][j].terrain == 'grass')
+											document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-success', 'pt-2', 'pb-2', 'border', 'border-dark');
+										else
+											document.getElementById(i + '-' + j).classList.add('gameGridSquare', 'bg-primary', 'pt-2', 'pb-2', 'border', 'border-dark');
+										
+										if(this.mapData[i][j].treeCover == true) {
+											document.getElementById(i + '-' + j).innerHTML = '';
+											let treeMarker = document.createTextNode('T');
+											document.getElementById(i + '-' + j).appendChild(treeMarker);
+											document.getElementById(i + '-' + j).classList.add('tree');
+										}
+									}
+								}
+							}
+							
+							this.drawPlayerPosition();
+							this.drawEnemyPositions();
 						}
 						
 						//if attack
@@ -971,8 +1012,8 @@
 					//this.playerPosition = response.data.playerPosition;
 					
 					//first draws grayed out base 8x8 grid
-					for (let i = 0; i < 8; i++) {
-						for (let j = 0; j < 8; j++) {
+					for (let i = 0; i < 9; i++) {
+						for (let j = 0; j < 9; j++) {
 							document.getElementById(i + '-' + j).textContent = '';
 							let openMarker = document.createTextNode('-');
 							document.getElementById(i + '-' + j).setAttribute('class','');
@@ -982,8 +1023,8 @@
 					}
 					
 					//next draws terrain from visible tiles
-					for (let i = 0; i < 8; i++) {
-						for (let j = 0; j < 8; j++) {
+					for (let i = 0; i < 9; i++) {
+						for (let j = 0; j < 9; j++) {
 							if(this.mapData[i][j] != 0) {
 								document.getElementById(i + '-' + j).classList.remove('bg-dark');
 								if(this.mapData[i][j].terrain == 'grass')
@@ -1179,7 +1220,7 @@
 					let enemiesAlive = false;
 					
 					for(let i = 0; i < enemyTurnPositions.length; i++) {
-						if(enemyTurnPositions[i].currentHealth > 0) {
+						if(enemyTurnPositions[i].alive == true) {
 							enemiesAlive = true;
 						}
 					}
